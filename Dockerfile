@@ -15,4 +15,5 @@ ENV app /app
 RUN mkdir -p $app
 WORKDIR $app
 
-ENTRYPOINT [ "/bin/bash" ]
+#ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/usr/local/bin/carton", "exec", "prove" ]
