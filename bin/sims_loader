@@ -1,0 +1,12 @@
+#!perl
+
+use 5.22.0;
+
+use strictures 2;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use SimsLoader;
+
+say "Ok"
