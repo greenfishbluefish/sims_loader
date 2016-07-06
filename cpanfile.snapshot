@@ -638,6 +638,15 @@ DISTRIBUTIONS
       Try::Tiny 0
       namespace::clean 0.23
       perl 5.008001
+  DBIx-Class-Schema-Loader-Dynamic-1.05
+    pathname: F/FR/FRANKC/DBIx-Class-Schema-Loader-Dynamic-1.05.tar.gz
+    provides:
+      DBIx::Class::Schema::Loader::Dynamic 1.05
+    requirements:
+      DBIx::Class::Schema::Loader 0.07045
+      ExtUtils::MakeMaker 0
+      Test::Most 0
+      perl 5.010001
   DBIx-Class-Schema-PopulateMore-0.19
     pathname: J/JJ/JJNAPIORK/DBIx-Class-Schema-PopulateMore-0.19.tar.gz
     provides:
@@ -743,7 +752,6 @@ DISTRIBUTIONS
       Class::Accessor::Grouped 0
       DBD::SQLite 1.11
       DBIx::Class 0.07005
-      Data::UUID 0
       ExtUtils::MakeMaker 6.42
       perl 5.008001
   Data-Dump-1.23
@@ -1798,6 +1806,7 @@ DISTRIBUTIONS
     provides:
       Lingua::EN::Inflect 1.899
     requirements:
+      ExtUtils::MakeMaker 0
       Test::More 0
   Lingua-EN-Inflect-Number-1.12
     pathname: N/NE/NEILB/Lingua-EN-Inflect-Number-1.12.tar.gz

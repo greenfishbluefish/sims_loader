@@ -1,3 +1,5 @@
+use strictures 2;
+
 use Test::More;
 
 use SimsLoader;
