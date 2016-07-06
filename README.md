@@ -39,29 +39,23 @@ specified (ideally, the minimum possible).
 There is a Dockerfile for running the test suite. This ensures the same
 environment for all test suite runners.
 
-
-
-# Running the tests
-
-## Using Docker
-
-There is a Dockerfile for running the test suite. This ensures the same
-environment for all test suite runners.
-
 ### Initial steps
 
 * `docker build -t sims_loader .`
 
-You will also need to do this if the Gemfile ever changes.
+You only need to do this once (or if any file within the devops directory
+changes).
 
 ### Running
 
-* With defaults:
-  * `docker run -v $(pwd):/app -t ghost-chef`
-* With rspec options (like --seed):
-  * `docker run -v $(pwd):/app -t sims_loader <rspec options>`
+* With defaults (running prove):
+  * `docker run -v $(pwd):/app -t sims_loader`
+* To generate coverage
+  * `docker run -v $(pwd):/app -t sims_loader cover`
+* With prove options (like --verbose):
+  * `docker run -v $(pwd):/app -t sims_loader prove <options>`
 * To hop in and see what's going on:
-  * `docker run -v $(pwd):/app -t --entrypoint=/bin/bash ghost-chef`
+  * `docker run -v $(pwd):/app -it --entrypoint=/bin/bash sims_loader`
 
 ### Useful Docker commands
 

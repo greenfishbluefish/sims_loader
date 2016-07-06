@@ -8,5 +8,7 @@ ENV app /app
 RUN mkdir -p $app
 WORKDIR $app
 
-#ENTRYPOINT [ "/bin/bash" ]
-ENTRYPOINT carton install && carton exec prove
+COPY "devops/run_tests" "/usr/local/bin/run_tests"
+
+ENTRYPOINT [ "/usr/local/bin/within_carton" ]
+CMD [ "prove" ]

@@ -7,4 +7,5 @@ requires 'App::Cmd';
 on test => sub {
   requires 'Test::More', '>= 0.96, < 2.0';
   requires 'Test::Deep';
+  requires 'Devel::Cover';
 };

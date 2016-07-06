@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+carton install
+
+if [[ $1 == "cover" ]]; then
+  carton exec -- cover -delete
+  HARNESS_PERL_SWITCHES=-MDevel::Cover=+inc,local/lib/perl5,+ignore,'t$' carton exec -- prove
+  carton exec -- cover
+else
+  carton exec -- "$@"
+fi
