@@ -8,7 +8,7 @@ ENV app /app
 RUN mkdir -p $app
 WORKDIR $app
 
-COPY "devops/run_tests" "/usr/local/bin/run_tests"
+COPY "devops/within_carton" "/usr/local/bin/within_carton"
 
 ENTRYPOINT [ "/usr/local/bin/within_carton" ]
 CMD [ "prove" ]

@@ -3166,6 +3166,16 @@ DISTRIBUTIONS
       Scalar::Util 1.14
       Test::More 0.42
       perl 5.005
+  Test-Compile-v1.3.0
+    pathname: E/EG/EGILES/Test-Compile-v1.3.0.tar.gz
+    provides:
+      Test::Compile v1.3.0
+      Test::Compile::Internal v1.3.0
+    requirements:
+      Module::Build 0.38
+      UNIVERSAL::require 0
+      perl v5.6.2
+      version 0
   Test-DBIx-Class-0.47
     pathname: N/NE/NEWELLC/Test-DBIx-Class-0.47.tar.gz
     provides:
@@ -3529,6 +3539,17 @@ DISTRIBUTIONS
       Exporter::Tiny 0.026
       ExtUtils::MakeMaker 6.17
       perl 5.006001
+  UNIVERSAL-require-0.18
+    pathname: N/NE/NEILB/UNIVERSAL-require-0.18.tar.gz
+    provides:
+      UNIVERSAL::require 0.18
+    requirements:
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Test::More 0.47
+      perl 5.006
+      strict 0
+      warnings 0
   Variable-Magic-0.59
     pathname: V/VP/VPIT/Variable-Magic-0.59.tar.gz
     provides:

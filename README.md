@@ -55,7 +55,8 @@ changes).
 * With prove options (like --verbose):
   * `docker run -v $(pwd):/app -t sims_loader prove <options>`
 * To hop in and see what's going on:
-  * `docker run -v $(pwd):/app -it --entrypoint=/bin/bash sims_loader`
+  * `docker run -v $(pwd):/app -it sims_loader bash`
+  * Note the `-it`: "-i" adds interactivity which the others do not have.
 
 ### Useful Docker commands
 
@@ -65,6 +66,11 @@ changes).
 * Remove all untagged images:
   * `docker rmi $(docker images | grep "^<none>" | awk '{print $3}')`
   * Useful if you built without tagging
+
+## Playing with the commands
+
+Once you have launched the "bash" option of the sims\_loader container, you can
+do a `carton run bin/sims_loader` to run the script.
 
 # TODO
 

@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/env perl
 
 use 5.22.0;
 
@@ -8,5 +8,6 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use SimsLoader;
+SimsLoader->run;
 
-say "Ok"
+__END__
