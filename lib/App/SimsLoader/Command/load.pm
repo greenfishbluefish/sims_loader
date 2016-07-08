@@ -1,10 +1,10 @@
 # ABSTRACT: load your data
-package SimsLoader::Command::load;
+package App::SimsLoader::Command::load;
 
 use 5.22.0;
 use strictures 2;
 
-use base 'SimsLoader::Command';
+use base 'App::SimsLoader::Command';
 
 sub execute { say "Hello"; }
 

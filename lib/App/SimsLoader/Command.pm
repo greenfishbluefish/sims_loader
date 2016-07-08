@@ -1,4 +1,4 @@
-package SimsLoader::Command;
+package App::SimsLoader::Command;
 
 use 5.22.0;
 

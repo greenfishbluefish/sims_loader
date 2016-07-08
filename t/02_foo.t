@@ -1,3 +1,4 @@
+use 5.22.0;
 use strictures 2;
 
 use Test::More;
@@ -6,7 +7,7 @@ use Test::Deep;
 use DBI;
 use File::Temp qw(tempfile);
 
-use SimsLoader::Loader;
+use App::SimsLoader::Loader;
 
 # Create the tempfile
 my ($fh, $fn) = tempfile(EXLOCK => 0);
@@ -21,7 +22,7 @@ $dbh->do("
   );
 ");
 
-my $loader = SimsLoader::Loader->new(
+my $loader = App::SimsLoader::Loader->new(
   type => 'SQLite',
   dbname => $fn,
 );

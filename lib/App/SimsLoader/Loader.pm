@@ -1,4 +1,4 @@
-package SimsLoader::Loader;
+package App::SimsLoader::Loader;
 
 use 5.22.0;
 
@@ -24,7 +24,7 @@ sub new {
     push @connectors, "$k=$v";
   }
   my $connectors = join(';', @connectors);
-  $connectors //= '';
+  #$connectors //= '';
 
   my $connect_string = "dbi:$type:$connectors";
 
