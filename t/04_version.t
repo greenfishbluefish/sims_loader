@@ -24,4 +24,3 @@ subtest "version as parameter" => sub {
 };
 
 done_testing;
-

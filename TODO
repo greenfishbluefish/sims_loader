@@ -1,6 +1,7 @@
 [ ] Get load working with sqlite
     [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
-[ ] "drivers" to list installed DBD modules
+[X] "drivers" to list installed DBD modules
+    [ ] Test with more than just SQLite
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
