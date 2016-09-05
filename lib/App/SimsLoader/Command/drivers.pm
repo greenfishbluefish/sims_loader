@@ -18,16 +18,20 @@ my %skip = map { $_ => 1 } qw(
   DBD::SqlEngine
 );
 
-sub execute {
+sub find_dbds {
   chomp(my @modules = `cpan -l | grep 'DBD::'`);
   s/.*(DBD::[^:\s]*).*/$1/ for @modules;
   my %seen;
   foreach my $module (sort @modules) {
-    next if $seen{$module}++;
     next if $skip{$module};
     $module =~ s/DBD:://;
-    say $module;
+    next if $seen{$module}++;
   }
+  return sort keys %seen;
+}
+
+sub execute {
+  say for find_dbds();
 }
 
 1;
