@@ -1,6 +1,6 @@
 package App::SimsLoader::Loader;
 
-use 5.22.0;
+use 5.20.0;
 
 use strictures 2;
 

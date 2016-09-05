@@ -1,7 +1,7 @@
 # ABSTRACT: load your data
 package App::SimsLoader::Command::load;
 
-use 5.22.0;
+use 5.20.0;
 use strictures 2;
 
 use base 'App::SimsLoader::Command';

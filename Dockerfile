@@ -1,4 +1,4 @@
-FROM perl:5.22
+FROM perl:5.20
 MAINTAINER Rob Kinyon rob.kinyon@gmail.com
 
 RUN curl -L http://cpanmin.us | perl - App::cpanminus
