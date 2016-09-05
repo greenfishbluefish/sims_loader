@@ -1,0 +1,40 @@
+[ ] Get load working with sqlite
+    [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
+[ ] "drivers" to list installed DBD modules
+[ ] "validate" will:
+    [ ] Ensure all provided files work
+    [ ] Connect to the database and read the DDL
+    [ ] Validate the model file works with the DBIC::SL-generated model
+    [ ] Validate the constraints works with the model
+    [ ] Validate the specification works with the model
+[ ] Build Dockerfiles to install DBDs
+    [ ] MySQL
+    [ ] MariaDB (same as mysql?)
+    [ ] PostgreSQL
+    [ ] Oracle
+    [ ] SQL*Server
+    [ ] Sybase (same as SQL*Server?)
+    [ ] Others?
+[ ] constraints file passed to $opts->{constraints}
+[ ] model file modifying DBIC::SL
+[ ] toposort file passed to $opts->{toposort}
+[ ] Write documentation
+
+load_sims version --version
+load_sims help --help (generic help)
+
+CMD = load | validate | drivers
+load_sims CMD --help
+load_sims CMD \
+  --username|u <username> \
+  --password|P <password> \
+  --host|h <host> \
+  --port|p <port> \
+  --driver <DBD name> \
+  --database|d <database name> \
+  --specification|s <filename> \
+  --constraints <filename> \
+  --toposort <filename> \
+  --model <filename> \
+  --outfile <filename> \
+  --seed <seed>
