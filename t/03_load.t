@@ -22,7 +22,6 @@ sub new_fh {
     return ($fh, $filename);
 }
 
-if(0){
 subtest "Failures" => sub {
   subtest "No parameters" => sub {
     my $result = test_app('App::SimsLoader' => [qw( load )]);
@@ -100,7 +99,6 @@ subtest "Failures" => sub {
     like($result->error, qr{--specification '$spec_fn' is not YAML/JSON}, 'Error thrown about --specification');
   };
 };
-}
 
 use DBI;
 use YAML::Any qw(Dump);

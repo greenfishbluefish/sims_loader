@@ -35,8 +35,10 @@ sub validate_args {
   $opts->{driver} = lc $opts->{driver};
 
   my %dbds = map { lc($_) => $_ } App::SimsLoader::Command::drivers->find_dbds;
-  $opts->{driver} = $dbds{lc($opts->{driver})}
-    or $self->usage_error("--driver '$opts->{driver}' not installed");
+  unless ($dbds{lc($opts->{driver})}) {
+    $self->usage_error("--driver '$opts->{driver}' not installed");
+  }
+  $opts->{driver} = $dbds{lc($opts->{driver})};
 
   $self->usage_error('Must provide --host') unless $opts->{host};
 
