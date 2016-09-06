@@ -10,7 +10,21 @@ sub opt_spec {
   return (
     [ 'driver=s', "Driver name" ],
     [ 'host|h=s', "Host of database (or SQLite filename)" ],
+    [ 'specification=s', "Specification file" ],
   );
+}
+
+use YAML::Any qw(LoadFile Dump);
+sub read_file {
+  my $self = shift;
+  my ($filename) = @_;
+
+  my $x = eval {
+    no warnings;
+    return LoadFile($filename);
+  }; if ($@) { say $@ }
+  return $x if ref $x;
+  return;
 }
 
 sub validate_args {
@@ -18,18 +32,56 @@ sub validate_args {
   my ($opts, $args) = @_;
 
   $self->usage_error('Must provide --driver') unless $opts->{driver};
+  $opts->{driver} = lc $opts->{driver};
 
-  my %dbds = map { lc($_) => 1 } App::SimsLoader::Command::drivers->find_dbds;
-  $self->usage_error("--driver '$opts->{driver}' not installed")
-    unless $dbds{lc($opts->{driver})};
+  my %dbds = map { lc($_) => $_ } App::SimsLoader::Command::drivers->find_dbds;
+  $opts->{driver} = $dbds{lc($opts->{driver})}
+    or $self->usage_error("--driver '$opts->{driver}' not installed");
 
   $self->usage_error('Must provide --host') unless $opts->{host};
+
+  # If we're SQLite, validate the file exists
+  if ($opts->{driver} eq 'SQLite') {
+    unless (-f $opts->{host}) {
+      $self->usage_error("--host '$opts->{host}' not found");
+    }
+  }
+  # If we're not, validate we can connect to the host
+  else {
+    die "Unimplemented!\n";
+  }
+
+  unless ($opts->{specification}) {
+    $self->usage_error('Must provide --specification');
+  }
+  unless (-f $opts->{specification}) {
+    $self->usage_error("--specification '$opts->{specification}' not found");
+  }
+
+  $self->{spec} = $self->read_file($opts->{specification})
+    or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
 }
 
+use App::SimsLoader::Loader;
 sub execute {
   my $self = shift;
   my ($opts, $args) = @_;
 
+  my $loader = App::SimsLoader::Loader->new(
+    type => $opts->{driver},
+    dbname => $opts->{host},
+  );
+
+  my ($rows, $addl) = $loader->load($self->{spec});
+
+  # Convert from DBIx::Class::Row objects to hashrefs
+  foreach my $source (keys %$rows) {
+    foreach my $row (@{$rows->{$source}}) {
+      $row = { $row->get_columns };
+    }
+  }
+
+  print Dump($rows);
 }
 
 1;

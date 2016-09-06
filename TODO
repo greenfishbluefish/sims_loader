@@ -1,5 +1,6 @@
-[ ] Get load working with sqlite
+[X] Get load working with sqlite
     [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
+    [ ] Test auto-generation of values with NOT NULL
 [X] "drivers" to list installed DBD modules
     [ ] Test with more than just SQLite
 [ ] "validate" will:
@@ -27,15 +28,15 @@ load_sims help --help (generic help)
 CMD = load | validate | drivers
 load_sims CMD --help
 load_sims CMD \
-  --username|u <username> \
-  --password|P <password> \
-  --host|h <host> \
-  --port|p <port> \
   --driver <DBD name> \
-  --database|d <database name> \
+  [--username|u <username> \ ]
+  [--password|P <password> \ ]
+  [--port|p <port> \ ]
+  [--database|d <database name> \ ]
+  [--constraints <filename> \ ]
+  [--toposort <filename> \ ]
+  [--model <filename> \ ]
+  [--seed <seed> ]
+  --host|h <host> \ (if --driver=sqlite, this is the filename)
   --specification|s <filename> \
-  --constraints <filename> \
-  --toposort <filename> \
-  --model <filename> \
   --outfile <filename> \
-  --seed <seed>
