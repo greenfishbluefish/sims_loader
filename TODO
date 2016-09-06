@@ -39,4 +39,4 @@ load_sims CMD \
   [--seed <seed> ]
   --host|h <host> \ (if --driver=sqlite, this is the filename)
   --specification|s <filename> \
-  --outfile <filename> \
+  [--outfile <filename> \]
