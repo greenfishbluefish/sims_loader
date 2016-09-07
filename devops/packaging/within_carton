@@ -2,6 +2,7 @@
 
 set -e
 
+cd /app
 SIMS_LOADER_BASE_DIRECTORY=/data \
   carton exec -- \
     /app/bin/sims_loader "$@"

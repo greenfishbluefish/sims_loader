@@ -10,7 +10,7 @@ function build () {
   local purpose=$1
 
   docker build \
-    --tag sims_loader-$purpose:$VERSION \
+    --tag robkinyon/sims_loader:$VERSION \
     --file Dockerfile.$purpose \
     $DIR
 }

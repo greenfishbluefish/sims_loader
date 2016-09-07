@@ -11,12 +11,12 @@
     [ ] Validate the model file works with the DBIC::SL-generated model
     [ ] Validate the constraints works with the model
     [ ] Validate the specification works with the model
-[ ] Build Dockerfiles to install DBDs
+[ ] Build Dockerfiles to install DBDs (all downloaded)
     [ ] MySQL
     [ ] MariaDB (same as mysql?)
     [ ] PostgreSQL
     [ ] Oracle
-    [ ] SQL*Server
+    [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
     [ ] Others?
     [ ] Validate that a command was passed, otherwise default to "help"

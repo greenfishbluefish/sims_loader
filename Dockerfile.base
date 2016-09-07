@@ -5,11 +5,15 @@ RUN (curl -L http://cpanmin.us | perl - App::cpanminus) \
   && cpanm Carton
 
 WORKDIR /app
-COPY cpanfile* LICENSE README.md bin lib ./
+COPY cpanfile* LICENSE README.md ./
 RUN carton install
+COPY bin/* ./bin/
+COPY lib ./lib/
 
 COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
 COPY "devops/packaging/within_carton" "/usr/local/bin/within_carton"
+
+WORKDIR /data
 
 ENTRYPOINT [ "/usr/local/bin/within_carton" ]
 CMD [ "-h" ]

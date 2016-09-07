@@ -1,0 +1,5 @@
+Album:
+  - name: Album 1
+    artist.name: George
+  - name: Album 2
+    artist.name: George
