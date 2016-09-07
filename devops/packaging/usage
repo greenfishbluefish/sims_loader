@@ -1,0 +1,2 @@
+docker run --rm -it -v $(pwd):/data sims_loader \
+  <parameters>

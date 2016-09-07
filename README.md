@@ -41,7 +41,7 @@ environment for all test suite runners.
 
 ### Initial steps
 
-* `docker build -t sims_loader .`
+* `docker build -t sims_loader -f Dockerfile.test .`
 
 You only need to do this once (or if any file within the devops directory
 changes).

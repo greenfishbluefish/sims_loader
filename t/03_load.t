@@ -58,13 +58,41 @@ subtest "Failures" => sub {
     like($result->error, qr{--host '/file/not/found' not found}, 'Error thrown about --host');
   };
 
+  subtest "--base-directory not a directory" => sub {
+    my ($host_fh, $host_fn) = new_fh();
+
+    my $result = test_app('App::SimsLoader' => [qw(load
+      --driver sqlite
+      --host), $host_fn, qw(
+      --base_directory /not_a_directory
+    )]);
+
+    is($result->stdout, '', 'No STDOUT (as expected)');
+    is($result->stderr, '', 'No STDERR (as expected)');
+    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base-directory');
+  };
+
+  subtest "SIMS_LOADER_BASE_DIRECTORY not a directory" => sub {
+    local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
+    my ($host_fh, $host_fn) = new_fh();
+
+    my $result = test_app('App::SimsLoader' => [qw(load
+      --driver sqlite
+      --host), $host_fn, qw(
+    )]);
+
+    is($result->stdout, '', 'No STDOUT (as expected)');
+    is($result->stderr, '', 'No STDERR (as expected)');
+    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base-directory');
+  };
+
   subtest "No --specification" => sub {
-    my ($fh, $fn) = new_fh();
+    my ($host_fh, $host_fn) = new_fh();
 
     my $result = test_app('App::SimsLoader' => [qw(load
       --driver sqlite
       --host
-    ), $fn ]);
+    ), $host_fn ]);
 
     is($result->stdout, '', 'No STDOUT (as expected)');
     is($result->stderr, '', 'No STDERR (as expected)');
@@ -72,9 +100,11 @@ subtest "Failures" => sub {
   };
 
   subtest "--specification file not found" => sub {
+    my ($host_fh, $host_fn) = new_fh();
+
     my $result = test_app('App::SimsLoader' => [qw(load
       --driver sqlite
-      --host /etc/passwd
+      --host), $host_fn, qw(
       --specification /file/not/found
     )]);
 
@@ -123,6 +153,28 @@ subtest "Successes" => sub {
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
   };
+
+=pod
+  subtest "Load one row with --base-directory" => sub {
+    my ($db_fh, $db_fn) = new_fh();
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
+    $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
+
+    my ($spec_fh, $spec_fn) = new_fh();
+    print $spec_fh "Artist:\n  name: George\n";
+    #print $spec_fh "Artist: 1\n";
+
+    my $result = test_app('App::SimsLoader' => [qw(load
+      --driver sqlite
+      --host), $db_fn, qw(
+      --specification
+    ), $spec_fn]);
+
+    is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
+    is($result->stderr, '', 'No STDERR (as expected)');
+    is($result->error, undef, 'No errors thrown');
+  };
+=cut
 };
 
 done_testing;

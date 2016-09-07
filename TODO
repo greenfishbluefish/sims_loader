@@ -1,6 +1,8 @@
 [X] Get load working with sqlite
     [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
     [ ] Test auto-generation of values with NOT NULL
+[X] Add a --base-directory for all the files
+    * Used within the Dockerfile to do "--directory-prefix /data"
 [X] "drivers" to list installed DBD modules
     [ ] Test with more than just SQLite
 [ ] "validate" will:
@@ -17,10 +19,13 @@
     [ ] SQL*Server
     [ ] Sybase (same as SQL*Server?)
     [ ] Others?
+    [ ] Validate that a command was passed, otherwise default to "help"
 [ ] constraints file passed to $opts->{constraints}
 [ ] model file modifying DBIC::SL
 [ ] toposort file passed to $opts->{toposort}
 [ ] Write documentation
+[ ] All parameters should be settable by ENVVAR
+    * SIMS_LOADER_XYZ
 
 load_sims version --version
 load_sims help --help (generic help)

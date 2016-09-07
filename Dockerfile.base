@@ -1,0 +1,15 @@
+FROM perl:5.20
+MAINTAINER Rob Kinyon rob.kinyon@gmail.com
+
+RUN (curl -L http://cpanmin.us | perl - App::cpanminus) \
+  && cpanm Carton
+
+WORKDIR /app
+COPY cpanfile* LICENSE README.md bin lib ./
+RUN carton install
+
+COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
+COPY "devops/packaging/within_carton" "/usr/local/bin/within_carton"
+
+ENTRYPOINT [ "/usr/local/bin/within_carton" ]
+CMD [ "-h" ]

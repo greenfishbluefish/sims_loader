@@ -10,8 +10,17 @@ sub opt_spec {
   return (
     [ 'driver=s', "Driver name" ],
     [ 'host|h=s', "Host of database (or SQLite filename)" ],
+    [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
     [ 'specification=s', "Specification file" ],
   );
+}
+
+sub find_file {
+  my $self = shift;
+  my ($opts, $filename) = @_;
+
+  # If $filename is absolute, check -f
+  # check -f $opts->{base_directory}/$filename
 }
 
 use YAML::Any qw(LoadFile Dump);
@@ -51,6 +60,10 @@ sub validate_args {
   # If we're not, validate we can connect to the host
   else {
     die "Unimplemented!\n";
+  }
+
+  unless (-d $opts->{base_directory}) {
+    $self->usage_error("--base_directory '$opts->{base_directory}' is not a directory");
   }
 
   unless ($opts->{specification}) {

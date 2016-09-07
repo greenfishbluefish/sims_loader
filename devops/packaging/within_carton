@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+SIMS_LOADER_BASE_DIRECTORY=/data \
+  carton exec -- \
+    /app/bin/sims_loader "$@"
