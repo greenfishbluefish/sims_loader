@@ -2,7 +2,7 @@ package App::SimsLoader;
 
 use App::Cmd::Setup -app;
 
-our $VERSION = '0.000001';
+our $VERSION = '0.000002';
 
 1;
 __END__

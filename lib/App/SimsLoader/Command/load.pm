@@ -6,6 +6,10 @@ use strictures 2;
 
 use base 'App::SimsLoader::Command';
 
+use App::SimsLoader::Loader;
+use File::Spec ();
+use YAML::Any qw(LoadFile Dump);
+
 sub opt_spec {
   return (
     [ 'driver=s', "Driver name" ],
@@ -19,11 +23,16 @@ sub find_file {
   my $self = shift;
   my ($opts, $filename) = @_;
 
-  # If $filename is absolute, check -f
-  # check -f $opts->{base_directory}/$filename
+  if (File::Spec->file_name_is_absolute($filename)) {
+    return $filename if -f $filename;
+    return;
+  }
+
+  my $path = File::Spec->join($opts->{base_directory}, $filename);
+  return $path if -f $path;
+  return;
 }
 
-use YAML::Any qw(LoadFile Dump);
 sub read_file {
   my $self = shift;
   my ($filename) = @_;
@@ -49,35 +58,32 @@ sub validate_args {
   }
   $opts->{driver} = $dbds{lc($opts->{driver})};
 
+  unless (-d $opts->{base_directory}) {
+    $self->usage_error("--base_directory '$opts->{base_directory}' is not a directory");
+  }
+
   $self->usage_error('Must provide --host') unless $opts->{host};
 
   # If we're SQLite, validate the file exists
   if ($opts->{driver} eq 'SQLite') {
-    unless (-f $opts->{host}) {
-      $self->usage_error("--host '$opts->{host}' not found");
-    }
+    $opts->{host} = $self->find_file($opts, $opts->{host})
+      || $self->usage_error("--host '$opts->{host}' not found");
   }
   # If we're not, validate we can connect to the host
   else {
     die "Unimplemented!\n";
   }
 
-  unless (-d $opts->{base_directory}) {
-    $self->usage_error("--base_directory '$opts->{base_directory}' is not a directory");
-  }
-
   unless ($opts->{specification}) {
     $self->usage_error('Must provide --specification');
   }
-  unless (-f $opts->{specification}) {
-    $self->usage_error("--specification '$opts->{specification}' not found");
-  }
+  $opts->{specification} = $self->find_file($opts, $opts->{specification})
+    || $self->usage_error("--specification '$opts->{specification}' not found");
 
   $self->{spec} = $self->read_file($opts->{specification})
     or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
 }
 
-use App::SimsLoader::Loader;
 sub execute {
   my $self = shift;
   my ($opts, $args) = @_;

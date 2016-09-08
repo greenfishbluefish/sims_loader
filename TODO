@@ -1,6 +1,9 @@
 [X] Get load working with sqlite
-    [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
     [ ] Test auto-generation of values with NOT NULL
+    [ ] Cannot run two test_app() in the same process
+        * MySchema is loaded twice. Can we unload it or just have 100 .t's?
+    [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
+        * Need to test more than 1 level
 [X] Add a --base-directory for all the files
     * Used within the Dockerfile to do "--directory-prefix /data"
 [X] "drivers" to list installed DBD modules
