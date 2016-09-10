@@ -7,9 +7,11 @@ use App::SimsLoader;
 
 use t::common qw(new_fh);
 
+my $cmd = 'load';
+
 subtest "Failures" => sub {
   subtest "No parameters" => sub {
-    my $result = test_app('App::SimsLoader' => [qw( load )]);
+    my $result = test_app('App::SimsLoader' => [$cmd]);
 
     is($result->stdout, '', 'No STDOUT (as expected)');
     is($result->stderr, '', 'No STDERR (as expected)');
@@ -17,7 +19,7 @@ subtest "Failures" => sub {
   };
 
   subtest "Bad --driver" => sub {
-    my $result = test_app('App::SimsLoader' => [qw( load --driver unknown )]);
+    my $result = test_app('App::SimsLoader' => [$cmd, qw( --driver unknown )]);
 
     is($result->stdout, '', 'No STDOUT (as expected)');
     is($result->stderr, '', 'No STDERR (as expected)');
@@ -25,7 +27,7 @@ subtest "Failures" => sub {
   };
 
   subtest "--base_directory not a directory" => sub {
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --base_directory /not_a_directory
     )]);
@@ -38,7 +40,7 @@ subtest "Failures" => sub {
   subtest "SIMS_LOADER_BASE_DIRECTORY not a directory" => sub {
     local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
     )]);
 
@@ -48,7 +50,7 @@ subtest "Failures" => sub {
   };
 
   subtest "No --host" => sub {
-    my $result = test_app('App::SimsLoader' => [qw( load --driver sqlite )]);
+    my $result = test_app('App::SimsLoader' => [$cmd, qw( --driver sqlite )]);
 
     is($result->stdout, '', 'No STDOUT (as expected)');
     is($result->stderr, '', 'No STDERR (as expected)');
@@ -56,7 +58,7 @@ subtest "Failures" => sub {
   };
 
   subtest "--host file not found" => sub {
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host /file/not/found
     )]);
@@ -67,7 +69,7 @@ subtest "Failures" => sub {
   };
 
   subtest "--host file not found (bad base_directory)" => sub {
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host file_not_found
       --base_directory /tmp
@@ -81,7 +83,7 @@ subtest "Failures" => sub {
   subtest "No --specification" => sub {
     my ($host_fh, $host_fn) = new_fh();
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host
     ), $host_fn ]);
@@ -94,7 +96,7 @@ subtest "Failures" => sub {
   subtest "--specification file not found" => sub {
     my ($host_fh, $host_fn) = new_fh();
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host), $host_fn, qw(
       --specification /file/not/found
@@ -110,7 +112,7 @@ subtest "Failures" => sub {
     my ($spec_fh, $spec_fn) = new_fh();
     print $spec_fh "NOT YAML";
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host), $host_fn, qw(
       --specification
@@ -135,7 +137,7 @@ subtest "Successes" => sub {
     print $spec_fh "Artist:\n  name: George\n";
     #print $spec_fh "Artist: 1\n";
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host), $db_fn, qw(
       --specification
@@ -156,7 +158,7 @@ subtest "Successes" => sub {
     print $spec_fh "Artist:\n  name: George\n";
     #print $spec_fh "Artist: 1\n";
 
-    my $result = test_app('App::SimsLoader' => [qw(load
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
       --host), $db_fn, qw(
       --specification
