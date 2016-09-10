@@ -5,22 +5,7 @@ use App::Cmd::Tester;
 
 use App::SimsLoader;
 
-
-use File::Spec ();
-use File::Temp qw( tempfile tempdir );
-use Fcntl qw( :flock );
-
-my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
-our $dir = tempdir( CLEANUP => 1, DIR => $parent );
-
-sub new_fh {
-    my ($fh, $filename) = tempfile( 'tmpXXXX', DIR => $dir, UNLINK => 1 );
-
-    # This is because tempfile() returns a flock'ed $fh on MacOSX.
-    flock $fh, LOCK_UN;
-
-    return ($fh, $filename);
-}
+use t::common qw(new_fh);
 
 subtest "Failures" => sub {
   subtest "No parameters" => sub {

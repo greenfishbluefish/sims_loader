@@ -1,13 +1,17 @@
+[X] Add a --base-directory for all the files
+    * Used within the container to do "SIMS_LOADER_DIRECTORY_PREFIX=/data"
+[X] "drivers" to list installed DBD modules
+    [ ] Test with more than just SQLite
+        * Requires the test suite to function with multiple Docker containers
 [X] Get load working with sqlite
-    [ ] Test auto-generation of values with NOT NULL
-    [ ] Cannot run two test_app() in the same process
+1)  [ ] Test auto-generation of values with NOT NULL
+2)  [ ] Cannot run two test_app() in the same process
         * MySchema is loaded twice. Can we unload it or just have 100 .t's?
     [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
         * Need to test more than 1 level
-[X] Add a --base-directory for all the files
-    * Used within the Dockerfile to do "--directory-prefix /data"
-[X] "drivers" to list installed DBD modules
-    [ ] Test with more than just SQLite
+[ ] "model" to list the generated model sims_loader is working with
+    [ ] Lists "<model>: <table>" in alphabetical order
+    [ ] "model <model>" to list the detail for that model
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
