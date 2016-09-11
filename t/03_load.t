@@ -129,14 +129,13 @@ subtest "Failures" => sub {
 
 subtest "Successes" => sub {
   # Create a basic SQLite database
-  sub_test "Load one row" => sub {
+  sub_test "Load one row specifying everything" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
-    $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
+    $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
 
     my ($spec_fh, $spec_fn) = new_fh();
     print $spec_fh Dump({Artist => { name => 'George' }});
-    #print $spec_fh "Artist: 1\n";
 
     my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
@@ -149,14 +148,13 @@ subtest "Successes" => sub {
     is($result->error, undef, 'No errors thrown');
   };
 
-  sub_test "Load one row with --base_directory" => sub {
+  sub_test "Load one row by asking for it" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
-    $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
+    $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
 
     my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh Dump({Artist => { name => 'George' }});
-    #print $spec_fh "Artist: 1\n";
+    print $spec_fh Dump({Artist => 2});
 
     my $result = test_app('App::SimsLoader' => [$cmd, qw(
       --driver sqlite
@@ -164,7 +162,15 @@ subtest "Successes" => sub {
       --specification
     ), $spec_fn]);
 
-    is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
+    is(
+      $result->stdout, Dump({
+        Artist => [
+          {id => 1, name => undef},
+          {id => 2, name => undef},
+        ],
+      }),
+      'STDOUT of the row we created',
+    );
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
   };

@@ -98,6 +98,7 @@ sub execute {
   # Convert from DBIx::Class::Row objects to hashrefs
   foreach my $source (keys %$rows) {
     foreach my $row (@{$rows->{$source}}) {
+      $row->discard_changes; # Force the row to reload itself.
       $row = { $row->get_columns };
     }
   }
