@@ -1,14 +1,11 @@
 use strictures 2;
 
 use Test::More;
-use Test2::Tools::AsyncSubtest;
 use App::Cmd::Tester;
 
 use App::SimsLoader;
 
-use t::common qw(new_fh sub_test);
-use DBI;
-use YAML::Any qw(Dump);
+use t::common qw(new_fh success);
 
 my $cmd = 'load';
 
@@ -129,50 +126,37 @@ subtest "Failures" => sub {
 
 subtest "Successes" => sub {
   # Create a basic SQLite database
-  sub_test "Load one row specifying everything" => sub {
-    my ($db_fh, $db_fn) = new_fh();
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
-    $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
-
-    my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh Dump({Artist => { name => 'George' }});
-
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host), $db_fn, qw(
-      --specification
-    ), $spec_fn]);
-
-    is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    is($result->error, undef, 'No errors thrown');
+  success "Load one row specifying everything" => {
+    command => $cmd,
+    database => sub {
+      my $dbh = shift;
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+    },
+    specification => {
+      Artist => { name => 'George' },
+    },
+    stdout => {
+      Artist => [
+        { id => 1, name => 'George' },
+      ],
+    },
   };
 
-  sub_test "Load one row by asking for it" => sub {
-    my ($db_fh, $db_fn) = new_fh();
-    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
-    $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
-
-    my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh Dump({Artist => 2});
-
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host), $db_fn, qw(
-      --specification
-    ), $spec_fn]);
-
-    is(
-      $result->stdout, Dump({
-        Artist => [
-          {id => 1, name => undef},
-          {id => 2, name => undef},
-        ],
-      }),
-      'STDOUT of the row we created',
-    );
-    is($result->stderr, '', 'No STDERR (as expected)');
-    is($result->error, undef, 'No errors thrown');
+  success "Load two rows by asking for 2 rows" => {
+    command => $cmd,
+    database => sub {
+      my $dbh = shift;
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+    },
+    specification => {
+      Artist => 2,
+    },
+    stdout => {
+      Artist => [
+        { id => 1, name => undef },
+        { id => 2, name => undef },
+      ],
+    },
   };
 };
 
