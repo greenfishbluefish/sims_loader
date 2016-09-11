@@ -125,7 +125,6 @@ subtest "Failures" => sub {
 };
 
 subtest "Successes" => sub {
-  # Create a basic SQLite database
   success "Load one row specifying everything" => {
     command => $cmd,
     database => sub {
@@ -135,7 +134,7 @@ subtest "Successes" => sub {
     specification => {
       Artist => { name => 'George' },
     },
-    stdout => {
+    yaml_out => {
       Artist => [
         { id => 1, name => 'George' },
       ],
@@ -151,7 +150,7 @@ subtest "Successes" => sub {
     specification => {
       Artist => 2,
     },
-    stdout => {
+    yaml_out => {
       Artist => [
         { id => 1, name => undef },
         { id => 2, name => undef },

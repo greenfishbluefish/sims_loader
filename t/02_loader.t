@@ -1,11 +1,7 @@
-use 5.20.0;
 use strictures 2;
 
-use Test::More;
-use Test::Deep;
-
 use DBI;
-
+use Test2::Bundle::Extended;
 use t::common qw(new_fh);
 
 use App::SimsLoader::Loader;
@@ -29,9 +25,9 @@ my $loader = App::SimsLoader::Loader->new(
 );
 
 my %sources = $loader->sources;
-cmp_deeply(
+like(
   \%sources,
-  { Artist => isa('DBIx::Class::ResultSource') },
+  { Artist => object { call [ isa => 'DBIx::Class::ResultSource'] => T() } },
   'The right sources are loaded',
 );
 
@@ -43,10 +39,10 @@ my $rows = $loader->load({
 # Validate that we have data in the database
 my $artists = $dbh->selectall_arrayref('SELECT * FROM artists', {Slice => {}});
 
-cmp_bag(
+like(
   $artists, [
-    { id => num(1), name => 'John' },
-    { id => num(2), name => 'Bob' },
+    { id => number(1), name => 'John' },
+    { id => number(2), name => 'Bob' },
   ],
   'The right rows were loaded',
 );

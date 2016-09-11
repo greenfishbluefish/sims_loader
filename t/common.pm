@@ -6,7 +6,7 @@ use strictures 2;
 use base 'Exporter';
 our @EXPORT_OK = qw(
   new_fh
-  sub_test
+  run_test
   success
 );
 
@@ -39,20 +39,17 @@ sub new_fh {
 # DBIC::DL expects to only be called once in a process per schema (for obvious
 # and valid reasons). So, we need to run each test that would call DBIC::DL in
 # its own process. This does add some overhead.
-sub sub_test ($$) {
-  my ($name, $test) = @_;
-
-  fork_subtest($name, $test)->finish;
-}
-
-sub success ($$) {
+sub run_test ($$) {
   my ($name, $options) = @_;
 
-  sub_test $name => sub {
+  fork_subtest($name => sub {
     my @parameters = (
       $options->{command},
-      qw(--driver sqlite),
     );
+
+    if ($options->{driver}) {
+      push @parameters, '--driver', $options->{driver};
+    }
 
     if ($options->{database}) {
       my ($fh, $fn) = new_fh();
@@ -71,12 +68,37 @@ sub success ($$) {
 
     my $result = test_app('App::SimsLoader' => \@parameters);
 
-    if ($options->{stdout}) {
-      is($result->stdout, Dump($options->{stdout}), 'STDOUT of the row we created');
+    foreach my $stream (qw(stdout stderr)) {
+      $options->{$stream} //= '';
+
+      # Is this something built with qr// ?
+      if ("$options->{$stream}" =~ /^\(\?\^:.*\)$/) {
+        like($result->$stream, $options->{$stream}, uc($stream).' as expected');
+      }
+      else {
+        is($result->$stream, $options->{$stream}, uc($stream).' as expected');
+      }
     }
-    is($result->stderr, '', 'No STDERR (as expected)');
-    is($result->error, undef, 'No errors thrown');
-  };
+
+    is($result->error, $options->{error}, 'Errors as expected');
+  })->finish;
+}
+
+sub success ($$) {
+  my ($name, $options) = @_;
+
+  my %defaults = (
+    driver => 'sqlite',
+  );
+
+  if ($options->{yaml_out}) {
+    $defaults{stdout} = Dump(delete $options->{yaml_out});
+  }
+
+  run_test($name, {
+    %defaults,
+    %$options,
+  });
 }
 
 1;

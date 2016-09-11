@@ -88,7 +88,7 @@ subtest "Successes" => sub {
       my $dbh = shift;
       $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
     },
-    stdout => {
+    yaml_out => {
       Artist => 'artists',
     },
   };
