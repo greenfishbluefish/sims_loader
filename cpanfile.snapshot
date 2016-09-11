@@ -1858,6 +1858,13 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Importer-0.014
+    pathname: E/EX/EXODIST/Importer-0.014.tar.gz
+    provides:
+      Importer 0.014
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   JSON-2.90
     pathname: M/MA/MAKAMAKA/JSON-2.90.tar.gz
     provides:
@@ -3448,6 +3455,103 @@ DISTRIBUTIONS
       Test::Builder::Tester 1.02
       Test::More 0
       perl 5.006
+  Test2-AsyncSubtest-0.000018
+    pathname: E/EX/EXODIST/Test2-AsyncSubtest-0.000018.tar.gz
+    provides:
+      Test2::AsyncSubtest 0.000018
+      Test2::AsyncSubtest::Event::Attach 0.000018
+      Test2::AsyncSubtest::Event::Detach 0.000018
+      Test2::AsyncSubtest::Hub 0.000018
+      Test2::Tools::AsyncSubtest 0.000018
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Scope::Guard 0
+      Test2 1.302032
+      Test2::Suite 0.000034
+      Time::HiRes 0
+      perl 5.008001
+  Test2-Suite-0.000058
+    pathname: E/EX/EXODIST/Test2-Suite-0.000058.tar.gz
+    provides:
+      Test2::Bundle 0.000058
+      Test2::Bundle::Extended 0.000058
+      Test2::Bundle::More 0.000058
+      Test2::Bundle::Simple 0.000058
+      Test2::Compare 0.000058
+      Test2::Compare::Array 0.000058
+      Test2::Compare::Bag 0.000058
+      Test2::Compare::Base 0.000058
+      Test2::Compare::Custom 0.000058
+      Test2::Compare::DeepRef 0.000058
+      Test2::Compare::Delta 0.000058
+      Test2::Compare::Event 0.000058
+      Test2::Compare::EventMeta 0.000058
+      Test2::Compare::Hash 0.000058
+      Test2::Compare::Meta 0.000058
+      Test2::Compare::Number 0.000058
+      Test2::Compare::Object 0.000058
+      Test2::Compare::OrderedSubset 0.000058
+      Test2::Compare::Pattern 0.000058
+      Test2::Compare::Ref 0.000058
+      Test2::Compare::Regex 0.000058
+      Test2::Compare::Scalar 0.000058
+      Test2::Compare::Set 0.000058
+      Test2::Compare::String 0.000058
+      Test2::Compare::Undef 0.000058
+      Test2::Compare::Wildcard 0.000058
+      Test2::Mock 0.000058
+      Test2::Plugin 0.000058
+      Test2::Plugin::BailOnFail 0.000058
+      Test2::Plugin::DieOnFail 0.000058
+      Test2::Plugin::ExitSummary 0.000058
+      Test2::Plugin::SRand 0.000058
+      Test2::Plugin::UTF8 0.000058
+      Test2::Require 0.000058
+      Test2::Require::AuthorTesting 0.000058
+      Test2::Require::EnvVar 0.000058
+      Test2::Require::Fork 0.000058
+      Test2::Require::Module 0.000058
+      Test2::Require::Perl 0.000058
+      Test2::Require::RealFork 0.000058
+      Test2::Require::Threads 0.000058
+      Test2::Suite 0.000058
+      Test2::Todo 0.000058
+      Test2::Tools 0.000058
+      Test2::Tools::Basic 0.000058
+      Test2::Tools::Class 0.000058
+      Test2::Tools::ClassicCompare 0.000058
+      Test2::Tools::Compare 0.000058
+      Test2::Tools::Defer 0.000058
+      Test2::Tools::Encoding 0.000058
+      Test2::Tools::Event 0.000058
+      Test2::Tools::Exception 0.000058
+      Test2::Tools::Exports 0.000058
+      Test2::Tools::Grab 0.000058
+      Test2::Tools::Mock 0.000058
+      Test2::Tools::Ref 0.000058
+      Test2::Tools::Subtest 0.000058
+      Test2::Tools::Target 0.000058
+      Test2::Tools::Warnings 0.000058
+      Test2::Util::Grabber 0.000058
+      Test2::Util::Ref 0.000058
+      Test2::Util::Stash 0.000058
+      Test2::Util::Sub 0.000058
+      Test2::Util::Table 0.000058
+      Test2::Util::Table::LineBreak 0.000058
+    requirements:
+      B 0
+      Carp 0
+      ExtUtils::MakeMaker 0
+      Importer 0.010
+      List::Util 0
+      Scalar::Util 0
+      Test2 1.302032
+      overload 0
+      perl 5.008001
+      utf8 0
   Text-Diff-1.44
     pathname: N/NE/NEILB/Text-Diff-1.44.tar.gz
     provides:

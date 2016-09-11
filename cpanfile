@@ -9,4 +9,5 @@ on test => sub {
   requires 'Test::Compile';
   requires 'Test::Deep';
   requires 'Devel::Cover';
+  requires 'Test2::AsyncSubtest';
 };

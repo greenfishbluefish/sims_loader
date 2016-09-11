@@ -1,11 +1,14 @@
 use strictures 2;
 
 use Test::More;
+use Test2::Tools::AsyncSubtest;
 use App::Cmd::Tester;
 
 use App::SimsLoader;
 
 use t::common qw(new_fh);
+use DBI;
+use YAML::Any qw(Dump);
 
 my $cmd = 'load';
 
@@ -124,11 +127,10 @@ subtest "Failures" => sub {
   };
 };
 
-use DBI;
-use YAML::Any qw(Dump);
 subtest "Successes" => sub {
+
   # Create a basic SQLite database
-  subtest "Load one row" => sub {
+  fork_subtest("Load one row" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
@@ -146,10 +148,9 @@ subtest "Successes" => sub {
     is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
-  };
+  })->finish;
 
-=pod
-  subtest "Load one row with --base_directory" => sub {
+  fork_subtest("Load one row with --base_directory" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
@@ -167,8 +168,7 @@ subtest "Successes" => sub {
     is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
-  };
-=cut
+  })->finish;
 };
 
 done_testing;
