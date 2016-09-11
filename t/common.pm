@@ -45,6 +45,7 @@ sub run_test ($$) {
   fork_subtest($name => sub {
     my @parameters = (
       $options->{command},
+      @{$options->{parameters} // []},
     );
 
     if ($options->{driver}) {
@@ -80,7 +81,17 @@ sub run_test ($$) {
       }
     }
 
-    is($result->error, $options->{error}, 'Errors as expected');
+    if (defined $options->{error}) {
+      if ("$options->{error}" =~ /^\(\?\^:.*\)$/) {
+        like($result->error, $options->{error}, 'Errors as expected');
+      }
+      else {
+        is($result->error, $options->{error}, 'Errors as expected');
+      }
+    }
+    else {
+      is($result->error, undef, 'No errors (as expected)');
+    }
   })->finish;
 }
 

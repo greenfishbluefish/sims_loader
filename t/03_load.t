@@ -2,126 +2,122 @@ use strictures 2;
 
 use Test::More;
 use App::Cmd::Tester;
+use File::Basename qw(basename dirname);
+use File::Temp qw(tempdir);
 
 use App::SimsLoader;
 
-use t::common qw(new_fh success);
+use t::common qw(new_fh success run_test);
 
 my $cmd = 'load';
 
 subtest "Failures" => sub {
-  subtest "No parameters" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/Must provide --driver/, 'Error thrown about --driver');
+  run_test "No parameters" => {
+    command => $cmd,
+    error   => qr/Must provide --driver/,
   };
 
-  subtest "Bad --driver" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw( --driver unknown )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/--driver 'unknown' not installed/, 'Error thrown about --driver');
+  run_test "--driver unknown" => {
+    command => $cmd,
+    driver  => 'unknown',
+    error   => qr/--driver 'unknown' not installed/,
   };
 
-  subtest "--base_directory not a directory" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --base_directory /not_a_directory
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base_directory');
+  run_test "--base_directory not a directory" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(--base_directory /not_a_directory)],
+    error   => qr{--base_directory '/not_a_directory' is not a directory},
   };
 
-  subtest "SIMS_LOADER_BASE_DIRECTORY not a directory" => sub {
+  {
     local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
+    run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+      command => $cmd,
+      driver  => 'sqlite',
+      error   => qr{--base_directory '/not_a_directory' is not a directory},
+    };
+  }
 
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base_directory');
+  run_test "No --host" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    error   => qr/Must provide --host/,
   };
 
-  subtest "No --host" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw( --driver sqlite )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/Must provide --host/, 'Error thrown about --host');
+  run_test "--host file not found" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(--host /file/not/found)],
+    error   => qr{--host '/file/not/found' not found},
   };
 
-  subtest "--host file not found" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host /file/not/found
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--host '/file/not/found' not found}, 'Error thrown about --host');
-  };
-
-  subtest "--host file not found (bad base_directory)" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
+  run_test "--host file not found (bad base_directory)" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(
       --host file_not_found
-      --base_directory /tmp
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--host 'file_not_found' not found}, 'Error thrown about --host');
+      --base_directory), tempdir(CLEANUP => 1),
+    ],
+    error   => qr{--host 'file_not_found' not found},
   };
 
-  subtest "No --specification" => sub {
-    my ($host_fh, $host_fn) = new_fh();
-
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host
-    ), $host_fn ]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{Must provide --specification}, 'Error thrown about --specification');
+  run_test "--specification file not found" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    database => sub {},
+    error   => qr/Must provide --specification/,
   };
 
-  subtest "--specification file not found" => sub {
-    my ($host_fh, $host_fn) = new_fh();
-
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host), $host_fn, qw(
-      --specification /file/not/found
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--specification '/file/not/found' not found}, 'Error thrown about --specification');
+  run_test "--specification file not found" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    database => sub {},
+    parameters => [
+      '--specification' => '/file/not/found',
+    ],
+    error   => qr{--specification '/file/not/found' not found},
   };
 
-  subtest "--specification file is not YAML/JSON" => sub {
-    my ($host_fh, $host_fn) = new_fh();
+  run_test "--specification file not found (bad base directory)" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    database => sub {},
+    parameters => [
+      '--base_directory' => tempdir(CLEANUP => 1),
+      '--specification'  => 'file_not_found',
+    ],
+    error   => qr{--specification 'file_not_found' not found},
+  };
+
+  {
     my ($spec_fh, $spec_fn) = new_fh();
     print $spec_fh "NOT YAML";
+    run_test "--specification file is not YAML/JSON" => {
+      command => $cmd,
+      driver  => 'sqlite',
+      database => sub {},
+      parameters => [
+        '--specification'  => $spec_fn,
+      ],
+      error   => qr{--specification '$spec_fn' is not YAML/JSON},
+    };
+  }
 
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host), $host_fn, qw(
-      --specification
-    ), $spec_fn]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--specification '$spec_fn' is not YAML/JSON}, 'Error thrown about --specification');
-  };
+  {
+    my ($spec_fh, $spec_fn) = new_fh();
+    print $spec_fh "NOT YAML";
+    run_test "--specification file is not YAML/JSON (via base directory)" => {
+      command => $cmd,
+      driver  => 'sqlite',
+      database => sub {},
+      parameters => [
+        '--base_directory' => dirname($spec_fn),
+        '--specification'  => basename($spec_fn),
+      ],
+      error   => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
+    };
+  }
 };
 
 subtest "Successes" => sub {

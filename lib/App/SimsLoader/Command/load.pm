@@ -7,7 +7,6 @@ use strictures 2;
 use base 'App::SimsLoader::Command';
 
 use App::SimsLoader::Loader;
-use File::Spec ();
 use YAML::Any qw(LoadFile Dump);
 
 sub opt_spec {
@@ -17,20 +16,6 @@ sub opt_spec {
     [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
     [ 'specification=s', "Specification file" ],
   );
-}
-
-sub find_file {
-  my $self = shift;
-  my ($opts, $filename) = @_;
-
-  if (File::Spec->file_name_is_absolute($filename)) {
-    return $filename if -f $filename;
-    return;
-  }
-
-  my $path = File::Spec->join($opts->{base_directory}, $filename);
-  return $path if -f $path;
-  return;
 }
 
 sub read_file {
@@ -66,8 +51,8 @@ sub validate_args {
 
   # If we're SQLite, validate the file exists
   if ($opts->{driver} eq 'SQLite') {
-    $opts->{host} = $self->find_file($opts, $opts->{host})
-      || $self->usage_error("--host '$opts->{host}' not found");
+    $self->{host} = $self->find_file($opts, $opts->{host})
+      or $self->usage_error("--host '$opts->{host}' not found");
   }
   # If we're not, validate we can connect to the host
   else {
@@ -77,10 +62,10 @@ sub validate_args {
   unless ($opts->{specification}) {
     $self->usage_error('Must provide --specification');
   }
-  $opts->{specification} = $self->find_file($opts, $opts->{specification})
-    || $self->usage_error("--specification '$opts->{specification}' not found");
+  $self->{specification} = $self->find_file($opts, $opts->{specification})
+    or $self->usage_error("--specification '$opts->{specification}' not found");
 
-  $self->{spec} = $self->read_file($opts->{specification})
+  $self->{spec} = $self->read_file($self->{specification})
     or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
 }
 
@@ -90,7 +75,7 @@ sub execute {
 
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
-    dbname => $opts->{host},
+    dbname => $self->{host},
   );
 
   my ($rows, $addl) = $loader->load($self->{spec});

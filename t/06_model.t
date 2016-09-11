@@ -2,82 +2,63 @@ use strictures 2;
 
 use Test::More;
 use App::Cmd::Tester;
+use File::Temp qw(tempdir);
 
 use App::SimsLoader;
 
-use t::common qw(new_fh success);
+use t::common qw(new_fh run_test success);
 
 my $cmd = 'model';
 
 subtest "Failures" => sub {
-  subtest "No parameters" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/Must provide --driver/, 'Error thrown about --driver');
+  run_test "No parameters" => {
+    command => $cmd,
+    error   => qr/Must provide --driver/,
   };
 
-  subtest "Bad --driver" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(--driver unknown )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/--driver 'unknown' not installed/, 'Error thrown about --driver');
+  run_test "--driver unknown" => {
+    command => $cmd,
+    driver  => 'unknown',
+    error   => qr/--driver 'unknown' not installed/,
   };
 
-  subtest "--base_directory not a directory" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --base_directory /not_a_directory
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base_directory');
+  run_test "--base_directory not a directory" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(--base_directory /not_a_directory)],
+    error   => qr{--base_directory '/not_a_directory' is not a directory},
   };
 
-  subtest "SIMS_LOADER_BASE_DIRECTORY not a directory" => sub {
+  {
     local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
+    run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+      command => $cmd,
+      driver  => 'sqlite',
+      error   => qr{--base_directory '/not_a_directory' is not a directory},
+    };
+  }
 
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--base_directory '/not_a_directory' is not a directory}, 'Error thrown about --base_directory');
+  run_test "No --host" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    error   => qr/Must provide --host/,
   };
 
-  subtest "No --host" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(--driver sqlite)]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr/Must provide --host/, 'Error thrown about --host');
+  run_test "--host file not found" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(--host /file/not/found)],
+    error   => qr{--host '/file/not/found' not found},
   };
 
-  subtest "--host file not found" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
-      --host /file/not/found
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--host '/file/not/found' not found}, 'Error thrown about --host');
-  };
-
-  subtest "--host file not found (bad base_directory)" => sub {
-    my $result = test_app('App::SimsLoader' => [$cmd, qw(
-      --driver sqlite
+  run_test "--host file not found (bad base_directory)" => {
+    command => $cmd,
+    driver  => 'sqlite',
+    parameters => [qw(
       --host file_not_found
-      --base_directory /tmp
-    )]);
-
-    is($result->stdout, '', 'No STDOUT (as expected)');
-    is($result->stderr, '', 'No STDERR (as expected)');
-    like($result->error, qr{--host 'file_not_found' not found}, 'Error thrown about --host');
+      --base_directory), tempdir(CLEANUP => 1),
+    ],
+    error   => qr{--host 'file_not_found' not found},
   };
 };
 
