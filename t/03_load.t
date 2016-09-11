@@ -6,7 +6,7 @@ use App::Cmd::Tester;
 
 use App::SimsLoader;
 
-use t::common qw(new_fh);
+use t::common qw(new_fh sub_test);
 use DBI;
 use YAML::Any qw(Dump);
 
@@ -129,7 +129,7 @@ subtest "Failures" => sub {
 
 subtest "Successes" => sub {
   # Create a basic SQLite database
-  fork_subtest("Load one row" => sub {
+  sub_test "Load one row" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
@@ -147,9 +147,9 @@ subtest "Successes" => sub {
     is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
-  })->finish;
+  };
 
-  fork_subtest("Load one row with --base_directory" => sub {
+  sub_test "Load one row with --base_directory" => sub {
     my ($db_fh, $db_fn) = new_fh();
     my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
@@ -167,7 +167,7 @@ subtest "Successes" => sub {
     is($result->stdout, Dump({Artist => [{id => 1, name => 'George'}]}), 'STDOUT of the row we created');
     is($result->stderr, '', 'No STDERR (as expected)');
     is($result->error, undef, 'No errors thrown');
-  })->finish;
+  };
 };
 
 done_testing;

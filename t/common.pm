@@ -6,6 +6,7 @@ use strictures 2;
 use base 'Exporter';
 our @EXPORT_OK = qw(
   new_fh
+  sub_test
 );
 
 use File::Spec ();
@@ -26,6 +27,18 @@ sub new_fh {
   flock $fh, LOCK_UN;
 
   return ($fh, $filename);
+}
+
+use Test2::Tools::AsyncSubtest;
+
+# Provide a clean wrapper around fork_subtest(). We need this because
+# DBIC::DL expects to only be called once in a process per schema (for obvious
+# and valid reasons). So, we need to run each test that would call DBIC::DL in
+# its own process. This does add some overhead.
+sub sub_test ($$) {
+  my ($name, $test) = @_;
+
+  fork_subtest($name, $test)->finish;
 }
 
 1;

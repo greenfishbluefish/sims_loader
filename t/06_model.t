@@ -5,7 +5,7 @@ use App::Cmd::Tester;
 
 use App::SimsLoader;
 
-use t::common qw(new_fh);
+use t::common qw(new_fh sub_test);
 
 my $cmd = 'model';
 
@@ -83,19 +83,21 @@ subtest "Failures" => sub {
 
 use DBI;
 use YAML::Any qw(Dump);
-subtest "list all models" => sub {
-  my ($db_fh, $db_fn) = new_fh();
-  my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
-  $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
+subtest "Successes" => sub {
+  sub_test "list all models" => sub {
+    my ($db_fh, $db_fn) = new_fh();
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
+    $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
 
-  my $result = test_app('App::SimsLoader' => [$cmd, qw(
-    --driver sqlite
-    --host), $db_fn,
-  ]);
+    my $result = test_app('App::SimsLoader' => [$cmd, qw(
+      --driver sqlite
+      --host), $db_fn,
+    ]);
 
-  is($result->stdout, Dump({Artist => 'artists'}), 'STDOUT of the schema');
-  is($result->stderr, '', 'No STDERR (as expected)');
-  is($result->error, undef, 'No errors thrown');
+    is($result->stdout, Dump({Artist => 'artists'}), 'STDOUT of the schema');
+    is($result->stderr, '', 'No STDERR (as expected)');
+    is($result->error, undef, 'No errors thrown');
+  };
 };
 
 done_testing;
