@@ -70,6 +70,9 @@ sub execute {
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
     dbname => $opts->{host},
+
+    # Ignore the sqlite_master and sqlite_temp_master tables
+    exclude => qr/^sqlite_/,
   );
 
   my %response;
