@@ -128,7 +128,6 @@ subtest "Failures" => sub {
 };
 
 subtest "Successes" => sub {
-
   # Create a basic SQLite database
   fork_subtest("Load one row" => sub {
     my ($db_fh, $db_fn) = new_fh();

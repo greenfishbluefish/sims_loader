@@ -3,14 +3,11 @@
 [X] "drivers" to list installed DBD modules
     [ ] Test with more than just SQLite
         * Requires the test suite to function with multiple Docker containers
-[X] Get load working with sqlite
+[-] Get load working with sqlite
 1)  [ ] Test auto-generation of values with NOT NULL
-2)  [ ] Cannot run two test_app() in the same process
-        * MySchema is loaded twice. Can we unload it or just have 100 .t's?
-    [ ] outfile showing results (use $row->get_columns/stringify/rel-walking)
-        * Need to test more than 1 level
-[ ] "model" to list the generated model sims_loader is working with
-    [ ] Lists "<model>: <table>" in alphabetical order
+    [X] Cannot run two test_app() in the same process
+[-] "model" to list the generated model sims_loader is working with
+    [-] Lists "<model>: <table>" in alphabetical order
     [ ] "model <model>" to list the detail for that model
 [ ] "validate" will:
     [ ] Ensure all provided files work
@@ -33,11 +30,14 @@
 [ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
+    * --base-directory works like this, but by hand
+[ ] Test with dates (may need auto-inflation)
+[ ] Test with sim types (phone-number, zipcode, etc)
 
 load_sims version --version
 load_sims help --help (generic help)
 
-CMD = load | validate | drivers
+CMD = load | validate | drivers | model
 load_sims CMD --help
 load_sims CMD \
   --driver <DBD name> \
@@ -51,4 +51,3 @@ load_sims CMD \
   [--seed <seed> ]
   --host|h <host> \ (if --driver=sqlite, this is the filename)
   --specification|s <filename> \
-  [--outfile <filename> \]

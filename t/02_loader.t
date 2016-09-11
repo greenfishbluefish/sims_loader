@@ -5,12 +5,13 @@ use Test::More;
 use Test::Deep;
 
 use DBI;
-use File::Temp qw(tempfile);
+
+use t::common qw(new_fh);
 
 use App::SimsLoader::Loader;
 
 # Create the tempfile
-my ($fh, $fn) = tempfile(EXLOCK => 0);
+my ($fh, $fn) = new_fh();
 
 my $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '');
 $dbh->do("PRAGMA foreign_keys = ON");
@@ -27,6 +28,13 @@ my $loader = App::SimsLoader::Loader->new(
   dbname => $fn,
 );
 
+my %sources = $loader->sources;
+cmp_deeply(
+  \%sources,
+  { Artist => isa('DBIx::Class::ResultSource') },
+  'The right sources are loaded',
+);
+
 my $rows = $loader->load({
   Artist => [ {name => 'John'}, {name => 'Bob'} ],
 });
@@ -35,10 +43,12 @@ my $rows = $loader->load({
 # Validate that we have data in the database
 my $artists = $dbh->selectall_arrayref('SELECT * FROM artists', {Slice => {}});
 
-cmp_ok(scalar(@$artists), '==', 2, '2 rows were loaded');
-cmp_bag($artists, [
-  { id => num(1), name => 'John' },
-  { id => num(2), name => 'Bob' },
-]);
+cmp_bag(
+  $artists, [
+    { id => num(1), name => 'John' },
+    { id => num(2), name => 'Bob' },
+  ],
+  'The right rows were loaded',
+);
 
 done_testing;

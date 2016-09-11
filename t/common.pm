@@ -16,7 +16,11 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub new_fh {
-  my ($fh, $filename) = tempfile( 'tmpXXXX', DIR => $dir, UNLINK => 1 );
+  my ($fh, $filename) = tempfile('tmpXXXX',
+    DIR => $dir,
+    EXLOCK => 0,
+    UNLINK => 1,
+  );
 
   # This is because tempfile() returns a flock'ed $fh on MacOSX.
   flock $fh, LOCK_UN;

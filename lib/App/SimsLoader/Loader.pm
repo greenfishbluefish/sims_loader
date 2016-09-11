@@ -33,6 +33,11 @@ sub new {
     naming => 'v8',
     use_namespaces => 0,
     schema => $schema,
+
+    # Ignore the sqlite_master and sqlite_temp_master tables
+    # XXX: Is this required? I cannot get a failing test for this even though
+    # it used to be broken ... ?
+    #exclude => qr/^sqlite_(master|temp)$/,
   )->load;
 
   return bless {
@@ -45,6 +50,17 @@ sub load {
   my ($spec) = @_;
 
   $self->{schema}->load_sims($spec);
+}
+
+sub sources {
+  my $self = shift;
+
+  my %sources;
+  foreach my $name ($self->{schema}->sources) {
+    $sources{$name} = $self->{schema}->source($name);
+  }
+
+  return %sources;
 }
 
 1;

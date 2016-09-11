@@ -1,4 +1,4 @@
-# ABSTRACT: load your data
+# ABSTRACT: show the model of your database
 package App::SimsLoader::Command::model;
 
 use 5.20.0;
@@ -70,15 +70,12 @@ sub execute {
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
     dbname => $opts->{host},
-
-    # Ignore the sqlite_master and sqlite_temp_master tables
-    exclude => qr/^sqlite_/,
   );
 
+  my %sources = $loader->sources;
   my %response;
-  foreach my $source ($loader->{schema}->sources) {
-    my $rsrc = $loader->{schema}->source($source);
-    $response{$source} = $rsrc->from;
+  while (my ($name, $rsrc) = each %sources) {
+    $response{$name} = $rsrc->from;
   }
 
   print Dump(\%response);

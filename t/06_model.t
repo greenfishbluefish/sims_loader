@@ -88,7 +88,7 @@ subtest "list all models" => sub {
   my $dbh = DBI->connect("dbi:SQLite:dbname=$db_fn", '', '');
   $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
 
-  my $result = test_app('App::SimsLoader' => [qw(model
+  my $result = test_app('App::SimsLoader' => [$cmd, qw(
     --driver sqlite
     --host), $db_fn,
   ]);
