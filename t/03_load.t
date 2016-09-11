@@ -135,7 +135,7 @@ subtest "Successes" => sub {
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
 
     my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh "Artist:\n  name: George\n";
+    print $spec_fh Dump({Artist => { name => 'George' }});
     #print $spec_fh "Artist: 1\n";
 
     my $result = test_app('App::SimsLoader' => [$cmd, qw(
@@ -155,7 +155,7 @@ subtest "Successes" => sub {
     $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY, name VARCHAR)');
 
     my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh "Artist:\n  name: George\n";
+    print $spec_fh Dump({Artist => { name => 'George' }});
     #print $spec_fh "Artist: 1\n";
 
     my $result = test_app('App::SimsLoader' => [$cmd, qw(
