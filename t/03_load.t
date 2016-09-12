@@ -1,7 +1,6 @@
 use strictures 2;
 
-use Test::More;
-use App::Cmd::Tester;
+use Test2::Bundle::Extended;
 use File::Basename qw(basename dirname);
 use File::Temp qw(tempdir);
 
@@ -150,6 +149,23 @@ subtest "Successes" => sub {
       Artist => [
         { id => 1, name => undef },
         { id => 2, name => undef },
+      ],
+    },
+  };
+
+  success "Load one row with auto-gen name" => {
+    skip => "Doesn't work yet",
+    command => $cmd,
+    database => sub {
+      my $dbh = shift;
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR NOT NULL)');
+    },
+    specification => {
+      Artist => 1,
+    },
+    yaml_out => {
+      Artist => [
+        { id => 1, name => D() },
       ],
     },
   };

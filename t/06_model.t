@@ -73,6 +73,32 @@ subtest "Successes" => sub {
       Artist => 'artists',
     },
   };
+
+  success "Details of a specific model" => {
+    command => $cmd,
+    parameters => [qw(
+      --table artists
+    )],
+    database => sub {
+      my $dbh = shift;
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+    },
+    yaml_out => {
+      Artist => {
+        table => 'artists',
+        columns => {
+          id => {
+            type => 'integer',
+            nullable => 0,
+          },
+          name => {
+            type => 'varchar',
+            nullable => 1,
+          },
+        },
+      },
+    },
+  };
 };
 
 done_testing;

@@ -10,13 +10,16 @@ our @EXPORT_OK = qw(
   success
 );
 
+# Load this here to avoid warnings re: Test2
+use Test::Builder;
+
 use App::Cmd::Tester;
 use DBI;
 use File::Spec ();
 use File::Temp qw( tempfile tempdir );
 use Fcntl qw( :flock );
-use Test2::Tools::AsyncSubtest;
 use Test2::Bundle::Extended;
+use Test2::Tools::AsyncSubtest;
 use YAML::Any qw(Dump);
 
 my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
@@ -43,6 +46,8 @@ sub run_test ($$) {
   my ($name, $options) = @_;
 
   fork_subtest($name => sub {
+    skip_all $options->{skip} if $options->{skip};
+
     my @parameters = (
       $options->{command},
       @{$options->{parameters} // []},
