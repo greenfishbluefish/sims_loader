@@ -77,23 +77,24 @@ subtest "Successes" => sub {
   success "Details of a specific model" => {
     command => $cmd,
     parameters => [qw(
-      --table artists
+      --name artists
     )],
     database => sub {
       my $dbh = shift;
-      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)');
     },
     yaml_out => {
       Artist => {
         table => 'artists',
         columns => {
           id => {
-            type => 'integer',
-            nullable => 0,
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
           },
           name => {
-            type => 'varchar',
-            nullable => 1,
+            data_type => 'text',
+            is_nullable => 0,
           },
         },
       },

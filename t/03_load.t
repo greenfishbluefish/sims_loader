@@ -158,7 +158,7 @@ subtest "Successes" => sub {
     command => $cmd,
     database => sub {
       my $dbh = shift;
-      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR NOT NULL)');
+      $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)');
     },
     specification => {
       Artist => 1,

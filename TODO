@@ -33,6 +33,8 @@
     * --base-directory works like this, but by hand
 [ ] Test with dates (may need auto-inflation)
 [ ] Test with sim types (phone-number, zipcode, etc)
+[ ] Stop running within the container as root
+    * All the cpanfile work is owned by root
 
 load_sims version --version
 load_sims help --help (generic help)

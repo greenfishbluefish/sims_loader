@@ -14,7 +14,7 @@ sub opt_spec {
     [ 'driver=s', "Driver name" ],
     [ 'host|h=s', "Host of database (or SQLite filename)" ],
     [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
-    #[ 'specification=s', "Specification file" ],
+    [ 'name=s', "Model/Table for specific details" ],
   );
 }
 
@@ -46,6 +46,8 @@ sub validate_args {
   else {
     die "Unimplemented!\n";
   }
+
+  # If $opts->{name}, validate it's a table or model we know about
 }
 
 sub execute {
@@ -57,10 +59,26 @@ sub execute {
     dbname => $self->{host},
   );
 
-  my %sources = $loader->sources;
   my %response;
-  while (my ($name, $rsrc) = each %sources) {
-    $response{$name} = $rsrc->from;
+  my %sources = $loader->sources;
+  if ($opts->{name}) {
+    while (my ($name, $rsrc) = each %sources) {
+      next unless lc($name) eq lc($opts->{name})
+        || lc($rsrc->from) eq lc($opts->{name});
+
+      $response{$name} = my $rv = {
+        table => $rsrc->from,
+        columns => {},
+      };
+      foreach my $col_name ($rsrc->columns) {
+        $rv->{columns}{$col_name} = $rsrc->column_info($col_name);
+      }
+    }
+  }
+  else {
+    while (my ($name, $rsrc) = each %sources) {
+      $response{$name} = $rsrc->from;
+    }
   }
 
   print Dump(\%response);
