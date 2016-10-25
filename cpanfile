@@ -1,4 +1,4 @@
-requires 'perl', '5.20.0';
+requires 'perl', '5.22.0';
 
 requires 'DBIx::Class::Sims';
 requires 'DBIx::Class::Schema::Loader::Dynamic';

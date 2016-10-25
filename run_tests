@@ -1,6 +1,48 @@
 #!/bin/bash
 
+export MSYS_NO_PATHCONV=1
+#-u $(id -u):$(id -g) \
 docker run --rm \
   -v $(pwd):/app \
-  -it sims_loader \
+  -it sims_test:latest \
   $@
+
+exit
+### VARIABLES
+
+DOCKER_IMAGE='sims_test'
+CONTAINER_USERNAME='dummy'
+CONTAINER_GROUPNAME='dummy'
+HOMEDIR='/app' #'/home/'$CONTAINER_USERNAME
+GROUP_ID=$(id -g)
+USER_ID=$(id -u)
+
+### FUNCTIONS
+
+create_user_cmd()
+{
+  echo \
+    groupadd -f -g $GROUP_ID $CONTAINER_GROUPNAME '&&' \
+    useradd -u $USER_ID -g $CONTAINER_GROUPNAME $CONTAINER_USERNAME '&&' \
+    chown -R $CONTAINER_USERNAME:$CONTAINER_GROUPNAME $HOMEDIR
+}
+
+execute_as_cmd()
+{
+  echo \
+    sudo -u $CONTAINER_USERNAME HOME=$HOMEDIR
+}
+
+full_container_cmd()
+{
+  #echo "'$(create_user_cmd) && $(execute_as_cmd) $@'"
+  echo "'$(execute_as_cmd) $@'"
+}
+
+### MAIN
+
+docker run \
+  --rm=true \
+  -v $(pwd):$HOMEDIR \
+  $DOCKER_IMAGE \
+  /bin/bash -c $(full_container_cmd $@)
