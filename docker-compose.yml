@@ -1,0 +1,13 @@
+version: '2'
+services:
+  code:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+#      image: sims_test:latest
+    volumes:
+      - .:/app
+#    depends_on:
+#      - mysql
+#  mysql:
+#    image: mysql

@@ -12,6 +12,7 @@ COPY lib ./lib/
 
 COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
 COPY "devops/packaging/within_carton" "/usr/local/bin/within_carton"
+RUN chmod +x /usr/local/bin/within_carton
 
 WORKDIR /data
 

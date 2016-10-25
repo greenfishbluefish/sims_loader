@@ -11,8 +11,9 @@ ENV app /app
 RUN mkdir -p $app
 WORKDIR $app
 
-COPY "devops/within_carton" "/usr/local/bin/within_carton"
 COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
+COPY "devops/within_carton" "/usr/local/bin/within_carton"
+RUN chmod +x /usr/local/bin/within_carton
 
 ENTRYPOINT [ "/usr/local/bin/within_carton" ]
 CMD [ "prove" ]
