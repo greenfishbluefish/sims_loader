@@ -10,15 +10,16 @@ services:
       - datastores
     links:
       - mysql
-    entrypoint:
-      - /usr/local/bin/within_carton
-      - prove
-      - t/01_base.t
-      - t/02_loader.t
-      - t/03_load.t
-      - t/04_version.t
-      - t/05_drivers.t
-      #- t/06_model.t
+    #entrypoint:
+    # Uncomment this line to do any of the below options.
+    #  - /usr/local/bin/within_carton
+    # Uncomment this line to run specific tests.
+    #  - prove
+    #  - t/01_base.t
+    # Uncomment this line to get test-coverage statistics.
+    #  - cover
+    # Uncomment this line to get enter the docker and play with the app.
+    #  - bash
   # This needs to wait for the datastores to have finished coming up and are
   # actually ready for traffic. q.v. https://github.com/vishnubob/wait-for-it
   datastores:

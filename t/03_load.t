@@ -162,13 +162,17 @@ foreach my $driver (qw(sqlite mysql)) {
       },
     };
 
-=pod
     success "Load two rows by asking for 2 rows" => {
       command => $cmd,
       driver => $driver,
       database => sub {
         my $dbh = shift;
-        $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+        if ($driver eq 'sqlite') {
+          $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
+        }
+        else {
+          $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))');
+        }
       },
       specification => {
         Artist => 2,
@@ -182,12 +186,17 @@ foreach my $driver (qw(sqlite mysql)) {
     };
 
     success "Load one row with auto-gen name" => {
-      skip => "Doesn't work yet",
+      skip => "The comparison of D() doesn't work through the marshalling of YAML",
       command => $cmd,
       driver => $driver,
       database => sub {
         my $dbh = shift;
-        $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)');
+        if ($driver eq 'sqlite') {
+          $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR NOT NULL)');
+        }
+        else {
+          $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL)');
+        }
       },
       specification => {
         Artist => 1,
@@ -198,7 +207,6 @@ foreach my $driver (qw(sqlite mysql)) {
         ],
       },
     };
-=cut
   };
 }
 

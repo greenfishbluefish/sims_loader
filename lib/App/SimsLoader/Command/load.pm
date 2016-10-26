@@ -15,12 +15,12 @@ $YAML::XS::QuoteNumericStrings = undef;
 
 sub opt_spec {
   return (
-    [ 'driver=s', "Driver name" ],
+    [ 'driver|d=s', "Driver name" ],
     [ 'host|h=s', "Host of database (or SQLite filename)" ],
     [ 'port=s', "Port of database" ],
     [ 'schema=s', "Name of database schema" ],
     [ 'username|u=s', "Database user" ],
-    [ 'password=s', "Database password" ],
+    [ 'password|P=s', "Database password" ],
     [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
     [ 'specification=s', "Specification file" ],
   );

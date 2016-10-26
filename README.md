@@ -11,11 +11,11 @@ All of these examples assume the following parameters are provided:
 
 Loading data specified in a file
 
-    sims_loader --spec my/spec/file.yml
+    sims_loader --specification my/spec/file.yml
 
 Specifying additional relationships
 
-    sims_loader --spec my/spec/file.yml --def my/ddl/file.yml
+    sims_loader --specification my/spec/file.yml --definition my/ddl/file.yml
 
 # Purpose
 
@@ -28,35 +28,33 @@ requires you to use Perl and that specific ORM. Which isn't helpful.
 Until now.
 
 By marrying ::Sims with another DBIx::Class extension ::Schema::Loader, this
-tool will read your database's schema, decorate it with optional additions you
-can specify, then write data into your database using whatever you have
-specified (ideally, the minimum possible).
+tool will read your database's schema, decorate it with optional additional
+information you can specify, then write data into your database using whatever
+you have specified (ideally, the minimum possible).
 
-# Running the tests
+# Details
 
-## Using Docker
+TBD
 
-There is a Dockerfile for running the test suite. This ensures the same
-environment for all test suite runners.
+# Usage
 
-### Initial steps
+TBD
 
-* `docker build -t sims_loader -f Dockerfile.test .`
+# Contributing
 
-You only need to do this once (or if any file within the devops directory
-changes).
+## Running the tests
+
+There is a docker-compose.yml file for running the test suite. This ensures the
+same environment for all test suite runners. This also provides and connects up
+all the databases necessary for the tests to run.
 
 ### Running
 
-* With defaults (running prove):
-  * `docker run -v $(pwd):/app -t sims_loader`
-* To generate coverage
-  * `docker run -v $(pwd):/app -t sims_loader cover`
-* With prove options (like --verbose):
-  * `docker run -v $(pwd):/app -t sims_loader prove <options>`
-* To hop in and see what's going on:
-  * `docker run -v $(pwd):/app -it sims_loader bash`
-  * Note the `-it`: "-i" adds interactivity which the others do not have.
+`./run_tests` will run everything.
+
+If you want to do anything more specific, you will need to modify the
+docker-compose.yml file per the commented out section for entrypoint. The
+options are listed in the comments.
 
 ### Useful Docker commands
 
@@ -67,10 +65,7 @@ changes).
   * `docker rmi $(docker images | grep "^<none>" | awk '{print $3}')`
   * Useful if you built without tagging
 
-## Playing with the commands
+## Playing with the app
 
-Once you have launched the "bash" option of the sims\_loader container, you can
-do a `carton run bin/sims_loader` to run the script.
-
-# TODO
-
+Once you have launched the "bash" option from within the docker-compose.yml, you
+can do a `carton run bin/sims_loader` to run the script.

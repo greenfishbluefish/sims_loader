@@ -1,9 +1,9 @@
 [X] Add a --base-directory for all the files
     * Used within the container to do "SIMS_LOADER_DIRECTORY_PREFIX=/data"
 [X] "drivers" to list installed DBD modules
-    [ ] Test with more than just SQLite
+    [X] Test with more than just SQLite
         * Requires the test suite to function with multiple Docker containers
-[-] Get load working with sqlite
+[X] Get load working with sqlite
 1)  [ ] Test auto-generation of values with NOT NULL
     [X] Cannot run two test_app() in the same process
 [-] "model" to list the generated model sims_loader is working with
@@ -15,8 +15,8 @@
     [ ] Validate the model file works with the DBIC::SL-generated model
     [ ] Validate the constraints works with the model
     [ ] Validate the specification works with the model
-[ ] Build Dockerfiles to install DBDs (all downloaded)
-    [ ] MySQL
+[-] Build Dockerfiles to install DBDs (all downloaded)
+    [-] MySQL
     [ ] MariaDB (same as mysql?)
     [ ] PostgreSQL
     [ ] Oracle
