@@ -4,10 +4,28 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-#      image: sims_test:latest
     volumes:
       - .:/app
-#    depends_on:
-#      - mysql
-#  mysql:
-#    image: mysql
+    depends_on:
+      - datastores
+    links:
+      - mysql
+    entrypoint:
+      - /usr/local/bin/within_carton
+      - prove
+      - t/01_base.t
+      - t/02_loader.t
+      - t/03_load.t
+      - t/04_version.t
+      - t/05_drivers.t
+      #- t/06_model.t
+  # This needs to wait for the datastores to have finished coming up and are
+  # actually ready for traffic. q.v. https://github.com/vishnubob/wait-for-it
+  datastores:
+    image: hello-world
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'

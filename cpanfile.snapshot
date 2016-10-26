@@ -341,6 +341,20 @@ DISTRIBUTIONS
       Test::More 0.47
       Tie::Hash 0
       perl 5.006
+  DBD-mysql-4.038
+    pathname: C/CA/CAPTTOFU/DBD-mysql-4.038.tar.gz
+    provides:
+      Bundle::DBD::mysql 4.038
+      DBD::mysql 4.038
+      DBD::mysql::GetInfo undef
+      DBD::mysql::db 4.038
+      DBD::mysql::dr 4.038
+      DBD::mysql::st 4.038
+    requirements:
+      DBI 1.609
+      Data::Dumper 0
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   DBI-1.636
     pathname: T/TI/TIMB/DBI-1.636.tar.gz
     provides:

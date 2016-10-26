@@ -22,100 +22,104 @@ subtest "Failures" => sub {
     error   => qr/--driver 'unknown' not installed/,
   };
 
-  run_test "--base_directory not a directory" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    parameters => [qw(--base_directory /not_a_directory)],
-    error   => qr{--base_directory '/not_a_directory' is not a directory},
-  };
-
-  {
-    local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
-    run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+  foreach my $driver (qw(sqlite mysql)) {
+    run_test "--base_directory not a directory" => {
       command => $cmd,
-      driver  => 'sqlite',
+      driver  => $driver,
+      parameters => [qw(--base_directory /not_a_directory)],
       error   => qr{--base_directory '/not_a_directory' is not a directory},
     };
-  }
 
-  run_test "No --host" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    error   => qr/Must provide --host/,
-  };
+    {
+      local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
+      run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+        command => $cmd,
+        driver  => $driver,
+        error   => qr{--base_directory '/not_a_directory' is not a directory},
+      };
+    }
 
-  run_test "--host file not found" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    parameters => [qw(--host /file/not/found)],
-    error   => qr{--host '/file/not/found' not found},
-  };
-
-  run_test "--host file not found (bad base_directory)" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    parameters => [qw(
-      --host file_not_found
-      --base_directory), tempdir(CLEANUP => 1),
-    ],
-    error   => qr{--host 'file_not_found' not found},
-  };
-
-  run_test "--specification file not found" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    database => sub {},
-    error   => qr/Must provide --specification/,
-  };
-
-  run_test "--specification file not found" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    database => sub {},
-    parameters => [
-      '--specification' => '/file/not/found',
-    ],
-    error   => qr{--specification '/file/not/found' not found},
-  };
-
-  run_test "--specification file not found (bad base directory)" => {
-    command => $cmd,
-    driver  => 'sqlite',
-    database => sub {},
-    parameters => [
-      '--base_directory' => tempdir(CLEANUP => 1),
-      '--specification'  => 'file_not_found',
-    ],
-    error   => qr{--specification 'file_not_found' not found},
-  };
-
-  {
-    my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh "NOT YAML";
-    run_test "--specification file is not YAML/JSON" => {
+    run_test "No --host" => {
       command => $cmd,
-      driver  => 'sqlite',
-      database => sub {},
-      parameters => [
-        '--specification'  => $spec_fn,
-      ],
-      error   => qr{--specification '$spec_fn' is not YAML/JSON},
+      driver  => $driver,
+      error   => qr/Must provide --host/,
     };
-  }
 
-  {
-    my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh "NOT YAML";
-    run_test "--specification file is not YAML/JSON (via base directory)" => {
-      command => $cmd,
-      driver  => 'sqlite',
-      database => sub {},
-      parameters => [
-        '--base_directory' => dirname($spec_fn),
-        '--specification'  => basename($spec_fn),
-      ],
-      error   => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
-    };
+    if ($driver eq 'sqlite') {
+      run_test "--host file not found" => {
+        command => $cmd,
+        driver  => 'sqlite',
+        parameters => [qw(--host /file/not/found)],
+        error   => qr{--host '/file/not/found' not found},
+      };
+
+      run_test "--host file not found (bad base_directory)" => {
+        command => $cmd,
+        driver  => 'sqlite',
+        parameters => [qw(
+          --host file_not_found
+          --base_directory), tempdir(CLEANUP => 1),
+        ],
+        error   => qr{--host 'file_not_found' not found},
+      };
+
+      run_test "--specification file not found" => {
+        command => $cmd,
+        driver  => 'sqlite',
+        database => sub {},
+        error   => qr/Must provide --specification/,
+      };
+
+      run_test "--specification file not found" => {
+        command => $cmd,
+        driver  => 'sqlite',
+        database => sub {},
+        parameters => [
+          '--specification' => '/file/not/found',
+        ],
+        error   => qr{--specification '/file/not/found' not found},
+      };
+
+      run_test "--specification file not found (bad base directory)" => {
+        command => $cmd,
+        driver  => 'sqlite',
+        database => sub {},
+        parameters => [
+          '--base_directory' => tempdir(CLEANUP => 1),
+          '--specification'  => 'file_not_found',
+        ],
+        error   => qr{--specification 'file_not_found' not found},
+      };
+
+      {
+        my ($spec_fh, $spec_fn) = new_fh();
+        print $spec_fh "NOT YAML";
+        run_test "--specification file is not YAML/JSON" => {
+          command => $cmd,
+          driver  => 'sqlite',
+          database => sub {},
+          parameters => [
+            '--specification'  => $spec_fn,
+          ],
+          error   => qr{--specification '$spec_fn' is not YAML/JSON},
+        };
+      }
+
+      {
+        my ($spec_fh, $spec_fn) = new_fh();
+        print $spec_fh "NOT YAML";
+        run_test "--specification file is not YAML/JSON (via base directory)" => {
+          command => $cmd,
+          driver  => 'sqlite',
+          database => sub {},
+          parameters => [
+            '--base_directory' => dirname($spec_fn),
+            '--specification'  => basename($spec_fn),
+          ],
+          error   => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
+        };
+      }
+    }
   }
 };
 

@@ -7,7 +7,7 @@ use App::SimsLoader;
 
 success "listing sqlite" => {
   command => 'drivers',
-  stdout  => "SQLite\n",
+  stdout  => "SQLite\nmysql\n",
 };
 
 done_testing;

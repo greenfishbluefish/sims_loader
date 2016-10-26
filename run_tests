@@ -1,48 +1,16 @@
 #!/bin/bash
 
 export MSYS_NO_PATHCONV=1
-#-u $(id -u):$(id -g) \
-docker run --rm \
-  -v $(pwd):/app \
-  -it sims_test:latest \
-  $@
 
-exit
-### VARIABLES
+if [[ "$@" == "stop" ]]; then
+  docker-compose down
+else
+  # This order is so that we can launch the databases and let them live beyond
+  # any given test run.
 
-DOCKER_IMAGE='sims_test'
-CONTAINER_USERNAME='dummy'
-CONTAINER_GROUPNAME='dummy'
-HOMEDIR='/app' #'/home/'$CONTAINER_USERNAME
-GROUP_ID=$(id -g)
-USER_ID=$(id -u)
+  # This is idempotent, so do it every time.
+  docker-compose up -d datastores
 
-### FUNCTIONS
-
-create_user_cmd()
-{
-  echo \
-    groupadd -f -g $GROUP_ID $CONTAINER_GROUPNAME '&&' \
-    useradd -u $USER_ID -g $CONTAINER_GROUPNAME $CONTAINER_USERNAME '&&' \
-    chown -R $CONTAINER_USERNAME:$CONTAINER_GROUPNAME $HOMEDIR
-}
-
-execute_as_cmd()
-{
-  echo \
-    sudo -u $CONTAINER_USERNAME HOME=$HOMEDIR
-}
-
-full_container_cmd()
-{
-  #echo "'$(create_user_cmd) && $(execute_as_cmd) $@'"
-  echo "'$(execute_as_cmd) $@'"
-}
-
-### MAIN
-
-docker run \
-  --rm=true \
-  -v $(pwd):$HOMEDIR \
-  $DOCKER_IMAGE \
-  /bin/bash -c $(full_container_cmd $@)
+  # This runs the tests
+  docker-compose up code
+fi
