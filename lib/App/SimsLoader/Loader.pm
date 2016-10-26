@@ -19,6 +19,9 @@ sub new {
 
   my $type = delete $opts{type};
 
+  my $user = delete $opts{username} // '';
+  my $pass = delete $opts{password} // '';
+
   my @connectors;
   while (my ($k,$v) = each %opts) {
     push @connectors, "$k=$v";
@@ -28,16 +31,11 @@ sub new {
 
   my $connect_string = "dbi:$type:$connectors";
 
-  my $schema = MySchema->connect($connect_string, '', '');
+  my $schema = MySchema->connect($connect_string, $user, $pass);
   DBIx::Class::Schema::Loader::Dynamic->new(
     naming => 'v8',
     use_namespaces => 0,
     schema => $schema,
-
-    # Ignore the sqlite_master and sqlite_temp_master tables
-    # XXX: Is this required? I cannot get a failing test for this even though
-    # it used to be broken ... ?
-    #exclude => qr/^sqlite_(master|temp)$/,
   )->load;
 
   return bless {

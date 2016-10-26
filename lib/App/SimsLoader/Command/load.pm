@@ -7,12 +7,20 @@ use strictures 2;
 use base 'App::SimsLoader::Command';
 
 use App::SimsLoader::Loader;
+use Net::Telnet;
 use YAML::Any qw(LoadFile Dump);
+
+# Don't quote numeric strings that haven't been numified.
+$YAML::XS::QuoteNumericStrings = undef;
 
 sub opt_spec {
   return (
     [ 'driver=s', "Driver name" ],
     [ 'host|h=s', "Host of database (or SQLite filename)" ],
+    [ 'port=s', "Port of database" ],
+    [ 'schema=s', "Name of database schema" ],
+    [ 'username|u=s', "Database user" ],
+    [ 'password=s', "Database password" ],
     [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
     [ 'specification=s', "Specification file" ],
   );
@@ -51,10 +59,34 @@ sub validate_args {
 
   # If we're SQLite, validate the file exists
   if ($opts->{driver} eq 'SQLite') {
-    $self->{host} = $self->find_file($opts, $opts->{host})
+    my $dbname = $self->find_file($opts, $opts->{host})
       or $self->usage_error("--host '$opts->{host}' not found");
+
+    $self->{params} = {
+      dbname => $dbname,
+    };
   }
   # If we're not, validate we can connect to the host
+  elsif ($opts->{driver} eq 'mysql') {
+    my $port = $opts->{port} // 3306;
+    eval {
+      Net::Telnet->new(
+        -host => $opts->{host},
+        -port => $port,
+        -timeout => 1,
+      );
+    }; if ($@) {
+      $self->usage_error("--host '$opts->{host}:$port' not found");
+    }
+
+    $self->{params} = {
+      host => $opts->{host},
+      port => $port,
+      username => $opts->{username} // '',
+      password => $opts->{password} // '',
+      database => $opts->{schema} // '',
+    };
+  }
   else {
     die "Unimplemented!\n";
   }
@@ -75,7 +107,7 @@ sub execute {
 
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
-    dbname => $self->{host},
+    %{$self->{params}},
   );
 
   my ($rows, $addl) = $loader->load($self->{spec});

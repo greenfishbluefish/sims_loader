@@ -58,11 +58,42 @@ sub run_test ($$) {
     }
 
     if ($options->{database}) {
-      my ($fh, $fn) = new_fh();
-      my $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '');
-      $options->{database}->($dbh);
+      my $driver = $options->{driver} // 'sqlite';
 
-      push @parameters, '--host', $fn;
+      if ($driver eq 'sqlite') {
+        my ($fh, $fn) = new_fh();
+        my $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '');
+        $options->{database}->($dbh);
+
+        push @parameters, '--host', $fn;
+      }
+      elsif ($driver eq 'mysql') {
+        my $dbname = 'foo';
+        my $dbhost = 'mysql';
+        my $dbport = '3306';
+        my $dbuser = 'root';
+        my $dbpass = '';
+
+        my $conn = "host=$dbhost;port=$dbport";
+
+        my $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass);
+        $dbh->do("DROP DATABASE IF EXISTS $dbname;");
+        $dbh->do("CREATE DATABASE IF NOT EXISTS $dbname;");
+        $dbh->disconnect;
+
+        $conn .= ";database=$dbname";
+        $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass);
+        $options->{database}->($dbh);
+
+        push @parameters, '--host', $dbhost;
+        push @parameters, '--port', $dbport;
+        push @parameters, '--schema', $dbname;
+        push @parameters, '--username', $dbuser;
+        push @parameters, '--password', $dbpass;
+      }
+      else {
+        die "Don't know what to do with '$driver'\n";
+      }
     }
 
     if ($options->{specification}) {
