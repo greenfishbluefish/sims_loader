@@ -11,10 +11,14 @@ VERSION=$(grep VERSION $DIR/lib/App/SimsLoader.pm | cut -d\' -f 2 )
 function build () {
   local purpose=$1
 
+  local tag="robkinyon/sims_loader:$VERSION"
+
   docker build \
-    --tag robkinyon/sims_loader:$VERSION \
+    --tag  $tag \
     --file Dockerfile.$purpose \
     $DIR
+
+  docker push $tag
 }
 
 build "base"

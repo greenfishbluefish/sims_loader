@@ -6,6 +6,7 @@
 [X] Get load working with sqlite
 1)  [ ] Test auto-generation of values with NOT NULL
     [X] Cannot run two test_app() in the same process
+[ ] Throw an error when the schema is empty or unset.
 [-] "model" to list the generated model sims_loader is working with
     [-] Lists "<model>: <table>" in alphabetical order
     [ ] "model <model>" to list the detail for that model
