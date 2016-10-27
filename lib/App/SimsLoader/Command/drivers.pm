@@ -30,6 +30,10 @@ sub find_dbds {
   return sort keys %seen;
 }
 
+# Don't use the common validations or specifications
+sub opt_spec {}
+sub validate_args {}
+
 sub execute {
   say for find_dbds();
 }
