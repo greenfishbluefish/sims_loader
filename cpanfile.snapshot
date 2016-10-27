@@ -97,6 +97,29 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  Carp-Assert-0.21
+    pathname: N/NE/NEILB/Carp-Assert-0.21.tar.gz
+    provides:
+      Carp::Assert 0.21
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      perl 5.006
+      strict 0
+      vars 0
+      warnings 0
+  Carp-Assert-More-1.14
+    pathname: P/PE/PETDANCE/Carp-Assert-More-1.14.tar.gz
+    provides:
+      Carp::Assert::More 1.14
+    requirements:
+      Carp 0
+      Carp::Assert 0
+      ExtUtils::MakeMaker 0
+      Scalar::Util 0
+      Test::Exception 0
+      Test::More 0.18
   Carp-Clan-6.06
     pathname: K/KE/KENTNL/Carp-Clan-6.06.tar.gz
     provides:
@@ -690,14 +713,14 @@ DISTRIBUTIONS
       YAML::Tiny 1.48
       parent 0.224
       perl 5.008005
-  DBIx-Class-Sims-0.300401
-    pathname: R/RK/RKINYON/DBIx-Class-Sims-0.300401.tar.gz
+  DBIx-Class-Sims-0.300402
+    pathname: R/RK/RKINYON/DBIx-Class-Sims-0.300402.tar.gz
     provides:
-      DBIx::Class::Sims 0.300401
+      DBIx::Class::Sims 0.300402
       DBIx::Class::Sims::Runner undef
       DBIx::Class::Sims::Types undef
       DBIx::Class::Sims::Util undef
-      MyCloner 0.300401
+      MyCloner 0.300402
     requirements:
       Clone::Any 0
       DBD::SQLite 1.40
@@ -767,9 +790,17 @@ DISTRIBUTIONS
       Class::Accessor::Grouped 0
       DBD::SQLite 1.11
       DBIx::Class 0.07005
-      Data::UUID 0
       ExtUtils::MakeMaker 6.42
       perl 5.008001
+  Data-Compare-1.25
+    pathname: D/DC/DCANTRELL/Data-Compare-1.25.tar.gz
+    provides:
+      Data::Compare 1.25
+      Data::Compare::Plugins::Scalar::Properties 1
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Find::Rule 0.1
+      Scalar::Util 0
   Data-Dump-1.23
     pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
     provides:
@@ -1549,6 +1580,37 @@ DISTRIBUTIONS
       HTML::Entities 3.69
       Storable 0
       Test::More 0
+  Devel-CoverReport-0.05
+    pathname: N/NA/NATANAEL/Devel-CoverReport-0.05.tar.gz
+    provides:
+      Devel::CoverReport 0.05
+      Devel::CoverReport::App::CoverReport 0.05
+      Devel::CoverReport::App::ProveCover 0.05
+      Devel::CoverReport::DB 0.05
+      Devel::CoverReport::Feedback 0.05
+      Devel::CoverReport::Formatter 0.05
+      Devel::CoverReport::Formatter::Html 0.05
+      Devel::CoverReport::Formatter::YAML 0.05
+      Devel::CoverReport::Table 0.05
+      Devel::CoverReport::VCS::Fake 0.05
+      Devel::CoverReport::VCS::Git 0.05
+      Devel::CoverReport::VCS::SVN 0.05
+    requirements:
+      App::Prove 3.11
+      Carp::Assert::More 1.12
+      Cwd 3.12
+      Data::Compare 1.22
+      Devel::Cover 0.74
+      File::Path 1.07
+      File::Slurp 9999.13
+      FindBin 1.47
+      Getopt::Long 2.36
+      JSON 2.17
+      Params::Validate 0.88
+      Pod::Usage 1.35
+      Storable 2.15
+      YAML::Syck 1.05
+      perl v5.8.0
   Devel-GlobalDestruction-0.13
     pathname: H/HA/HAARG/Devel-GlobalDestruction-0.13.tar.gz
     provides:
@@ -1689,6 +1751,18 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
+  File-Find-Rule-0.34
+    pathname: R/RC/RCLAMP/File-Find-Rule-0.34.tar.gz
+    provides:
+      File::Find::Rule 0.34
+      File::Find::Rule::Test::ATeam undef
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Find 0
+      File::Spec 0
+      Number::Compare 0
+      Test::More 0
+      Text::Glob 0.07
   File-HomeDir-1.00
     pathname: A/AD/ADAMK/File-HomeDir-1.00.tar.gz
     provides:
@@ -1733,6 +1807,18 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.11
       File::Spec 0
       IO::Dir 0
+  File-Slurp-9999.19
+    pathname: U/UR/URI/File-Slurp-9999.19.tar.gz
+    provides:
+      File::Slurp 9999.19
+      FileSlurp_12 9999.13
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      Fcntl 0
+      POSIX 0
+      perl 5.004
   File-Which-1.21
     pathname: P/PL/PLICEASE/File-Which-1.21.tar.gz
     provides:
@@ -1886,6 +1972,7 @@ DISTRIBUTIONS
     provides:
       Lingua::EN::Inflect 1.899
     requirements:
+      ExtUtils::MakeMaker 0
       Test::More 0
   Lingua-EN-Inflect-Number-1.12
     pathname: N/NE/NEILB/Lingua-EN-Inflect-Number-1.12.tar.gz
@@ -2658,6 +2745,13 @@ DISTRIBUTIONS
       Net::Telnet 3.04
     requirements:
       ExtUtils::MakeMaker 0
+  Number-Compare-0.03
+    pathname: R/RC/RCLAMP/Number-Compare-0.03.tar.gz
+    provides:
+      Number::Compare 0.03
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::More 0
   Package-DeprecationManager-0.17
     pathname: D/DR/DROLSKY/Package-DeprecationManager-0.17.tar.gz
     provides:
@@ -3230,9 +3324,8 @@ DISTRIBUTIONS
     requirements:
       Capture::Tiny 0.24
       Data::Dumper 2.126
-      ExtUtils::MakeMaker 0
       Test::More 0.88
-      Text::Diff 1.43
+      Text::Diff 0.35
   Test-Exception-0.43
     pathname: E/EX/EXODIST/Test-Exception-0.43.tar.gz
     provides:
@@ -3504,6 +3597,12 @@ DISTRIBUTIONS
       Text::German::Vorsilbe undef
     requirements:
       ExtUtils::MakeMaker 0
+  Text-Glob-0.09
+    pathname: R/RC/RCLAMP/Text-Glob-0.09.tar.gz
+    provides:
+      Text::Glob 0.09
+    requirements:
+      Test::More 0
   Text-Unidecode-1.27
     pathname: S/SB/SBURKE/Text-Unidecode-1.27.tar.gz
     provides:

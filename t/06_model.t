@@ -7,22 +7,14 @@ use File::Temp qw(tempdir);
 use App::SimsLoader;
 
 use t::common qw(new_fh run_test success);
+use t::common_tests qw(failures_all_drivers);
 
 my $cmd = 'model';
 
-subtest "Failures" => sub {
-  run_test "No parameters" => {
-    command => $cmd,
-    error   => qr/Must provide --driver/,
-  };
+failures_all_drivers($cmd);
 
-  run_test "--driver unknown" => {
-    command => $cmd,
-    driver  => 'unknown',
-    error   => qr/--driver 'unknown' not installed/,
-  };
-
-  foreach my $driver (qw(sqlite mysql)) {
+foreach my $driver (qw(sqlite mysql)) {
+  subtest "Failures for $driver" => sub {
     run_test "--base_directory not a directory" => {
       command => $cmd,
       driver  => $driver,
@@ -78,8 +70,8 @@ subtest "Failures" => sub {
         error   => qr{--host 'mysql:3307' not found},
       };
     }
-  }
-};
+  };
+}
 
 foreach my $driver (qw(sqlite mysql)) {
   subtest "Successes for $driver" => sub {
