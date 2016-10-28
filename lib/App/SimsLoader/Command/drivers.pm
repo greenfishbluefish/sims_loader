@@ -1,7 +1,7 @@
 # ABSTRACT: list all available drivers
 package App::SimsLoader::Command::drivers;
 
-use 5.20.0;
+use 5.22.0;
 use strictures 2;
 
 use base 'App::SimsLoader::Command';
@@ -29,10 +29,6 @@ sub find_dbds {
   }
   return sort keys %seen;
 }
-
-# Don't use the common validations or specifications
-sub opt_spec {}
-sub validate_args {}
 
 sub execute {
   say for find_dbds();

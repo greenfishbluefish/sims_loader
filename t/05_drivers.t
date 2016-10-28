@@ -5,7 +5,7 @@ use t::common qw(success);
 
 use App::SimsLoader;
 
-success "listing sqlite" => {
+success "listing available drivers" => {
   command => 'drivers',
   stdout  => "SQLite\nmysql\n",
 };

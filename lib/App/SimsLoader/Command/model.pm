@@ -1,7 +1,7 @@
 # ABSTRACT: show the model of your database
 package App::SimsLoader::Command::model;
 
-use 5.20.0;
+use 5.22.0;
 use strictures 2;
 
 use base 'App::SimsLoader::Command';
@@ -12,7 +12,9 @@ use YAML::Any qw(Dump);
 sub opt_spec {
   my $self = shift;
   return (
-    $self->SUPER::opt_spec,
+    $self->opt_spec_for(qw(
+      base_directory connection
+    )),
     [ 'name=s', "Model/Table for specific details" ],
   );
 }
@@ -21,7 +23,9 @@ sub validate_args {
   my $self = shift;
   my ($opts, $args) = @_;
 
-  $self->SUPER::validate_args($opts, $args);
+  $self->validate_driver($opts, $args);
+  $self->validate_base_directory($opts, $args);
+  $self->validate_connection($opts, $args);
 
   # If $opts->{name}, validate it's a table or model we know about
 }

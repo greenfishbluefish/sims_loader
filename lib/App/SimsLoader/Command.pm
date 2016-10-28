@@ -1,37 +1,44 @@
 package App::SimsLoader::Command;
 
-use 5.20.0;
+use 5.22.0;
 
 use strictures 2;
 
 use App::Cmd::Setup -command;
 
 use File::Spec ();
+use Net::Telnet;
 use YAML::Any qw(LoadFile);
 
 # Don't quote numeric strings that haven't been numified.
 $YAML::XS::QuoteNumericStrings = undef;
 
-# Sections:
-# * driver
-# * base_directory
-# * host (under sqlite)
-# * host/port
-# * schema/username/password
+sub opt_spec_for {
+  my $self = shift;
+  my %opts = map { $_ => 1 } @_;
 
-sub opt_spec {
-  return (
-    [ 'driver|d=s', "Driver name" ],
-    [ 'host|h=s', "Host of database (or SQLite filename)" ],
-    [ 'port=s', "Port of database" ],
-    [ 'schema=s', "Name of database schema" ],
-    [ 'username|u=s', "Database user" ],
-    [ 'password|P=s', "Database password" ],
-    [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
-  );
+  my @specs;
+  if ($opts{base_directory}) {
+    push @specs, (
+      [ 'base_directory=s', "Directory to find all files", {default => $ENV{SIMS_LOADER_BASE_DIRECTORY} // '.'} ],
+    );
+  }
+
+  if ($opts{connection}) {
+    push @specs, (
+      [ 'driver|d=s', "Driver name" ],
+      [ 'host|h=s', "Host of database (or SQLite filename)" ],
+      [ 'port=s', "Port of database" ],
+      [ 'schema=s', "Name of database schema" ],
+      [ 'username|u=s', "Database user" ],
+      [ 'password|P=s', "Database password" ],
+    );
+  }
+
+  return @specs;
 }
 
-sub validate_args {
+sub validate_driver {
   my $self = shift;
   my ($opts, $args) = @_;
 
@@ -43,10 +50,20 @@ sub validate_args {
     $self->usage_error("--driver '$opts->{driver}' not installed");
   }
   $opts->{driver} = $dbds{lc($opts->{driver})};
+}
+
+sub validate_base_directory {
+  my $self = shift;
+  my ($opts, $args) = @_;
 
   unless (-d $opts->{base_directory}) {
     $self->usage_error("--base_directory '$opts->{base_directory}' is not a directory");
   }
+}
+
+sub validate_connection {
+  my $self = shift;
+  my ($opts, $args) = @_;
 
   $self->usage_error('Must provide --host') unless $opts->{host};
 
