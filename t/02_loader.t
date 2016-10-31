@@ -2,7 +2,7 @@ use strictures 2;
 
 use DBI;
 use Test2::Bundle::Extended;
-use t::common qw(create_dbh);
+use t::common qw(create_dbh table_sql);
 
 use App::SimsLoader::Loader;
 
@@ -12,28 +12,18 @@ foreach my $driver (qw(SQLite mysql)) {
     my ($dbh, $params) = create_dbh({ driver => lc($driver) });
     my %params = @$params;
 
+    $dbh->do(table_sql(lc($driver), artists => {
+      id => { primary => 1 },
+      name => { string => 255, not_null => 1 },
+    }));
     my $loader;
     if (lc($driver) eq 'sqlite') {
-      $dbh->do("
-        CREATE TABLE artists (
-          id INTEGER PRIMARY KEY AUTOINCREMENT
-         ,name TEXT NOT NULL
-        );
-      ");
-
       $loader = App::SimsLoader::Loader->new(
         type => $driver,
         dbname => $params{'--host'},
       );
     }
     elsif (lc($driver) eq 'mysql') {
-      $dbh->do("
-        CREATE TABLE artists (
-          id INTEGER PRIMARY KEY AUTO_INCREMENT
-         ,name VARCHAR(255) NOT NULL
-        );
-      ");
-
       $loader = App::SimsLoader::Loader->new(
         type => $driver,
         dbname => $params{'--schema'},

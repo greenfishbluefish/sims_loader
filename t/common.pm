@@ -9,6 +9,7 @@ use base 'Exporter';
 our @EXPORT_OK = qw(
   new_fh
   create_dbh
+  table_sql
   run_test
   success
 );
@@ -77,10 +78,50 @@ sub create_dbh {
     push @addl, '--password', $dbpass;
   }
   else {
-    die "Don't know what to do with '$driver'\n";
+    die "Don't know how to build DBH for '$driver'\n";
   }
 
   return ($dbh, \@addl);
+}
+
+sub table_sql {
+  my ($driver, $table, $columns) = @_;
+
+  my @columns;
+  my $sql = "CREATE TABLE `$table` (";
+  if ($driver eq 'sqlite') {
+    while (my ($col, $type) = each %$columns) {
+      if ($type->{primary}) {
+        push @columns, "`$col` INTEGER PRIMARY KEY AUTOINCREMENT";
+      }
+      if ($type->{string}) {
+        push @columns, "`$col` VARCHAR($type->{string})";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
+  elsif ($driver eq 'mysql') {
+    while (my ($col, $type) = each %$columns) {
+      if ($type->{primary}) {
+        push @columns, "`$col` INT NOT NULL PRIMARY KEY AUTO_INCREMENT";
+      }
+      if ($type->{string}) {
+        push @columns, "`$col` VARCHAR($type->{string})";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
+  else {
+    die "Don't know how to build SQL for '$driver'\n";
+  }
+  $sql .= join(',', @columns);
+  $sql .= ");";
+
+  return $sql;
 }
 
 # Provide a clean wrapper around fork_subtest(). We need this because

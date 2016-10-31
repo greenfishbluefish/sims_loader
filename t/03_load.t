@@ -6,7 +6,7 @@ use File::Temp qw(tempdir);
 
 use App::SimsLoader;
 
-use t::common qw(new_fh success run_test);
+use t::common qw(new_fh table_sql success run_test);
 use t::common_tests qw(
   failures_all_drivers
   failures_base_directory
@@ -87,13 +87,10 @@ foreach my $driver (qw(sqlite mysql)) {
       command => $cmd,
       driver => $driver,
       database => sub {
-        my $dbh = shift;
-        if ($driver eq 'sqlite') {
-          $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
-        }
-        else {
-          $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))');
-        }
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255 },
+        }));
       },
       specification => {
         Artist => { name => 'George' },
@@ -109,13 +106,10 @@ foreach my $driver (qw(sqlite mysql)) {
       command => $cmd,
       driver => $driver,
       database => sub {
-        my $dbh = shift;
-        if ($driver eq 'sqlite') {
-          $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR)');
-        }
-        else {
-          $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))');
-        }
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255 },
+        }));
       },
       specification => {
         Artist => 2,
@@ -133,13 +127,10 @@ foreach my $driver (qw(sqlite mysql)) {
       command => $cmd,
       driver => $driver,
       database => sub {
-        my $dbh = shift;
-        if ($driver eq 'sqlite') {
-          $dbh->do('CREATE TABLE artists (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR NOT NULL)');
-        }
-        else {
-          $dbh->do('CREATE TABLE artists (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL)');
-        }
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255, not_null => 1 },
+        }));
       },
       specification => {
         Artist => 1,
