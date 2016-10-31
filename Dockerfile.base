@@ -6,7 +6,7 @@ RUN (curl -L http://cpanmin.us | perl - App::cpanminus) \
 
 WORKDIR /app
 COPY cpanfile* LICENSE README.md ./
-RUN carton install
+RUN carton install --deployment --without test
 COPY bin/* ./bin/
 COPY lib ./lib/
 

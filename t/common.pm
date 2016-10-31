@@ -87,16 +87,22 @@ sub create_dbh {
 sub table_sql {
   my ($driver, $table, $columns) = @_;
 
-  my @columns;
+  my (@columns, @keys);
   my $sql = "CREATE TABLE `$table` (";
   if ($driver eq 'sqlite') {
     while (my ($col, $type) = each %$columns) {
       if ($type->{primary}) {
         push @columns, "`$col` INTEGER PRIMARY KEY AUTOINCREMENT";
       }
-      if ($type->{string}) {
+      elsif ($type->{foreign}) {
+        push @columns, "`$col` INTEGER";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+      }
+      elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
       }
+
       if ($type->{not_null}) {
         $columns[-1] .= " NOT NULL";
       }
@@ -107,7 +113,12 @@ sub table_sql {
       if ($type->{primary}) {
         push @columns, "`$col` INT NOT NULL PRIMARY KEY AUTO_INCREMENT";
       }
-      if ($type->{string}) {
+      elsif ($type->{foreign}) {
+        push @columns, "`$col` INT";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+      }
+      elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
       }
       if ($type->{not_null}) {
@@ -118,7 +129,8 @@ sub table_sql {
   else {
     die "Don't know how to build SQL for '$driver'\n";
   }
-  $sql .= join(',', @columns);
+
+  $sql .= join(',', @columns, @keys);
   $sql .= ");";
 
   return $sql;

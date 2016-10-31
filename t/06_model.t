@@ -69,6 +69,47 @@ foreach my $driver (qw(sqlite mysql)) {
         },
       },
     };
+
+    success "Two unconnected tables" => {
+      command => $cmd,
+      driver => $driver,
+      database => sub {
+        my $dbh = shift;
+        $dbh->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255 },
+        }));
+        $dbh->do(table_sql($driver, studios => {
+          id => { primary => 1 },
+          name => { string => 255 },
+        }));
+      },
+      yaml_out => {
+        Artist => 'artists',
+        Studio => 'studios',
+      },
+    };
+
+    success "Two connected tables" => {
+      command => $cmd,
+      driver => $driver,
+      database => sub {
+        my $dbh = shift;
+        my $sql = table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255 },
+        }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+        $sql = table_sql($driver, studios => {
+          id => { primary => 1 },
+          artist_id => { foreign => 'artists.id' },
+          name => { string => 255 },
+        }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      },
+      yaml_out => {
+        Artist => 'artists',
+        Studio => 'studios',
+      },
+    };
   };
 }
 
