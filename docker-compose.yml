@@ -15,6 +15,7 @@ services:
     #  - /usr/local/bin/within_carton
     # Uncomment this line to run specific tests.
     #  - prove
+    #  - -v
     #  - t/03_load.t
     # Uncomment this line to get test-coverage statistics.
     #  - cover

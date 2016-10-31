@@ -3,6 +3,8 @@ package # Hide from PAUSE
 
 use strictures 2;
 
+use 5.22.0;
+
 use base 'Exporter';
 our @EXPORT_OK = qw(
   new_fh
@@ -38,6 +40,48 @@ sub new_fh {
   return ($fh, $filename);
 }
 
+sub create_dbh {
+  my ($options) = @_;
+  my $driver = $options->{driver} // 'sqlite';
+
+  my ($dbh, @addl);
+  if ($driver eq 'sqlite') {
+    my ($fh, $fn) = new_fh();
+    $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '')
+      or die "Cannot connect to $driver database: $DBI::errstr\n";
+    push @addl, '--host', $fn;
+  }
+  elsif ($driver eq 'mysql') {
+    my $dbname = 'foo';
+    my $dbhost = 'mysql';
+    my $dbport = '3306';
+    my $dbuser = 'root';
+    my $dbpass = '';
+
+    my $conn = "host=$dbhost;port=$dbport";
+
+    $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass)
+      or die "Cannot connect to $driver database: $DBI::errstr\n";
+    $dbh->do("DROP DATABASE IF EXISTS $dbname;");
+    $dbh->do("CREATE DATABASE IF NOT EXISTS $dbname;");
+    $dbh->disconnect;
+
+    $conn .= ";database=$dbname";
+    $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass)
+      or die "Cannot connect to $driver database: $DBI::errstr\n";
+    push @addl, '--host', $dbhost;
+    push @addl, '--port', $dbport;
+    push @addl, '--schema', $dbname;
+    push @addl, '--username', $dbuser;
+    push @addl, '--password', $dbpass;
+  }
+  else {
+    die "Don't know what to do with '$driver'\n";
+  }
+
+  return ($dbh, \@addl);
+}
+
 # Provide a clean wrapper around fork_subtest(). We need this because
 # DBIC::DL expects to only be called once in a process per schema (for obvious
 # and valid reasons). So, we need to run each test that would call DBIC::DL in
@@ -58,42 +102,10 @@ sub run_test ($$) {
     }
 
     if ($options->{database}) {
-      my $driver = $options->{driver} // 'sqlite';
-
-      if ($driver eq 'sqlite') {
-        my ($fh, $fn) = new_fh();
-        my $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '');
-        $options->{database}->($dbh);
-
-        push @parameters, '--host', $fn;
-      }
-      elsif ($driver eq 'mysql') {
-        my $dbname = 'foo';
-        my $dbhost = 'mysql';
-        my $dbport = '3306';
-        my $dbuser = 'root';
-        my $dbpass = '';
-
-        my $conn = "host=$dbhost;port=$dbport";
-
-        my $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass);
-        $dbh->do("DROP DATABASE IF EXISTS $dbname;");
-        $dbh->do("CREATE DATABASE IF NOT EXISTS $dbname;");
-        $dbh->disconnect;
-
-        $conn .= ";database=$dbname";
-        $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass);
-        $options->{database}->($dbh);
-
-        push @parameters, '--host', $dbhost;
-        push @parameters, '--port', $dbport;
-        push @parameters, '--schema', $dbname;
-        push @parameters, '--username', $dbuser;
-        push @parameters, '--password', $dbpass;
-      }
-      else {
-        die "Don't know what to do with '$driver'\n";
-      }
+      my ($dbh, $addl_params) = create_dbh($options);
+      $options->{database}->($dbh);
+      $dbh->disconnect;
+      push @parameters, @$addl_params;
     }
 
     if ($options->{specification}) {
