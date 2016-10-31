@@ -8,6 +8,7 @@ use 5.22.0;
 use base 'Exporter';
 our @EXPORT_OK = qw(
   new_fh
+  create_dbh
   run_test
   success
 );
