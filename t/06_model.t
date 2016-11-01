@@ -128,7 +128,7 @@ foreach my $driver (qw(sqlite mysql)) {
         $sql = table_sql($driver, studios => {
           id => { primary => 1 },
           artist_id => { foreign => 'artists.id' },
-          name => { string => 255 },
+          name => { string => 155 },
         }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
       },
       yaml_out => {
@@ -157,7 +157,7 @@ foreach my $driver (qw(sqlite mysql)) {
       command => $cmd,
       driver => $driver,
       parameters => [qw(
-        --name studios
+        --name Studio
       )],
       database => sub {
         my $dbh = shift;
