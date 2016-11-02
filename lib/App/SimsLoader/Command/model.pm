@@ -49,9 +49,22 @@ sub execute {
       $response{$name} = my $rv = {
         table => $rsrc->from,
         columns => {},
+        relationships => {},
       };
       foreach my $col_name ($rsrc->columns) {
         $rv->{columns}{$col_name} = $rsrc->column_info($col_name);
+      }
+
+      foreach my $rel_name ($rsrc->relationships) {
+        my $info = $rsrc->relationship_info($rel_name);
+        #$rv->{relationships}{$rel_name} = $info;
+        (my $other = $info->{class}) =~ s/MySchema:://;
+        if ($info->{attrs}{accessor} eq 'single') {
+          $rv->{relationships}{$rel_name} = { belongs_to => $other };
+        }
+        else {
+          $rv->{relationships}{$rel_name} = { has_many => $other };
+        }
       }
     }
   }

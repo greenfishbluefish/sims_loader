@@ -1,6 +1,4 @@
 [ ] Throw an error when the schema is empty or unset.
-[ ] Write tests for multiple tables
-    [ ] Refactor the tests to create databases from code without SQL
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
@@ -62,3 +60,5 @@ load_sims CMD \
 [X] "model" to list the generated model sims_loader is working with
     [X] Lists "<model>: <table>" in alphabetical order
     [X] "model <model>" to list the detail for that model
+[X] Write tests for multiple tables
+    [X] Refactor the tests to create databases from code without SQL
