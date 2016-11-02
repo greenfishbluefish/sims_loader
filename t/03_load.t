@@ -25,29 +25,41 @@ foreach my $driver (qw(sqlite mysql)) {
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {},
-      error   => qr/Must provide --specification/,
+      database => sub {
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+        }));
+      },
+      error => qr/Must provide --specification/,
     };
 
     run_test "--specification file not found" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {},
+      database => sub {
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+        }));
+      },
       parameters => [
         '--specification' => '/file/not/found',
       ],
-      error   => qr{--specification '/file/not/found' not found},
+      error => qr{--specification '/file/not/found' not found},
     };
 
     run_test "--specification file not found (bad base directory)" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {},
+      database => sub {
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+        }));
+      },
       parameters => [
         '--base_directory' => tempdir(CLEANUP => 1),
         '--specification'  => 'file_not_found',
       ],
-      error   => qr{--specification 'file_not_found' not found},
+      error => qr{--specification 'file_not_found' not found},
     };
 
     {
@@ -56,11 +68,15 @@ foreach my $driver (qw(sqlite mysql)) {
       run_test "--specification file is not YAML/JSON" => {
         command => $cmd,
         driver  => $driver,
-        database => sub {},
+        database => sub {
+          shift->do(table_sql($driver, artists => {
+            id => { primary => 1 },
+          }));
+        },
         parameters => [
           '--specification'  => $spec_fn,
         ],
-        error   => qr{--specification '$spec_fn' is not YAML/JSON},
+        error => qr{--specification '$spec_fn' is not YAML/JSON},
       };
     }
 
@@ -70,12 +86,16 @@ foreach my $driver (qw(sqlite mysql)) {
       run_test "--specification file is not YAML/JSON (via base directory)" => {
         command => $cmd,
         driver  => $driver,
-        database => sub {},
+        database => sub {
+          shift->do(table_sql($driver, artists => {
+            id => { primary => 1 },
+          }));
+        },
         parameters => [
           '--base_directory' => dirname($spec_fn),
           '--specification'  => basename($spec_fn),
         ],
-        error   => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
+        error => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
       };
     }
   };

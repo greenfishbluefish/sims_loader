@@ -148,7 +148,6 @@ sub run_test ($$) {
 
     my @parameters = (
       $options->{command},
-      @{$options->{parameters} // []},
     );
 
     if ($options->{driver}) {
@@ -168,6 +167,9 @@ sub run_test ($$) {
 
       push @parameters, '--specification', $fn;
     }
+
+    # Allow specified parameters to override auto-generated parameters
+    push @parameters, @{$options->{parameters} // []};
 
     my $result = test_app('App::SimsLoader' => \@parameters);
 

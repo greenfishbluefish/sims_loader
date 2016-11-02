@@ -6,6 +6,7 @@ use strictures 2;
 
 use App::Cmd::Setup -command;
 
+use DBI;
 use File::Spec ();
 use Net::Telnet;
 use YAML::Any qw(LoadFile);
@@ -72,6 +73,22 @@ sub validate_connection {
     my $dbname = $self->find_file($opts, $opts->{host})
       or $self->usage_error("--host '$opts->{host}' not found");
 
+    my $dbh = eval {
+      DBI->connect(
+        "dbi:SQLite:dbname=$dbname", '', '', {
+          PrintError => 0,
+          RaiseError => 1,
+        },
+      );
+    }; if ($@) {
+      $self->usage_error("Cannot connect to database: $@");
+    }
+
+    my @tables = $dbh->tables('', '', 'TABLE');
+    unless (@tables) {
+      $self->usage_error("Schema has no tables");
+    }
+
     $self->{params} = {
       dbname => $dbname,
     };
@@ -79,6 +96,9 @@ sub validate_connection {
   # If we're not, validate we can connect to the host
   elsif ($opts->{driver} eq 'mysql') {
     my $port = $opts->{port} // 3306;
+
+    # Use Net::Telnet to determine if we can even connect to the database host.
+    # This allows us to fail fast with a 1 second timeout.
     eval {
       Net::Telnet->new(
         -host => $opts->{host},
@@ -87,6 +107,32 @@ sub validate_connection {
       );
     }; if ($@) {
       $self->usage_error("--host '$opts->{host}:$port' not found");
+    }
+
+    my $dbh = eval {
+      my $cn = "dbi:mysql:host=$opts->{host};port=$port";
+      $cn .= ";database=$opts->{schema}" if defined $opts->{schema};
+      DBI->connect(
+        $cn, $opts->{username} // '', $opts->{password} // '', {
+          PrintError => 0,
+          RaiseError => 1,
+        },
+      );
+    }; if ($@) {
+      if ($@ =~ /Access denied/) {
+        $self->usage_error("Access denied for $opts->{username}");
+      }
+      elsif ($@ =~ /Unknown database/) {
+        $self->usage_error("Unknown schema $opts->{schema}");
+      }
+      else {
+        $self->usage_error("Cannot connect to database: $@");
+      }
+    }
+
+    my @tables = $dbh->tables('', '', 'TABLE');
+    unless (@tables) {
+      $self->usage_error("Schema @{[$opts->{schema} // '']} has no tables");
     }
 
     $self->{params} = {
@@ -112,7 +158,7 @@ sub find_file {
   }
 
   my $path = File::Spec->join($opts->{base_directory}, $filename);
-  return $path if -f $path;
+  return $path if -f $path && -r $path;
   return;
 }
 

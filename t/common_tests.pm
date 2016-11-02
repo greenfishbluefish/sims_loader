@@ -80,6 +80,13 @@ sub failures_connection {
       ],
       error   => qr{--host 'file_not_found' not found},
     };
+
+    run_test "--schema empty" => {
+      command => $cmd,
+      driver  => $driver,
+      database => sub {},
+      error   => qr{Schema has no tables},
+    };
   }
   elsif ($driver eq 'mysql') {
     run_test "--host location not found (bad host)" => {
@@ -94,6 +101,36 @@ sub failures_connection {
       driver  => $driver,
       parameters => [qw(--host mysql --port 3307)],
       error   => qr{--host 'mysql:3307' not found},
+    };
+
+    run_test "--user invalid" => {
+      command => $cmd,
+      driver  => $driver,
+      parameters => [qw(--host mysql --port 3306 --user not_here)],
+      error   => qr{Access denied for not_here},
+    };
+
+    run_test "--password invalid" => {
+      command => $cmd,
+      driver  => $driver,
+      database => sub {},
+      parameters => [qw(--password bad)],
+      error   => qr{Access denied for root},
+    };
+
+    run_test "--schema invalid" => {
+      command => $cmd,
+      driver  => $driver,
+      database => sub {},
+      parameters => [qw(--schema wrong)],
+      error   => qr{Unknown schema wrong},
+    };
+
+    run_test "--schema empty" => {
+      command => $cmd,
+      driver  => $driver,
+      database => sub {},
+      error   => qr{Schema foo has no tables},
     };
   }
 }
