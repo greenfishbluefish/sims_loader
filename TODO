@@ -1,15 +1,6 @@
-[X] Add a --base-directory for all the files
-    * Used within the container to do "SIMS_LOADER_DIRECTORY_PREFIX=/data"
-[X] "drivers" to list installed DBD modules
-    [X] Test with more than just SQLite
-        * Requires the test suite to function with multiple Docker containers
-[X] Get load working with sqlite
-1)  [ ] Test auto-generation of values with NOT NULL
-    [X] Cannot run two test_app() in the same process
 [ ] Throw an error when the schema is empty or unset.
-[-] "model" to list the generated model sims_loader is working with
-    [-] Lists "<model>: <table>" in alphabetical order
-    [ ] "model <model>" to list the detail for that model
+[ ] Write tests for multiple tables
+    [ ] Refactor the tests to create databases from code without SQL
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
@@ -17,14 +8,14 @@
     [ ] Validate the constraints works with the model
     [ ] Validate the specification works with the model
 [-] Build Dockerfiles to install DBDs (all downloaded)
-    [-] MySQL
+    [X] MySQL
     [ ] MariaDB (same as mysql?)
     [ ] PostgreSQL
     [ ] Oracle
     [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
     [ ] Others?
-    [ ] Validate that a command was passed, otherwise default to "help"
+    [X] Validate that a command was passed, otherwise default to "help"
 [ ] constraints file passed to $opts->{constraints}
 [ ] model file modifying DBIC::SL
 [ ] toposort file passed to $opts->{toposort}
@@ -34,8 +25,12 @@
     * --base-directory works like this, but by hand
 [ ] Test with dates (may need auto-inflation)
 [ ] Test with sim types (phone-number, zipcode, etc)
-[ ] Stop running within the container as root
+[ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
+[ ] Fix auto-generation of values with NOT NULL (Issue with test process)
+    * This works by hand with Sims 0.300402
+
+-------- COMMANDS --------
 
 load_sims version --version
 load_sims help --help (generic help)
@@ -54,3 +49,16 @@ load_sims CMD \
   [--seed <seed> ]
   --host|h <host> \ (if --driver=sqlite, this is the filename)
   --specification|s <filename> \
+
+-------- COMPLETED --------
+
+[X] Add a --base-directory for all the files
+    * Used within the container to do "SIMS_LOADER_DIRECTORY_PREFIX=/data"
+[X] "drivers" to list installed DBD modules
+    [X] Test with more than just SQLite
+        * Requires the test suite to function with multiple Docker containers
+[X] Get load working with sqlite
+    [X] Cannot run two test_app() in the same process
+[X] "model" to list the generated model sims_loader is working with
+    [X] Lists "<model>: <table>" in alphabetical order
+    [X] "model <model>" to list the detail for that model
