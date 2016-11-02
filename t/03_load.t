@@ -123,7 +123,6 @@ foreach my $driver (qw(sqlite mysql)) {
     };
 
     success "Load one row with auto-gen name" => {
-      skip => "The comparison of D() doesn't work through the marshalling of YAML",
       command => $cmd,
       driver => $driver,
       database => sub {

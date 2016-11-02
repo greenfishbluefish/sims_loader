@@ -24,7 +24,7 @@ use File::Temp qw( tempfile tempdir );
 use Fcntl qw( :flock );
 use Test2::Bundle::Extended;
 use Test2::Tools::AsyncSubtest;
-use YAML::Any qw(Dump);
+use YAML::Any qw(Dump Load);
 
 my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
@@ -174,8 +174,11 @@ sub run_test ($$) {
     foreach my $stream (qw(stdout stderr)) {
       $options->{$stream} //= '';
 
+      if (ref($options->{$stream}) eq 'CODE') {
+        ok($options->{$stream}->($result->$stream), uc($stream).' as expected');
+      }
       # Is this something built with qr// ?
-      if ("$options->{$stream}" =~ /^\(\?\^:.*\)$/) {
+      elsif ("$options->{$stream}" =~ /^\(\?\^:.*\)$/) {
         like($result->$stream, $options->{$stream}, uc($stream).' as expected');
       }
       else {
@@ -184,6 +187,7 @@ sub run_test ($$) {
     }
 
     if (defined $options->{error}) {
+      # Is this something built with qr// ?
       if ("$options->{error}" =~ /^\(\?\^:.*\)$/) {
         like($result->error, $options->{error}, 'Errors as expected');
       }
@@ -205,7 +209,11 @@ sub success ($$) {
   );
 
   if ($options->{yaml_out}) {
-    $defaults{stdout} = Dump(delete $options->{yaml_out});
+    $defaults{stdout} = sub {
+      my $stdout = shift;
+      my $result = Load($stdout);
+      is($result, $options->{yaml_out});
+    };
   }
 
   run_test($name, {

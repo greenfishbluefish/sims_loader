@@ -25,8 +25,6 @@
 [ ] Test with sim types (phone-number, zipcode, etc)
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
-[ ] Fix auto-generation of values with NOT NULL (Issue with test process)
-    * This works by hand with Sims 0.300402
 
 -------- COMMANDS --------
 
@@ -62,3 +60,5 @@ load_sims CMD \
     [X] "model <model>" to list the detail for that model
 [X] Write tests for multiple tables
     [X] Refactor the tests to create databases from code without SQL
+[X] Fix auto-generation of values with NOT NULL (Issue with test process)
+    * This works by hand with Sims 0.300402
