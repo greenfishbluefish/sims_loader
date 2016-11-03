@@ -86,6 +86,7 @@ sub create_dbh {
 
 sub table_sql {
   my ($driver, $table, $columns) = @_;
+  $driver = lc $driver;
 
   my (@columns, @keys);
   my $sql = "CREATE TABLE `$table` (";
@@ -155,6 +156,15 @@ sub run_test ($$) {
     }
 
     if ($options->{database}) {
+      # Provide a default database for tests that don't care.
+      if ("$options->{database}" eq 'default') {
+        $options->{database} = sub {
+          shift->do(table_sql($options->{driver}, artists => {
+            id => { primary => 1 },
+          }));
+        };
+      }
+
       my ($dbh, $addl_params) = create_dbh($options);
       $options->{database}->($dbh);
       $dbh->disconnect;

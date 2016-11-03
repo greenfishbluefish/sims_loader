@@ -13,14 +13,23 @@
     [ ] Sybase (same as SQL*Server?)
     [ ] Others?
 [ ] constraints file passed to $opts->{constraints}
+[ ] Test with dates (may need auto-inflation)
 [ ] model file modifying DBIC::SL
+    [ ] Add sim types
+        [ ] Test with sim types (phone-number, zipcode, etc)
+    [ ] Add relationship
+    [ ] Replace relationship
+    [ ] Change column from NULL to NOT NULL
 [ ] toposort file passed to $opts->{toposort}
+    [ ] Break self-relationship
+    [ ] Break A-B-A relationship at A-B
+    [ ] Break A-B-A relationship at B-A
+[ ] Test with database-specific types
+    [ ] Postgres JSON
 [ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
     * --base-directory works like this, but by hand
-[ ] Test with dates (may need auto-inflation)
-[ ] Test with sim types (phone-number, zipcode, etc)
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
 

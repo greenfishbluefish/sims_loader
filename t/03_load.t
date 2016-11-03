@@ -25,22 +25,14 @@ foreach my $driver (qw(sqlite mysql)) {
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-        }));
-      },
+      database => 'default',
       error => qr/Must provide --specification/,
     };
 
     run_test "--specification file not found" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-        }));
-      },
+      database => 'default',
       parameters => [
         '--specification' => '/file/not/found',
       ],
@@ -50,11 +42,7 @@ foreach my $driver (qw(sqlite mysql)) {
     run_test "--specification file not found (bad base directory)" => {
       command => $cmd,
       driver  => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-        }));
-      },
+      database => 'default',
       parameters => [
         '--base_directory' => tempdir(CLEANUP => 1),
         '--specification'  => 'file_not_found',
@@ -68,11 +56,7 @@ foreach my $driver (qw(sqlite mysql)) {
       run_test "--specification file is not YAML/JSON" => {
         command => $cmd,
         driver  => $driver,
-        database => sub {
-          shift->do(table_sql($driver, artists => {
-            id => { primary => 1 },
-          }));
-        },
+        database => 'default',
         parameters => [
           '--specification'  => $spec_fn,
         ],
@@ -86,11 +70,7 @@ foreach my $driver (qw(sqlite mysql)) {
       run_test "--specification file is not YAML/JSON (via base directory)" => {
         command => $cmd,
         driver  => $driver,
-        database => sub {
-          shift->do(table_sql($driver, artists => {
-            id => { primary => 1 },
-          }));
-        },
+        database => 'default',
         parameters => [
           '--base_directory' => dirname($spec_fn),
           '--specification'  => basename($spec_fn),
