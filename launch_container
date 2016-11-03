@@ -1,0 +1,17 @@
+#!/bin/bash
+
+export MSYS_NO_PATHCONV=1
+
+# This ensures the databases are up.
+docker-compose up -d datastores
+
+# This launches the sims_loader container
+# Note: This assumes you have done `./run_tests` so the containers and network
+# are setup as expected below.
+docker run \
+  --rm \
+  -it \
+  -v $(pwd):/app \
+  --network simsloader_default \
+  --link simsloader_mysql_1:mysql \
+    simsloader_code bash

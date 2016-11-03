@@ -1,4 +1,3 @@
-[ ] Throw an error when the schema is empty or unset.
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
@@ -13,7 +12,6 @@
     [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
     [ ] Others?
-    [X] Validate that a command was passed, otherwise default to "help"
 [ ] constraints file passed to $opts->{constraints}
 [ ] model file modifying DBIC::SL
 [ ] toposort file passed to $opts->{toposort}
@@ -62,3 +60,5 @@ load_sims CMD \
     [X] Refactor the tests to create databases from code without SQL
 [X] Fix auto-generation of values with NOT NULL (Issue with test process)
     * This works by hand with Sims 0.300402
+[X] Throw an error when the schema is empty or unset.
+[X] Validate that a command was passed, otherwise default to "help"

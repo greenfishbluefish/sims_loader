@@ -67,5 +67,9 @@ options are listed in the comments.
 
 ## Playing with the app
 
-Once you have launched the "bash" option from within the docker-compose.yml, you
-can do a `carton run bin/sims_loader` to run the script.
+`./launch_container` will launch you into an interactive shell within the
+container. Within that shell, you can do a `carton run bin/sims_loader` to run
+the script.
+
+This script is necessary because there isn't an interactive option for
+docker-compose on Windows.

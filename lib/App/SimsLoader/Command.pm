@@ -84,8 +84,9 @@ sub validate_connection {
       $self->usage_error("Cannot connect to database: $@");
     }
 
-    my @tables = $dbh->tables('', '', 'TABLE');
-    unless (@tables) {
+    # SQLite has two default tables: main.sqlite_master, temp.sqlite_temp_master
+    my @tables = $dbh->tables();
+    unless (@tables > 2) {
       $self->usage_error("Schema has no tables");
     }
 
@@ -130,7 +131,7 @@ sub validate_connection {
       }
     }
 
-    my @tables = $dbh->tables('', '', 'TABLE');
+    my @tables = $dbh->tables();
     unless (@tables) {
       $self->usage_error("Schema @{[$opts->{schema} // '']} has no tables");
     }
