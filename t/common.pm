@@ -191,7 +191,7 @@ sub run_test ($$) {
         ok($options->{$stream}->($result->$stream), uc($stream).' as expected');
       }
       # Is this something built with qr// ?
-      elsif ("$options->{$stream}" =~ /^\(\?\^:.*\)$/) {
+      elsif ("$options->{$stream}" =~ /^\(\?\^u?:.*\)$/) {
         like($result->$stream, $options->{$stream}, uc($stream).' as expected');
       }
       else {
@@ -201,7 +201,7 @@ sub run_test ($$) {
 
     if (defined $options->{error}) {
       # Is this something built with qr// ?
-      if ("$options->{error}" =~ /^\(\?\^:.*\)$/) {
+      if ("$options->{error}" =~ /^\(\?\^u?:.*\)$/) {
         like($result->error, $options->{error}, 'Errors as expected');
       }
       else {

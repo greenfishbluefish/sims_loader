@@ -1,8 +1,11 @@
+use 5.22.0;
+
 use strictures 2;
 
 use Test2::Bundle::Extended;
 use File::Basename qw(basename dirname);
 use File::Temp qw(tempdir);
+use YAML::Any qw(Load);
 
 use App::SimsLoader;
 
@@ -122,23 +125,53 @@ foreach my $driver (qw(sqlite mysql)) {
       },
     };
 
-    success "Load one row with auto-gen name" => {
-      command => $cmd,
-      driver => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-          name => { string => 255, not_null => 1 },
-        }));
-      },
-      specification => {
-        Artist => 1,
-      },
-      yaml_out => {
-        Artist => [
-          { id => 1, name => D() },
-        ],
-      },
+    subtest "See the same random value with a provided seed" => sub {
+      my ($seed, $name);
+      success "Load one row with auto-gen name" => {
+        command => $cmd,
+        driver => $driver,
+        database => sub {
+          shift->do(table_sql($driver, artists => {
+            id => { primary => 1 },
+            name => { string => 255, not_null => 1 },
+          }));
+        },
+        specification => {
+          Artist => 1,
+        },
+        stdout => sub {
+          my $stdout = shift;
+          my $result = Load($stdout);
+
+          is($result, {
+            Artist => [
+              { id => 1, name => D() },
+            ],
+          });
+          $name = $result->{Artist}[0]{name};
+        },
+      };
+
+      success "Load a row with the same name" => {
+        skip => "Cannot retrieve the \$name value from the forked subtest",
+        command => $cmd,
+        driver => $driver,
+        parameters => [qw(--seed), $seed],
+        database => sub {
+          shift->do(table_sql($driver, artists => {
+            id => { primary => 1 },
+            name => { string => 255, not_null => 1 },
+          }));
+        },
+        specification => {
+          Artist => 1,
+        },
+        yaml_out => {
+          Artist => [
+            { id => 1, name => $name },
+          ],
+        },
+      };
     };
   };
 }

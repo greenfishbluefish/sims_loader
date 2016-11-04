@@ -1,5 +1,5 @@
-[ ] constraints file passed to $opts->{constraints}
-[ ] Test with dates (may need auto-inflation)
+[-] Accept the seed
+    [-] Return the seed (Blocked on retrieving values from fork_subtest)
 [ ] model file modifying DBIC::SL
     [ ] Add sim types
         [ ] Test with sim types (phone-number, zipcode, etc)
@@ -10,6 +10,7 @@
     [ ] Break self-relationship
     [ ] Break A-B-A relationship at A-B
     [ ] Break A-B-A relationship at B-A
+[ ] Test with dates (may need auto-inflation)
 [-] Build Dockerfiles to install DBDs (all downloaded)
     [X] MySQL
     [ ] MariaDB (same as mysql?)
@@ -20,6 +21,7 @@
     [ ] Others?
 [ ] Test with database-specific column types
     [ ] Postgres JSON
+[ ] constraints file passed to $opts->{constraints}
 [ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
