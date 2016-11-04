@@ -1,0 +1,9 @@
+Revision history for DBIx::Class::Sims (ordered by revision number).
+
+0.000004
+  - Improve response time for listing drivers by 90%
+    - This improves performance of all functionality because everything checks
+      the driver against the list of installed drivers.
+
+0.000003
+  - Initial release to DockerHub.

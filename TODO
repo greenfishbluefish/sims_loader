@@ -1,17 +1,3 @@
-[ ] "validate" will:
-    [ ] Ensure all provided files work
-    [ ] Connect to the database and read the DDL
-    [ ] Validate the model file works with the DBIC::SL-generated model
-    [ ] Validate the constraints works with the model
-    [ ] Validate the specification works with the model
-[-] Build Dockerfiles to install DBDs (all downloaded)
-    [X] MySQL
-    [ ] MariaDB (same as mysql?)
-    [ ] PostgreSQL
-    [ ] Oracle
-    [ ] SQL*Server (devel/vagrant_sql_server_express)
-    [ ] Sybase (same as SQL*Server?)
-    [ ] Others?
 [ ] constraints file passed to $opts->{constraints}
 [ ] Test with dates (may need auto-inflation)
 [ ] model file modifying DBIC::SL
@@ -24,7 +10,15 @@
     [ ] Break self-relationship
     [ ] Break A-B-A relationship at A-B
     [ ] Break A-B-A relationship at B-A
-[ ] Test with database-specific types
+[-] Build Dockerfiles to install DBDs (all downloaded)
+    [X] MySQL
+    [ ] MariaDB (same as mysql?)
+    [ ] PostgreSQL
+    [ ] Oracle
+    [ ] SQL*Server (devel/vagrant_sql_server_express)
+    [ ] Sybase (same as SQL*Server?)
+    [ ] Others?
+[ ] Test with database-specific column types
     [ ] Postgres JSON
 [ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
@@ -32,6 +26,12 @@
     * --base-directory works like this, but by hand
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
+[ ] "validate" will:
+    [ ] Ensure all provided files work
+    [ ] Connect to the database and read the DDL
+    [ ] Validate the model file works with the DBIC::SL-generated model
+    [ ] Validate the constraints works with the model
+    [ ] Validate the specification works with the model
 
 -------- COMMANDS --------
 
