@@ -6,28 +6,25 @@ use strictures 2;
 
 use base 'App::SimsLoader::Command';
 
+use DBI;
+
+# These are the drivers that come bundled with DBI that we do not want to
+# report as being available.
 my %skip = map { $_ => 1 } qw(
-  DBD::DBM
-  DBD::ExampleP
-  DBD::File
-  DBD::Gofer
-  DBD::Metadata
-  DBD::NullP
-  DBD::Proxy
-  DBD::Sponge
-  DBD::SqlEngine
+  DBM
+  ExampleP
+  File
+  Gofer
+  Proxy
+  Sponge
 );
 
 sub find_dbds {
-  chomp(my @modules = `cpan -l | grep 'DBD::'`);
-  s/.*(DBD::[^:\s]*).*/$1/ for @modules;
-  my %seen;
-  foreach my $module (sort @modules) {
-    next if $skip{$module};
-    $module =~ s/DBD:://;
-    next if $seen{$module}++;
-  }
-  return sort keys %seen;
+  sort {
+    lc($a) cmp lc($b)
+  } grep {
+    !$skip{$_}
+  } DBI->available_drivers;
 }
 
 sub execute {

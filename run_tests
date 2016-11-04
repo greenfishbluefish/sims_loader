@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# On Windows, don't convert the paths from Unix format to Windows format.
+# Otherwise, docker volume attachment will fail miserably.
 export MSYS_NO_PATHCONV=1
 
 if [[ "$@" == "stop" ]]; then
@@ -10,6 +12,8 @@ else
 
   # This is idempotent, so do it every time.
   docker-compose up -d datastores
+
+  # TODO: Add waits to ensure that the databases are ready to take traffic.
 
   # This runs the tests
   docker-compose up code

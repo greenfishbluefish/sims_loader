@@ -174,6 +174,7 @@ sub run_test ($$) {
     if ($options->{specification}) {
       my ($fh, $fn) = new_fh();
       print $fh Dump($options->{specification});
+      close $fh;
 
       push @parameters, '--specification', $fn;
     }
