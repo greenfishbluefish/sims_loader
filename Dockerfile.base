@@ -14,6 +14,9 @@ COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
 COPY "devops/packaging/within_carton" "/usr/local/bin/within_carton"
 RUN chmod +x /usr/local/bin/within_carton
 
+COPY "Dockerfile.base" "/opt/docker/Dockerfile"
+COPY "Changes" "/opt/docker/Changes"
+
 WORKDIR /data
 
 ENTRYPOINT [ "/usr/local/bin/within_carton" ]

@@ -2,6 +2,7 @@ Revision history for DBIx::Class::Sims (ordered by revision number).
 
 0.000005
   - Return and use a --seed
+  - Improve packaging to include Dockerfile and Changes in /opt/docker
 
 0.000004
   - Improve response time for listing drivers by 90%
