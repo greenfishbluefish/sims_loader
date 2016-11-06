@@ -1,5 +1,7 @@
-[-] Accept the seed
-    [-] Return the seed (Blocked on retrieving values from fork_subtest)
+[-] Manage the seed
+    [X] Return the seed
+    [X] Accept the seed
+    [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
 [ ] model file modifying DBIC::SL
     [ ] Add sim types
         [ ] Test with sim types (phone-number, zipcode, etc)

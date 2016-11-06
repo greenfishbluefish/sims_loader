@@ -1,5 +1,8 @@
 Revision history for DBIx::Class::Sims (ordered by revision number).
 
+0.000005
+  - Return and use a --seed
+
 0.000004
   - Improve response time for listing drivers by 90%
     - This improves performance of all functionality because everything checks

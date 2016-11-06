@@ -16,6 +16,7 @@ sub opt_spec {
       base_directory connection
     )),
     [ 'specification=s', "Specification file" ],
+    [ 'seed=s', "Initial seed" ],
   );
 }
 
@@ -35,6 +36,12 @@ sub validate_args {
 
   $self->{spec} = $self->read_file($self->{specification})
     or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
+
+  if (exists $opts->{seed}) {
+    unless (($opts->{seed}//'') =~ /^\d\.\d+$/) {
+      $self->usage_error("--seed '$opts->{seed}' is not legal");
+    }
+  }
 }
 
 sub execute {
@@ -46,7 +53,10 @@ sub execute {
     %{$self->{params}},
   );
 
-  my ($rows, $addl) = $loader->load($self->{spec});
+  my $addl_params = {};
+  $addl_params->{seed} = $opts->{seed} if exists $opts->{seed};
+
+  my ($rows, $addl) = $loader->load($self->{spec}, $addl_params);
 
   # Convert from DBIx::Class::Row objects to hashrefs
   foreach my $source (keys %$rows) {
@@ -56,7 +66,10 @@ sub execute {
     }
   }
 
-  print Dump($rows);
+  print Dump({
+    seed => $addl->{seed},
+    rows => $rows,
+  });
 }
 
 1;

@@ -85,93 +85,98 @@ foreach my $driver (qw(sqlite mysql)) {
 }
 
 foreach my $driver (qw(sqlite mysql)) {
-  subtest "Successes for $driver" => sub {
-    success "Load one row specifying everything" => {
-      command => $cmd,
-      driver => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-          name => { string => 255 },
-        }));
-      },
-      specification => {
-        Artist => { name => 'George' },
-      },
-      yaml_out => {
+  success "$driver: Load one row specifying everything" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255 },
+      }));
+    },
+    specification => {
+      Artist => { name => 'George' },
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
         Artist => [
           { id => 1, name => 'George' },
         ],
       },
-    };
+    },
+  };
 
-    success "Load two rows by asking for 2 rows" => {
-      command => $cmd,
-      driver => $driver,
-      database => sub {
-        shift->do(table_sql($driver, artists => {
-          id => { primary => 1 },
-          name => { string => 255 },
-        }));
-      },
-      specification => {
-        Artist => 2,
-      },
-      yaml_out => {
+  success "$driver: Load two rows by asking for 2 rows" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255 },
+      }));
+    },
+    specification => {
+      Artist => 2,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
         Artist => [
           { id => 1, name => undef },
           { id => 2, name => undef },
         ],
       },
-    };
+    },
+  };
 
-    subtest "See the same random value with a provided seed" => sub {
-      my ($seed, $name);
-      success "Load one row with auto-gen name" => {
-        command => $cmd,
-        driver => $driver,
-        database => sub {
-          shift->do(table_sql($driver, artists => {
-            id => { primary => 1 },
-            name => { string => 255, not_null => 1 },
-          }));
-        },
-        specification => {
-          Artist => 1,
-        },
-        stdout => sub {
-          my $stdout = shift;
-          my $result = Load($stdout);
+  subtest "$driver: See the same random value with a provided seed" => sub {
+    my %common = (
+      command => $cmd,
+      driver => $driver,
+      database => sub {
+        shift->do(table_sql($driver, artists => {
+          id => { primary => 1 },
+          name => { string => 255, not_null => 1 },
+        }));
+      },
+      specification => {
+        Artist => 1,
+      },
+    );
 
-          is($result, {
+    my ($seed, $name);
+    success "Load one row with auto-gen name" => {
+      %common,
+      stdout => sub {
+        my $stdout = shift;
+        my $result = Load($stdout);
+
+        is($result, {
+          seed => D(),
+          rows => {
             Artist => [
               { id => 1, name => D() },
             ],
-          });
-          $name = $result->{Artist}[0]{name};
-        },
-      };
+          },
+        });
+        $name = $result->{rows}{Artist}[0]{name};
+        $seed = $result->{seed};
+      },
+    };
 
-      success "Load a row with the same name" => {
-        skip => "Cannot retrieve the \$name value from the forked subtest",
-        command => $cmd,
-        driver => $driver,
-        parameters => [qw(--seed), $seed],
-        database => sub {
-          shift->do(table_sql($driver, artists => {
-            id => { primary => 1 },
-            name => { string => 255, not_null => 1 },
-          }));
-        },
-        specification => {
-          Artist => 1,
-        },
-        yaml_out => {
+    success "Load a row with the same name" => {
+      skip => "Cannot retrieve the \$name value from the forked subtest",
+      %common,
+      parameters => [qw(--seed), $seed],
+      yaml_out => {
+        seed => $seed,
+        rows => {
           Artist => [
             { id => 1, name => $name },
           ],
         },
-      };
+      },
     };
   };
 }

@@ -45,9 +45,10 @@ sub new {
 
 sub load {
   my $self = shift;
-  my ($spec) = @_;
+  my ($spec, $addl) = @_;
+  $addl //= {};
 
-  $self->{schema}->load_sims($spec);
+  $self->{schema}->load_sims($spec, $addl);
 }
 
 sub sources {
