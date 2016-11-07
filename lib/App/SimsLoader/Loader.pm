@@ -18,6 +18,7 @@ sub new {
   my %opts = @_;
 
   my $type = delete $opts{type};
+  my $model = delete $opts{model} // {};
 
   my $user = delete $opts{username} // '';
   my $pass = delete $opts{password} // '';
@@ -37,6 +38,16 @@ sub new {
     use_namespaces => 0,
     schema => $schema,
   )->load;
+
+  while (my ($name, $source_mods) = each %$model) {
+    my $rsrc = $schema->source($name);
+    while (my ($thing, $data) = each %$source_mods) {
+      if ($thing eq 'has_many') {
+        while (my ($rel_name, $defn) = each %$data) {
+        }
+      }
+    }
+  }
 
   return bless {
     schema => $schema,

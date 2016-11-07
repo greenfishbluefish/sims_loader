@@ -6,6 +6,9 @@
     [ ] Add sim types
         [ ] Test with sim types (phone-number, zipcode, etc)
     [ ] Add relationship
+    [ ] Add unique constraint
+    [ ] Set the primary key
+    [ ] Remove a column
     [ ] Replace relationship
     [ ] Change column from NULL to NOT NULL
 [ ] toposort file passed to $opts->{toposort}

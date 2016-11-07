@@ -18,6 +18,7 @@ use t::common_tests qw(
 
 my $cmd = 'load';
 
+=pod
 failures_all_drivers($cmd);
 
 foreach my $driver (qw(sqlite mysql)) {
@@ -25,6 +26,7 @@ foreach my $driver (qw(sqlite mysql)) {
     failures_base_directory($cmd, $driver);
     failures_connection($cmd, $driver);
 
+    #### --specification ####
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,
@@ -81,10 +83,70 @@ foreach my $driver (qw(sqlite mysql)) {
         error => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
       };
     }
+
+    my ($spec_fh, $spec_fn) = new_fh();
+    print $spec_fh "---\nArtist: 1\n";
+
+    #### --model ####
+    run_test "--model file not found" => {
+      command => $cmd,
+      driver  => $driver,
+      database => 'default',
+      parameters => [
+        '--specification' => $spec_fn,
+        '--model' => '/file/not/found',
+      ],
+      error => qr{--model '/file/not/found' not found},
+    };
+
+    run_test "--model file not found (bad base directory)" => {
+      command => $cmd,
+      driver  => $driver,
+      database => 'default',
+      parameters => [
+        '--specification' => $spec_fn,
+        '--base_directory' => tempdir(CLEANUP => 1),
+        '--model' => 'file_not_found',
+      ],
+      error => qr{--model 'file_not_found' not found},
+    };
+
+    {
+      my ($model_fh, $model_fn) = new_fh();
+      print $model_fh "NOT YAML";
+      run_test "--model file is not YAML/JSON" => {
+        command => $cmd,
+        driver  => $driver,
+        database => 'default',
+        parameters => [
+          '--specification' => $spec_fn,
+          '--model' => $model_fn,
+        ],
+        error => qr{--model '$model_fn' is not YAML/JSON},
+      };
+    }
+
+    {
+      my ($model_fh, $model_fn) = new_fh();
+      print $model_fh "NOT YAML";
+      run_test "--model file is not YAML/JSON (via base directory)" => {
+        command => $cmd,
+        driver  => $driver,
+        database => 'default',
+        parameters => [
+          '--specification' => $spec_fn,
+          '--base_directory' => dirname($model_fn),
+          '--model' => basename($model_fn),
+        ],
+        error => qr{--model '@{[basename($model_fn)]}' is not YAML/JSON},
+      };
+    }
   };
 }
+=cut
 
 foreach my $driver (qw(sqlite mysql)) {
+=pod
   success "$driver: Load one row specifying everything" => {
     command => $cmd,
     driver => $driver,
@@ -178,6 +240,42 @@ foreach my $driver (qw(sqlite mysql)) {
         },
       },
     };
+  };
+=cut
+
+  success "$driver: add a relationship via model" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      my $dbh = shift;
+      $dbh->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255 },
+      }));
+      $dbh->do(table_sql($driver, albums => {
+        id => { primary => 1 },
+        artist_id => { integer => 1 },
+        name => { string => 255 },
+      }));
+    },
+    model => {
+      Artist => {
+        has_many => {
+          records => { Album => { 'self.id' => 'foreign.artist_id' } },
+        },
+      },
+    },
+    specification => {
+      Album => { name => 'Flame' },
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        Album => [
+          { id => 1, artist_id => 1, name => 'Flame' },
+        ],
+      },
+    },
   };
 }
 

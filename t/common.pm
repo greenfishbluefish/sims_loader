@@ -100,6 +100,9 @@ sub table_sql {
         my ($fk_table, $fk_col) = split('\.', $type->{foreign});
         push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
       }
+      elsif ($type->{integer}) {
+        push @columns, "`$col` INTEGER";
+      }
       elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
       }
@@ -118,6 +121,9 @@ sub table_sql {
         push @columns, "`$col` INT";
         my ($fk_table, $fk_col) = split('\.', $type->{foreign});
         push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "`$col` INT";
       }
       elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
@@ -177,6 +183,14 @@ sub run_test ($$) {
       close $fh;
 
       push @parameters, '--specification', $fn;
+    }
+
+    if ($options->{model}) {
+      my ($fh, $fn) = new_fh();
+      print $fh Dump($options->{model});
+      close $fh;
+
+      push @parameters, '--model', $fn;
     }
 
     # Allow specified parameters to override auto-generated parameters

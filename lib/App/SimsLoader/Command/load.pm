@@ -16,6 +16,7 @@ sub opt_spec {
       base_directory connection
     )),
     [ 'specification=s', "Specification file" ],
+    [ 'model=s', "Model file" ],
     [ 'seed=s', "Initial seed" ],
   );
 }
@@ -37,6 +38,14 @@ sub validate_args {
   $self->{spec} = $self->read_file($self->{specification})
     or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
 
+  if (exists $opts->{model}) {
+    $self->{model_file} = $self->find_file($opts, $opts->{model})
+      or $self->usage_error("--model '$opts->{model}' not found");
+
+    $self->{model} = $self->read_file($self->{model_file})
+      or $self->usage_error("--model '$opts->{model}' is not YAML/JSON");
+  }
+
   if (exists $opts->{seed}) {
     unless (($opts->{seed}//'') =~ /^\d\.\d+$/) {
       $self->usage_error("--seed '$opts->{seed}' is not legal");
@@ -50,6 +59,7 @@ sub execute {
 
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
+    model => $self->{model} // {},
     %{$self->{params}},
   );
 
