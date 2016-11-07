@@ -13,7 +13,7 @@ sub opt_spec {
   my $self = shift;
   return (
     $self->opt_spec_for(qw(
-      base_directory connection
+      base_directory connection model
     )),
     [ 'name=s', "Model/Table for specific details" ],
   );
@@ -26,6 +26,7 @@ sub validate_args {
   $self->validate_driver($opts, $args);
   $self->validate_base_directory($opts, $args);
   $self->validate_connection($opts, $args);
+  $self->validate_model_file($opts, $args);
 
   # If $opts->{name}, validate it's a table or model we know about
 }
@@ -36,6 +37,7 @@ sub execute {
 
   my $loader = App::SimsLoader::Loader->new(
     type => $opts->{driver},
+    model => $self->{model} // {},
     %{$self->{params}},
   );
 

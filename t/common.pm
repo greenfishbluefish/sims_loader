@@ -7,6 +7,7 @@ use 5.22.0;
 
 use base 'Exporter';
 our @EXPORT_OK = qw(
+  drivers
   new_fh
   create_dbh
   table_sql
@@ -28,6 +29,10 @@ use YAML::Any qw(Dump Load);
 
 my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
+
+sub drivers {
+  return qw(sqlite mysql);
+}
 
 sub new_fh {
   my ($fh, $filename) = tempfile('tmpXXXX',

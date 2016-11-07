@@ -2,6 +2,8 @@ Revision history for DBIx::Class::Sims (ordered by revision number).
 
 0.000005
   - Return and use a --seed
+  - Add support for --model
+    - Supports <table> -> columns -> <column> -> { sim => <value> }
   - Improve packaging to include Dockerfile and Changes in /opt/docker
 
 0.000004

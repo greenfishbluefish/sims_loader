@@ -41,9 +41,10 @@ sub new {
 
   while (my ($name, $source_mods) = each %$model) {
     my $rsrc = $schema->source($name);
-    while (my ($thing, $data) = each %$source_mods) {
-      if ($thing eq 'has_many') {
-        while (my ($rel_name, $defn) = each %$data) {
+    while (my ($aspect, $data) = each %$source_mods) {
+      if ($aspect eq 'columns') {
+        while (my ($col_name, $defn) = each %$data) {
+          $rsrc->add_column("+$col_name" => { sim => $defn });
         }
       }
     }

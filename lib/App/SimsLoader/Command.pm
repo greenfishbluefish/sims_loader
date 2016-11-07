@@ -36,6 +36,12 @@ sub opt_spec_for {
     );
   }
 
+  if ($opts{model}) {
+    push @specs, (
+      [ 'model=s', "Model file" ],
+    );
+  }
+
   return @specs;
 }
 
@@ -146,6 +152,19 @@ sub validate_connection {
   }
   else {
     die "Unimplemented!\n";
+  }
+}
+
+sub validate_model_file {
+  my $self = shift;
+  my ($opts, $args) = @_;
+
+  if (exists $opts->{model}) {
+    $self->{model_file} = $self->find_file($opts, $opts->{model})
+      or $self->usage_error("--model '$opts->{model}' not found");
+
+    $self->{model} = $self->read_file($self->{model_file})
+      or $self->usage_error("--model '$opts->{model}' is not YAML/JSON");
   }
 }
 

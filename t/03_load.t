@@ -9,7 +9,7 @@ use YAML::Any qw(Load);
 
 use App::SimsLoader;
 
-use t::common qw(new_fh table_sql success run_test);
+use t::common qw(drivers new_fh table_sql success run_test);
 use t::common_tests qw(
   failures_all_drivers
   failures_base_directory
@@ -18,10 +18,9 @@ use t::common_tests qw(
 
 my $cmd = 'load';
 
-=pod
 failures_all_drivers($cmd);
 
-foreach my $driver (qw(sqlite mysql)) {
+foreach my $driver (drivers()) {
   subtest "Failures for $driver" => sub {
     failures_base_directory($cmd, $driver);
     failures_connection($cmd, $driver);
@@ -143,10 +142,8 @@ foreach my $driver (qw(sqlite mysql)) {
     }
   };
 }
-=cut
 
-foreach my $driver (qw(sqlite mysql)) {
-=pod
+foreach my $driver (drivers()) {
   success "$driver: Load one row specifying everything" => {
     command => $cmd,
     driver => $driver,
@@ -241,38 +238,31 @@ foreach my $driver (qw(sqlite mysql)) {
       },
     };
   };
-=cut
 
-  success "$driver: add a relationship via model" => {
+  success "$driver: add a sims value via model" => {
     command => $cmd,
     driver => $driver,
     database => sub {
-      my $dbh = shift;
-      $dbh->do(table_sql($driver, artists => {
+      shift->do(table_sql($driver, artists => {
         id => { primary => 1 },
-        name => { string => 255 },
-      }));
-      $dbh->do(table_sql($driver, albums => {
-        id => { primary => 1 },
-        artist_id => { integer => 1 },
-        name => { string => 255 },
+        name => { string => 255, not_null => 1 },
       }));
     },
     model => {
       Artist => {
-        has_many => {
-          records => { Album => { 'self.id' => 'foreign.artist_id' } },
+        columns => {
+          name => { value => 'George' },
         },
       },
     },
     specification => {
-      Album => { name => 'Flame' },
+      Artist => 1,
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Album => [
-          { id => 1, artist_id => 1, name => 'Flame' },
+        Artist => [
+          { id => 1, name => 'George' },
         ],
       },
     },
