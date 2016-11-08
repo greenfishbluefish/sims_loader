@@ -56,7 +56,7 @@ sub validate_driver {
   unless ($dbds{lc($opts->{driver})}) {
     $self->usage_error("--driver '$opts->{driver}' not installed");
   }
-  $opts->{driver} = $dbds{lc($opts->{driver})};
+  $self->{driver} = $dbds{lc($opts->{driver})};
 }
 
 sub validate_base_directory {
@@ -75,7 +75,7 @@ sub validate_connection {
   $self->usage_error('Must provide --host') unless $opts->{host};
 
   # If we're SQLite, validate the file exists
-  if ($opts->{driver} eq 'SQLite') {
+  if ($self->{driver} eq 'SQLite') {
     my $dbname = $self->find_file($opts, $opts->{host})
       or $self->usage_error("--host '$opts->{host}' not found");
 
@@ -101,7 +101,7 @@ sub validate_connection {
     };
   }
   # If we're not, validate we can connect to the host
-  elsif ($opts->{driver} eq 'mysql') {
+  elsif ($self->{driver} eq 'mysql') {
     my $port = $opts->{port} // 3306;
 
     # Use Net::Telnet to determine if we can even connect to the database host.

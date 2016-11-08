@@ -49,11 +49,15 @@ sub execute {
   my $self = shift;
   my ($opts, $args) = @_;
 
-  my $loader = App::SimsLoader::Loader->new(
-    type => $opts->{driver},
-    model => $self->{model} // {},
-    %{$self->{params}},
-  );
+  my $loader = eval {
+    App::SimsLoader::Loader->new(
+      type => $self->{driver},
+      model => $self->{model} // {},
+      %{$self->{params}},
+    );
+  }; if ($@) {
+    $self->usage_error($@);
+  }
 
   my $addl_params = {};
   $addl_params->{seed} = $opts->{seed} if exists $opts->{seed};

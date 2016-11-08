@@ -10,13 +10,13 @@ services:
       - datastores
     links:
       - mysql
-    #entrypoint:
+    entrypoint:
     # Uncomment this line to do any of the below options.
-    #  - /usr/local/bin/within_carton
+      - /usr/local/bin/within_carton
     # Uncomment this line to run specific tests.
-    #  - prove
-    #  - -v
-    #  - t/02_loader.t
+      - prove
+      - -v
+      - t/02_loader.t
     #  - t/03_load.t
     #  - t/05_drivers.t
     #  - t/06_model.t

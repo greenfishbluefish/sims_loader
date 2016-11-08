@@ -1,40 +1,47 @@
+use 5.22.0;
+
 use strictures 2;
 
 use DBI;
 use Test2::Bundle::Extended;
-use t::common qw(create_dbh table_sql);
+use t::common qw(create_dbh table_sql drivers);
 
 use App::SimsLoader::Loader;
 
-# These are capitalized specifically to match the DBD::<> names.
-foreach my $driver (qw(SQLite mysql)) {
-  subtest $driver => sub {
-    my ($dbh, $params) = create_dbh({ driver => lc($driver) });
-    my %params = @$params;
+sub build_loader {
+  my ($driver, $params) = @_;
 
-    $dbh->do(table_sql(lc($driver), artists => {
+  if ($driver eq 'sqlite') {
+    return App::SimsLoader::Loader->new(
+      type => 'SQLite', # Capitalized differently
+      dbname => $params->{'--host'},
+    );
+  }
+
+  if ($driver eq 'mysql') {
+    return App::SimsLoader::Loader->new(
+      type => $driver,
+      dbname => $params->{'--schema'},
+      host => $params->{'--host'},
+    );
+  }
+}
+
+foreach my $driver (drivers()) {
+  subtest $driver => sub {
+    my ($dbh, $params) = create_dbh({ driver => $driver });
+
+    $dbh->do(table_sql($driver, artists => {
       id => { primary => 1 },
       name => { string => 255, not_null => 1 },
     }));
-    my $loader;
-    if (lc($driver) eq 'sqlite') {
-      $loader = App::SimsLoader::Loader->new(
-        type => $driver,
-        dbname => $params{'--host'},
-      );
-    }
-    elsif (lc($driver) eq 'mysql') {
-      $loader = App::SimsLoader::Loader->new(
-        type => $driver,
-        dbname => $params{'--schema'},
-        host => $params{'--host'},
-      );
-    }
+
+    my $loader = build_loader($driver, {@$params});
 
     my %sources = $loader->sources;
     like(
       \%sources,
-      { Artist => object { call [ isa => 'DBIx::Class::ResultSource'] => T() } },
+      { Artist => object { call [isa => 'DBIx::Class::ResultSource'] => T() } },
       'The right sources are loaded',
     );
 
@@ -44,7 +51,9 @@ foreach my $driver (qw(SQLite mysql)) {
 
     # Validate the $rows here
     # Validate that we have data in the database
-    my $artists = $dbh->selectall_arrayref('SELECT * FROM artists', {Slice => {}});
+    my $artists = $dbh->selectall_arrayref(
+      'SELECT * FROM artists', { Slice => {} },
+    );
 
     like(
       $artists, [

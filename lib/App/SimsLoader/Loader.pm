@@ -40,10 +40,14 @@ sub new {
   )->load;
 
   while (my ($name, $source_mods) = each %$model) {
-    my $rsrc = $schema->source($name);
+    # This needs to allow both table and model names.
+    my $rsrc = $schema->source($name)
+      or die "Cannot find $name in database";
+
     while (my ($aspect, $data) = each %$source_mods) {
       if ($aspect eq 'columns') {
         while (my ($col_name, $defn) = each %$data) {
+          # The '+' modifies the existing column.
           $rsrc->add_column("+$col_name" => { sim => $defn });
         }
       }
