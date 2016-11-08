@@ -22,12 +22,11 @@ my $cmd = 'load';
 failures_all_drivers($cmd);
 
 foreach my $driver (drivers()) {
-  subtest "Failures for $driver" => sub {
-    failures_base_directory($cmd, $driver);
-    failures_connection($cmd, $driver);
-    failures_model_file($cmd, $driver);
+  failures_base_directory($cmd, $driver);
+  failures_connection($cmd, $driver);
+  failures_model_file($cmd, $driver);
 
-    #### --specification ####
+  subtest "Failures for --specification" => sub {
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,

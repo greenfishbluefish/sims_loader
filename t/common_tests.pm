@@ -35,7 +35,6 @@ sub failures_all_drivers {
   };
 }
 
-# The following assume they're within a subtest
 sub failures_base_directory {
   my ($cmd, $driver) = @_;
 
@@ -61,134 +60,138 @@ sub failures_base_directory {
 sub failures_connection {
   my ($cmd, $driver) = @_;
 
-  run_test "No --host" => {
-    command => $cmd,
-    driver  => $driver,
-    error   => qr/Must provide --host/,
+  subtest "$driver: Failures for connecting to database" => sub {
+    run_test "No --host" => {
+      command => $cmd,
+      driver  => $driver,
+      error   => qr/Must provide --host/,
+    };
+
+    if ($driver eq 'sqlite') {
+      run_test "--host file not found" => {
+        command => $cmd,
+        driver  => $driver,
+        parameters => [qw(--host /file/not/found)],
+        error   => qr{--host '/file/not/found' not found},
+      };
+
+      run_test "--host file not found (bad base_directory)" => {
+        command => $cmd,
+        driver  => $driver,
+        parameters => [qw(
+          --host file_not_found
+          --base_directory), tempdir(CLEANUP => 1),
+        ],
+        error   => qr{--host 'file_not_found' not found},
+      };
+
+      run_test "--schema empty" => {
+        command => $cmd,
+        driver  => $driver,
+        database => sub {},
+        error   => qr{Schema has no tables},
+      };
+    }
+    elsif ($driver eq 'mysql') {
+      run_test "--host location not found (bad host)" => {
+        command => $cmd,
+        driver  => $driver,
+        parameters => [qw(--host host.not.found)],
+        error   => qr{--host 'host.not.found:3306' not found},
+      };
+
+      run_test "--host location not found (bad port)" => {
+        command => $cmd,
+        driver  => $driver,
+        parameters => [qw(--host mysql --port 3307)],
+        error   => qr{--host 'mysql:3307' not found},
+      };
+
+      run_test "--user invalid" => {
+        command => $cmd,
+        driver  => $driver,
+        parameters => [qw(--host mysql --port 3306 --user not_here)],
+        error   => qr{Access denied for not_here},
+      };
+
+      run_test "--password invalid" => {
+        command => $cmd,
+        driver  => $driver,
+        database => sub {},
+        parameters => [qw(--password bad)],
+        error   => qr{Access denied for root},
+      };
+
+      run_test "--schema invalid" => {
+        command => $cmd,
+        driver  => $driver,
+        database => sub {},
+        parameters => [qw(--schema wrong)],
+        error   => qr{Unknown schema wrong},
+      };
+
+      run_test "--schema empty" => {
+        command => $cmd,
+        driver  => $driver,
+        database => sub {},
+        error   => qr{Schema foo has no tables},
+      };
+    }
   };
-
-  if ($driver eq 'sqlite') {
-    run_test "--host file not found" => {
-      command => $cmd,
-      driver  => $driver,
-      parameters => [qw(--host /file/not/found)],
-      error   => qr{--host '/file/not/found' not found},
-    };
-
-    run_test "--host file not found (bad base_directory)" => {
-      command => $cmd,
-      driver  => $driver,
-      parameters => [qw(
-        --host file_not_found
-        --base_directory), tempdir(CLEANUP => 1),
-      ],
-      error   => qr{--host 'file_not_found' not found},
-    };
-
-    run_test "--schema empty" => {
-      command => $cmd,
-      driver  => $driver,
-      database => sub {},
-      error   => qr{Schema has no tables},
-    };
-  }
-  elsif ($driver eq 'mysql') {
-    run_test "--host location not found (bad host)" => {
-      command => $cmd,
-      driver  => $driver,
-      parameters => [qw(--host host.not.found)],
-      error   => qr{--host 'host.not.found:3306' not found},
-    };
-
-    run_test "--host location not found (bad port)" => {
-      command => $cmd,
-      driver  => $driver,
-      parameters => [qw(--host mysql --port 3307)],
-      error   => qr{--host 'mysql:3307' not found},
-    };
-
-    run_test "--user invalid" => {
-      command => $cmd,
-      driver  => $driver,
-      parameters => [qw(--host mysql --port 3306 --user not_here)],
-      error   => qr{Access denied for not_here},
-    };
-
-    run_test "--password invalid" => {
-      command => $cmd,
-      driver  => $driver,
-      database => sub {},
-      parameters => [qw(--password bad)],
-      error   => qr{Access denied for root},
-    };
-
-    run_test "--schema invalid" => {
-      command => $cmd,
-      driver  => $driver,
-      database => sub {},
-      parameters => [qw(--schema wrong)],
-      error   => qr{Unknown schema wrong},
-    };
-
-    run_test "--schema empty" => {
-      command => $cmd,
-      driver  => $driver,
-      database => sub {},
-      error   => qr{Schema foo has no tables},
-    };
-  }
 }
 
 sub failures_model_file {
   my ($cmd, $driver) = @_;
 
-  run_test "--model file not found" => {
-    command => $cmd,
-    driver  => $driver,
-    database => 'default',
-    parameters => [
-      '--model' => '/file/not/found',
-    ],
-    error => qr{--model '/file/not/found' not found},
-  };
-
-  run_test "--model file not found (bad base directory)" => {
-    command => $cmd,
-    driver  => $driver,
-    database => 'default',
-    parameters => [
-      '--base_directory' => tempdir(CLEANUP => 1),
-      '--model' => 'file_not_found',
-    ],
-    error => qr{--model 'file_not_found' not found},
-  };
-
-  {
-    my ($model_fh, $model_fn) = new_fh();
-    print $model_fh "NOT YAML";
-    run_test "--model file is not YAML/JSON" => {
+  subtest "$driver: Failures in the model file" => sub {
+    run_test "--model file not found" => {
       command => $cmd,
       driver  => $driver,
       database => 'default',
       parameters => [
-        '--model' => $model_fn,
+        '--model' => '/file/not/found',
       ],
-      error => qr{--model '$model_fn' is not YAML/JSON},
+      error => qr{--model '/file/not/found' not found},
     };
-  }
 
-  {
-    my ($model_fh, $model_fn) = new_fh();
-    print $model_fh "NOT YAML";
-    run_test "--model file is not YAML/JSON (via base directory)" => {
+    run_test "--model file not found (bad base directory)" => {
       command => $cmd,
       driver  => $driver,
       database => 'default',
       parameters => [
-        '--base_directory' => dirname($model_fn),
-        '--model' => basename($model_fn),
+        '--base_directory' => tempdir(CLEANUP => 1),
+        '--model' => 'file_not_found',
       ],
-      error => qr{--model '@{[basename($model_fn)]}' is not YAML/JSON},
+      error => qr{--model 'file_not_found' not found},
     };
-  }
+
+    {
+      my ($model_fh, $model_fn) = new_fh();
+      print $model_fh "NOT YAML";
+      run_test "--model file is not YAML/JSON" => {
+        command => $cmd,
+        driver  => $driver,
+        database => 'default',
+        parameters => [
+          '--model' => $model_fn,
+        ],
+        error => qr{--model '$model_fn' is not YAML/JSON},
+      };
+    }
+
+    {
+      my ($model_fh, $model_fn) = new_fh();
+      print $model_fh "NOT YAML";
+      run_test "--model file is not YAML/JSON (via base directory)" => {
+        command => $cmd,
+        driver  => $driver,
+        database => 'default',
+        parameters => [
+          '--base_directory' => dirname($model_fn),
+          '--model' => basename($model_fn),
+        ],
+        error => qr{--model '@{[basename($model_fn)]}' is not YAML/JSON},
+      };
+    }
+  };
 }
