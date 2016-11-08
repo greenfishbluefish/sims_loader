@@ -12,6 +12,7 @@ use t::common_tests qw(
   failures_all_drivers
   failures_base_directory
   failures_connection
+  failures_model_file
 );
 
 my $cmd = 'model';
@@ -22,6 +23,7 @@ foreach my $driver (drivers()) {
   subtest "Failures for $driver" => sub {
     failures_base_directory($cmd, $driver);
     failures_connection($cmd, $driver);
+    failures_model_file($cmd, $driver);
   };
 }
 

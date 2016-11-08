@@ -27,6 +27,7 @@ sub validate_args {
   $self->validate_driver($opts, $args);
   $self->validate_base_directory($opts, $args);
   $self->validate_connection($opts, $args);
+  $self->validate_model_file($opts, $args);
 
   unless ($opts->{specification}) {
     $self->usage_error('Must provide --specification');
@@ -36,8 +37,6 @@ sub validate_args {
 
   $self->{spec} = $self->read_file($self->{specification})
     or $self->usage_error("--specification '$opts->{specification}' is not YAML/JSON");
-
-  $self->validate_model_file($opts, $args);
 
   if (exists $opts->{seed}) {
     unless (($opts->{seed}//'') =~ /^\d\.\d+$/) {

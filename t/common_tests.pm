@@ -5,15 +5,17 @@ use strictures 2;
 
 use Test2::Bundle::Extended;
 
+use File::Basename qw(basename dirname);
 use File::Temp qw(tempdir);
 
-use t::common qw(run_test);
+use t::common qw(new_fh run_test);
 
 use base 'Exporter';
 our @EXPORT_OK = qw(
   failures_all_drivers
   failures_base_directory
   failures_connection
+  failures_model_file
 );
 
 sub failures_all_drivers {
@@ -37,21 +39,23 @@ sub failures_all_drivers {
 sub failures_base_directory {
   my ($cmd, $driver) = @_;
 
-  run_test "--base_directory not a directory" => {
-    command => $cmd,
-    driver  => $driver,
-    parameters => [qw(--base_directory /not_a_directory)],
-    error   => qr{--base_directory '/not_a_directory' is not a directory},
-  };
-
-  {
-    local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
-    run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+  subtest "$driver: Failures for base_directory" => sub {
+    run_test "--base_directory not a directory" => {
       command => $cmd,
       driver  => $driver,
+      parameters => [qw(--base_directory /not_a_directory)],
       error   => qr{--base_directory '/not_a_directory' is not a directory},
     };
-  }
+
+    {
+      local $ENV{SIMS_LOADER_BASE_DIRECTORY} = '/not_a_directory';
+      run_test "SIMS_LOADER_BASE_DIRECTORY not a directory" => {
+        command => $cmd,
+        driver  => $driver,
+        error   => qr{--base_directory '/not_a_directory' is not a directory},
+      };
+    }
+  };
 }
 
 sub failures_connection {
@@ -131,6 +135,60 @@ sub failures_connection {
       driver  => $driver,
       database => sub {},
       error   => qr{Schema foo has no tables},
+    };
+  }
+}
+
+sub failures_model_file {
+  my ($cmd, $driver) = @_;
+
+  run_test "--model file not found" => {
+    command => $cmd,
+    driver  => $driver,
+    database => 'default',
+    parameters => [
+      '--model' => '/file/not/found',
+    ],
+    error => qr{--model '/file/not/found' not found},
+  };
+
+  run_test "--model file not found (bad base directory)" => {
+    command => $cmd,
+    driver  => $driver,
+    database => 'default',
+    parameters => [
+      '--base_directory' => tempdir(CLEANUP => 1),
+      '--model' => 'file_not_found',
+    ],
+    error => qr{--model 'file_not_found' not found},
+  };
+
+  {
+    my ($model_fh, $model_fn) = new_fh();
+    print $model_fh "NOT YAML";
+    run_test "--model file is not YAML/JSON" => {
+      command => $cmd,
+      driver  => $driver,
+      database => 'default',
+      parameters => [
+        '--model' => $model_fn,
+      ],
+      error => qr{--model '$model_fn' is not YAML/JSON},
+    };
+  }
+
+  {
+    my ($model_fh, $model_fn) = new_fh();
+    print $model_fh "NOT YAML";
+    run_test "--model file is not YAML/JSON (via base directory)" => {
+      command => $cmd,
+      driver  => $driver,
+      database => 'default',
+      parameters => [
+        '--base_directory' => dirname($model_fn),
+        '--model' => basename($model_fn),
+      ],
+      error => qr{--model '@{[basename($model_fn)]}' is not YAML/JSON},
     };
   }
 }

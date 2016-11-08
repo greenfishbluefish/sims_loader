@@ -14,6 +14,7 @@ use t::common_tests qw(
   failures_all_drivers
   failures_base_directory
   failures_connection
+  failures_model_file
 );
 
 my $cmd = 'load';
@@ -24,6 +25,7 @@ foreach my $driver (drivers()) {
   subtest "Failures for $driver" => sub {
     failures_base_directory($cmd, $driver);
     failures_connection($cmd, $driver);
+    failures_model_file($cmd, $driver);
 
     #### --specification ####
     run_test "--specification file not provided" => {
@@ -80,64 +82,6 @@ foreach my $driver (drivers()) {
           '--specification'  => basename($spec_fn),
         ],
         error => qr{--specification '@{[basename($spec_fn)]}' is not YAML/JSON},
-      };
-    }
-
-    my ($spec_fh, $spec_fn) = new_fh();
-    print $spec_fh "---\nArtist: 1\n";
-
-    #### --model ####
-    run_test "--model file not found" => {
-      command => $cmd,
-      driver  => $driver,
-      database => 'default',
-      parameters => [
-        '--specification' => $spec_fn,
-        '--model' => '/file/not/found',
-      ],
-      error => qr{--model '/file/not/found' not found},
-    };
-
-    run_test "--model file not found (bad base directory)" => {
-      command => $cmd,
-      driver  => $driver,
-      database => 'default',
-      parameters => [
-        '--specification' => $spec_fn,
-        '--base_directory' => tempdir(CLEANUP => 1),
-        '--model' => 'file_not_found',
-      ],
-      error => qr{--model 'file_not_found' not found},
-    };
-
-    {
-      my ($model_fh, $model_fn) = new_fh();
-      print $model_fh "NOT YAML";
-      run_test "--model file is not YAML/JSON" => {
-        command => $cmd,
-        driver  => $driver,
-        database => 'default',
-        parameters => [
-          '--specification' => $spec_fn,
-          '--model' => $model_fn,
-        ],
-        error => qr{--model '$model_fn' is not YAML/JSON},
-      };
-    }
-
-    {
-      my ($model_fh, $model_fn) = new_fh();
-      print $model_fh "NOT YAML";
-      run_test "--model file is not YAML/JSON (via base directory)" => {
-        command => $cmd,
-        driver  => $driver,
-        database => 'default',
-        parameters => [
-          '--specification' => $spec_fn,
-          '--base_directory' => dirname($model_fn),
-          '--model' => basename($model_fn),
-        ],
-        error => qr{--model '@{[basename($model_fn)]}' is not YAML/JSON},
       };
     }
   };
