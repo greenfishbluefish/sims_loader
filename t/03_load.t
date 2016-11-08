@@ -239,7 +239,7 @@ foreach my $driver (drivers()) {
     };
   };
 
-  success "$driver: add a sims value via model" => {
+  success "$driver: add a simmed value" => {
     command => $cmd,
     driver => $driver,
     database => sub {

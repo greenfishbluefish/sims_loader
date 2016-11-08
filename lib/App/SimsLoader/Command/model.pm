@@ -59,7 +59,6 @@ sub execute {
 
       foreach my $rel_name ($rsrc->relationships) {
         my $info = $rsrc->relationship_info($rel_name);
-        #$rv->{relationships}{$rel_name} = $info;
         (my $other = $info->{class}) =~ s/MySchema:://;
         if ($info->{attrs}{accessor} eq 'single') {
           $rv->{relationships}{$rel_name} = { belongs_to => $other };

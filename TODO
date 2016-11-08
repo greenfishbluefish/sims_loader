@@ -3,14 +3,15 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
 [ ] model file modifying DBIC::SL
-    [ ] Add sim types
-        [ ] Test with sim types (phone-number, zipcode, etc)
-    [ ] Add relationship
-    [ ] Add unique constraint
-    [ ] Set the primary key
-    [ ] Remove a column
-    [ ] Replace relationship
-    [ ] Change column from NULL to NOT NULL
+    [X] Set a value to a scalar
+    [ ] Set a value to an array of scalars
+        * Unsupported by Sims
+    [ ] Set a column to a sim type
+    [ ] Add a relationship
+    [ ] Add a multi-column relationship
+    [ ] Add a unique constraint
+    [ ] Set a nullable column to nullchance
+    [ ] Throw an error when setting a not-null column with a nullchan
 [ ] toposort file passed to $opts->{toposort}
     [ ] Break self-relationship
     [ ] Break A-B-A relationship at A-B
@@ -31,6 +32,7 @@
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
     * --base-directory works like this, but by hand
+[ ] Handle views
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
 [ ] "validate" will:
