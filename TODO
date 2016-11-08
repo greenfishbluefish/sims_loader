@@ -3,15 +3,32 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
 [ ] model file modifying DBIC::SL
-    [X] Set a value to a scalar
-    [ ] Set a value to an array of scalars
-        * Unsupported by Sims
-    [ ] Set a column to a sim type
-    [ ] Add a relationship
-    [ ] Add a multi-column relationship
-    [ ] Add a unique constraint
-    [ ] Set a nullable column to nullchance
-    [ ] Throw an error when setting a not-null column with a nullchan
+    [ ] Validate all sources exist (either by model or table name)
+    [ ] Columns
+        [ ] Validate all columns within a source exist
+        [X] Set a value to a scalar
+        [ ] Set a value to an array of scalars
+            * Unsupported by Sims
+        [ ] Set a column to a sim type
+        [ ] Throw an error when the type is unknown
+        [ ] Set a nullable column to nullchance
+        [ ] Throw an error when setting a not-null column with a nullchan
+    [ ] Relationships (has_many / belongs_to)
+        [ ] Validate the foreign source exists
+        [ ] Validate the columns exist
+        [ ] Validate the same number of columns provided
+        [ ] Add a multi-column relationship
+    [ ] Unique Constraints
+        [ ] Validate the column(s) exist
+        [ ] Add a multi-column unique constraint
+[ ] Add a command to show all available sims types
+[ ] Write documentation
+    * This is done via direct edit on DockerHub.
+    * Can we automate this like github.com/docker-library/docs?
+[ ] Write a test that demonstrates a multi-column relationship
+[ ] Write a test that demonstrates a M2M relationship
+    [ ] ... with the PK on the FKs and an extra value on the crosstable.
+    [ ] ... with the PK on the FKs + the extra value
 [ ] toposort file passed to $opts->{toposort}
     [ ] Break self-relationship
     [ ] Break A-B-A relationship at A-B
@@ -28,19 +45,39 @@
 [ ] Test with database-specific column types
     [ ] Postgres JSON
 [ ] constraints file passed to $opts->{constraints}
-[ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
     * --base-directory works like this, but by hand
 [ ] Handle views
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
+[ ] Change volume mapping to map `-v /:/data`
+    * Modify absolute paths in the host-side command to prepend "/data"?
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
     [ ] Validate the model file works with the DBIC::SL-generated model
     [ ] Validate the constraints works with the model
     [ ] Validate the specification works with the model
+
+-------- MODEL FILE --------
+
+---
+<model>:
+  columns:
+    <name>:
+      value[s]: <scalar>
+      value[s]: <list>
+      type: <type>
+      null_chance: 0.00 .. 1.00
+  has_many / belongs_to:
+    <name>:
+      column[s]: <A> [,<B>, <C>, ...]
+      foreign:
+        source: <model | table>
+        column[s]: <A> [,<B>, <C>, ...]
+  unique_constraints:
+    <name>: <A> [,<B>, <C>, ...]
 
 -------- COMMANDS --------
 
