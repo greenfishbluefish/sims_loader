@@ -170,8 +170,8 @@ sub run_test ($$) {
       # Provide a default database for tests that don't care.
       if ("$options->{database}" eq 'default') {
         $options->{database} = sub {
-          shift->do(table_sql($options->{driver}, artists => {
-            id => { primary => 1 },
+          shift->do(table_sql($options->{driver}, foo => {
+            id => { integer => 1 },
           }));
         };
       }
@@ -236,9 +236,7 @@ sub run_test ($$) {
 sub success ($$) {
   my ($name, $options) = @_;
 
-  my %defaults = (
-    driver => 'sqlite',
-  );
+  my %defaults = ();
 
   if ($options->{yaml_out}) {
     $defaults{stdout} = sub {
