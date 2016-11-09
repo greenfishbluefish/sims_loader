@@ -4,10 +4,22 @@
 # Otherwise, docker volume attachment will fail miserably.
 export MSYS_NO_PATHCONV=1
 
+DIR=$(git rev-parse --show-toplevel)
+
 if [[ "$@" == "stop" ]]; then
   docker-compose down
+elif [[ "$@" == "bash" ]]; then
+  docker-compose up -d datastores
+
+  docker run \
+    --rm \
+    --interactive --tty \
+    --network simsloader_default \
+    --link simsloader_mysql_1:mysql \
+    --volume $DIR:/app \
+    --entrypoint bash \
+      simsloader_code
 elif [[ "$@" == "build" ]]; then
-  DIR=$(git rev-parse --show-toplevel)
   for dirname in bin devops lib; do
     find $DIR/$dirname -type f -exec dos2unix -q {} \;
   done

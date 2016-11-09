@@ -4,6 +4,8 @@ use 5.20.0;
 
 use strictures 2;
 
+use App::SimsLoader::Command::types;
+
 use DBIx::Class::Schema::Loader::Dynamic;
 
 {
@@ -39,6 +41,7 @@ sub new {
     schema => $schema,
   )->load;
 
+  my %sim_types = map { lc($_) => 1 } App::SimsLoader::Command::types->find_types;
   while (my ($name, $source_mods) = each %$model) {
     # This needs to allow both table and model names.
     my $rsrc = eval {
@@ -52,6 +55,11 @@ sub new {
         while (my ($col_name, $defn) = each %$data) {
           unless ($rsrc->has_column($col_name)) {
             die "Cannot find $name.$col_name in database\n";
+          }
+
+          if ($defn->{type}) {
+            die "$name.$col_name: type $defn->{type} does not exist\n"
+              unless $sim_types{$defn->{type}};
           }
 
           # The '+' modifies the existing column.

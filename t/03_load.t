@@ -210,6 +210,35 @@ foreach my $driver (drivers()) {
       },
     },
   };
+
+  success "$driver: add a simmed type" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      }));
+    },
+    model => {
+      Artist => {
+        columns => {
+          name => { type => 'us_firstname' },
+        },
+      },
+    },
+    specification => {
+      Artist => 1,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        Artist => [
+          { id => 1, name => match(qr/^\w+$/) },
+        ],
+      },
+    },
+  };
 }
 
 done_testing;

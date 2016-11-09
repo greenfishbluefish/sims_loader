@@ -18,7 +18,6 @@ services:
     #  - -v
     #  - t/02_loader.t
     #  - t/03_load.t
-    #  - t/05_drivers.t
     #  - t/06_model.t
     # Uncomment this line to get test-coverage statistics.
     #  - cover

@@ -2,11 +2,8 @@
     [X] Return the seed
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
-[ ] Add a command to show all available sims types
+[X] Add a command to show all available sims types
 [-] model file modifying DBIC::SL
-    [ ] Column types
-        [ ] Set a column to a sim type
-        [ ] Throw an error when the type is unknown
     [ ] Column nullchance
         [ ] Set a nullable column to nullchance
         [ ] Throw an error when setting a not-null column with a nullchance
@@ -122,3 +119,6 @@ load_sims CMD \
     [X] Columns
         [X] Validate all columns within a source exist
         [X] Set a value to a scalar
+    [X] Column types
+        [X] Set a column to a sim type
+        [X] Throw an error when the type is unknown

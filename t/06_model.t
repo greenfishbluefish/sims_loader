@@ -50,6 +50,21 @@ foreach my $driver (drivers()) {
     },
     error => qr/Cannot find Artist.foo in database/,
   };
+
+  run_test "$driver: Type not found" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255 },
+      }));
+    },
+    model => {
+      Artist => { columns => { name => { type => 'type_not_found' } } },
+    },
+    error => qr/Artist.name: type type_not_found does not exist/,
+  };
 }
 
 foreach my $driver (drivers()) {
@@ -261,6 +276,49 @@ foreach my $driver (drivers()) {
             size => 255,
             sim => {
               value => 'George',
+            },
+          },
+        },
+        relationships => {
+        },
+      },
+    },
+  };
+
+  success "$driver: Details of a model with a simmed type" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name artists
+    )],
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      }));
+    },
+    model => {
+      Artist => {
+        columns => {
+          name => { type => 'us_firstname' },
+        },
+      },
+    },
+    yaml_out => {
+      Artist => {
+        table => 'artists',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
+          },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 0,
+            size => 255,
+            sim => {
+              type => 'us_firstname',
             },
           },
         },
