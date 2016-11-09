@@ -23,7 +23,7 @@ foreach my $driver (drivers()) {
   failures_connection($cmd, $driver);
   failures_model_file($cmd, $driver);
 
-  run_test "$driver: Source not found" => {
+  run_test "$driver: Source not found in model" => {
     command => $cmd,
     driver => $driver,
     database => sub {
@@ -35,6 +35,20 @@ foreach my $driver (drivers()) {
       OtherTable => {},
     },
     error => qr/Cannot find OtherTable in database/,
+  };
+
+  run_test "$driver: Column not found in model" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+      }));
+    },
+    model => {
+      Artist => { columns => { foo => {} } },
+    },
+    error => qr/Cannot find Artist.foo in database/,
   };
 }
 

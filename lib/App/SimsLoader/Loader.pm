@@ -44,12 +44,16 @@ sub new {
     my $rsrc = eval {
       $schema->source($name);
     }; if ($@) {
-      die "Cannot find $name in database";
+      die "Cannot find $name in database\n";
     }
 
     while (my ($aspect, $data) = each %$source_mods) {
       if ($aspect eq 'columns') {
         while (my ($col_name, $defn) = each %$data) {
+          unless ($rsrc->has_column($col_name)) {
+            die "Cannot find $name.$col_name in database\n";
+          }
+
           # The '+' modifies the existing column.
           $rsrc->add_column("+$col_name" => { sim => $defn });
         }
