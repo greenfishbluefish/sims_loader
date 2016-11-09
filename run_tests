@@ -6,6 +6,13 @@ export MSYS_NO_PATHCONV=1
 
 if [[ "$@" == "stop" ]]; then
   docker-compose down
+elif [[ "$@" == "build" ]]; then
+  DIR=$(git rev-parse --show-toplevel)
+  for dirname in bin devops lib; do
+    find $DIR/$dirname -type f -exec dos2unix -q {} \;
+  done
+
+  docker-compose build
 else
   # This order is so that we can launch the databases and let them live beyond
   # any given test run.
