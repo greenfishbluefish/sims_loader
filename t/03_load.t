@@ -26,7 +26,7 @@ foreach my $driver (drivers()) {
   failures_connection($cmd, $driver);
   failures_model_file($cmd, $driver);
 
-  subtest "Failures for --specification" => sub {
+  subtest "$driver: Failures for --specification" => sub {
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,

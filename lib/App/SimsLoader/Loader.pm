@@ -41,8 +41,11 @@ sub new {
 
   while (my ($name, $source_mods) = each %$model) {
     # This needs to allow both table and model names.
-    my $rsrc = $schema->source($name)
-      or die "Cannot find $name in database";
+    my $rsrc = eval {
+      $schema->source($name);
+    }; if ($@) {
+      die "Cannot find $name in database";
+    }
 
     while (my ($aspect, $data) = each %$source_mods) {
       if ($aspect eq 'columns') {
