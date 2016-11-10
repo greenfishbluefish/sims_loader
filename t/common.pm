@@ -90,13 +90,19 @@ sub create_dbh {
 }
 
 sub table_sql {
-  my ($driver, $table, $columns) = @_;
+  my ($driver, $table, $defn) = @_;
   $driver = lc $driver;
+
+  unless (exists $defn->{columns}) {
+    $defn = {
+      columns => $defn,
+    };
+  }
 
   my (@columns, @keys);
   my $sql = "CREATE TABLE `$table` (";
   if ($driver eq 'sqlite') {
-    while (my ($col, $type) = each %$columns) {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
       if ($type->{primary}) {
         push @columns, "`$col` INTEGER PRIMARY KEY AUTOINCREMENT";
       }
@@ -118,14 +124,14 @@ sub table_sql {
     }
   }
   elsif ($driver eq 'mysql') {
-    while (my ($col, $type) = each %$columns) {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
       if ($type->{primary}) {
         push @columns, "`$col` INT NOT NULL PRIMARY KEY AUTO_INCREMENT";
       }
       elsif ($type->{foreign}) {
         push @columns, "`$col` INT";
         my ($fk_table, $fk_col) = split('\.', $type->{foreign});
-        push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+        push @keys, "FOREIGN KEY (`$col`) REFERENCES $fk_table (`$fk_col`)";
       }
       elsif ($type->{integer}) {
         push @columns, "`$col` INT";
@@ -142,7 +148,22 @@ sub table_sql {
     die "Don't know how to build SQL for '$driver'\n";
   }
 
+  while (my ($name, $cols) = each %{$defn->{unique}//{}}) {
+    # SQLite appends '_unique' to all UK constraint names. Therefore, do that
+    # for all other drivers to keep the tests sane.
+    if ($driver eq 'sqlite') {
+      push @keys, "CONSTRAINT `$name` UNIQUE (`@{[join '`,`', @$cols]}`)";
+    }
+    elsif ($driver eq 'mysql') {
+      push @keys, "UNIQUE KEY `${name}_unique` (`@{[join '`,`', @$cols]}`)";
+    }
+    else {
+      die "Don't know how to build SQL for '$driver'\n";
+    }
+  }
+
   $sql .= join(',', @columns, @keys);
+
   $sql .= ");";
 
   return $sql;

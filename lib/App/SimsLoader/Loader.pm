@@ -15,31 +15,9 @@ use DBIx::Class::Schema::Loader::Dynamic;
   __PACKAGE__->load_components('Sims');
 }
 
-sub new {
-  my $class = shift;
-  my %opts = @_;
-
-  my $type = delete $opts{type};
-  my $model = delete $opts{model} // {};
-
-  my $user = delete $opts{username} // '';
-  my $pass = delete $opts{password} // '';
-
-  my @connectors;
-  while (my ($k,$v) = each %opts) {
-    push @connectors, "$k=$v";
-  }
-  my $connectors = join(';', @connectors);
-  #$connectors //= '';
-
-  my $connect_string = "dbi:$type:$connectors";
-
-  my $schema = MySchema->connect($connect_string, $user, $pass);
-  DBIx::Class::Schema::Loader::Dynamic->new(
-    naming => 'v8',
-    use_namespaces => 0,
-    schema => $schema,
-  )->load;
+sub apply_model {
+  shift;
+  my ($schema, $model) = @_;
 
   my %sim_types = map { lc($_) => 1 } App::SimsLoader::Command::types->find_types;
   while (my ($name, $source_mods) = each %$model) {
@@ -68,6 +46,35 @@ sub new {
       }
     }
   }
+}
+
+sub new {
+  my $class = shift;
+  my %opts = @_;
+
+  my $type = delete $opts{type};
+  my $model = delete $opts{model} // {};
+
+  my $user = delete $opts{username} // '';
+  my $pass = delete $opts{password} // '';
+
+  my @connectors;
+  while (my ($k,$v) = each %opts) {
+    push @connectors, "$k=$v";
+  }
+  my $connectors = join(';', @connectors);
+  #$connectors //= '';
+
+  my $connect_string = "dbi:$type:$connectors";
+
+  my $schema = MySchema->connect($connect_string, $user, $pass);
+  DBIx::Class::Schema::Loader::Dynamic->new(
+    naming => 'v8',
+    use_namespaces => 0,
+    schema => $schema,
+  )->load;
+
+  $class->apply_model($schema, $model);
 
   return bless {
     schema => $schema,

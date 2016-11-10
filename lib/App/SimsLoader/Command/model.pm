@@ -56,6 +56,7 @@ sub execute {
         table => $rsrc->from,
         columns => {},
         relationships => {},
+        unique_constraints => {},
       };
       foreach my $col_name ($rsrc->columns) {
         $rv->{columns}{$col_name} = $rsrc->column_info($col_name);
@@ -70,6 +71,11 @@ sub execute {
         else {
           $rv->{relationships}{$rel_name} = { has_many => $other };
         }
+      }
+
+      my %uk = $rsrc->unique_constraints;
+      while (my ($name, $cols) = each %uk) {
+        $rv->{unique_constraints}{$name} = $cols;
       }
     }
   }

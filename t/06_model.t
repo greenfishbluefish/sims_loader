@@ -109,8 +109,8 @@ foreach my $driver (drivers()) {
             size => 255,
           },
         },
-        relationships => {
-        },
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {},
       },
     },
   };
@@ -189,6 +189,7 @@ foreach my $driver (drivers()) {
             size => 200,
           },
         },
+        unique_constraints => { primary => [qw( id )] },
         relationships => {
           studios => { has_many => 'Studio' },
         },
@@ -234,6 +235,7 @@ foreach my $driver (drivers()) {
               is_foreign_key => 1,
             },
           },
+          unique_constraints => { primary => [qw( id )] },
           relationships => {
             artist => { belongs_to => 'Artist' },
           },
@@ -279,8 +281,8 @@ foreach my $driver (drivers()) {
             },
           },
         },
-        relationships => {
-        },
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {},
       },
     },
   };
@@ -322,7 +324,48 @@ foreach my $driver (drivers()) {
             },
           },
         },
-        relationships => {
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {},
+      },
+    },
+  };
+
+  success "$driver: Details of a model with a unique key" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name artists
+    )],
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        columns => {
+          id => { primary => 1 },
+          name => { string => 255, not_null => 1 },
+        },
+        unique => {
+          name => [qw( name )],
+        },
+      }));
+    },
+    yaml_out => {
+      Artist => {
+        table => 'artists',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
+          },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 0,
+            size => 255,
+          },
+        },
+        relationships => {},
+        unique_constraints => {
+          primary => [qw( id )],
+          name_unique => [qw( name )],
         },
       },
     },
