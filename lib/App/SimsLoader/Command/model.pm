@@ -10,13 +10,9 @@ use App::SimsLoader::Loader;
 use YAML::Any qw(Dump);
 
 sub opt_spec {
-  my $self = shift;
-  return (
-    $self->opt_spec_for(qw(
-      base_directory connection model
-    )),
-    [ 'name=s', "Model/Table for specific details" ],
-  );
+  shift->opt_spec_for(qw(
+    base_directory connection model model_detail
+  )),
 }
 
 sub validate_args {
@@ -35,15 +31,7 @@ sub execute {
   my $self = shift;
   my ($opts, $args) = @_;
 
-  my $loader = eval {
-    App::SimsLoader::Loader->new(
-      type => $self->{driver},
-      model => $self->{model} // {},
-      %{$self->{params}},
-    );
-  }; if ($@) {
-    $self->usage_error($@);
-  }
+  my $loader = $self->build_loader;
 
   my %response;
   my %sources = $loader->sources;

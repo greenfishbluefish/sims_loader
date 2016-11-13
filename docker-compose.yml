@@ -10,6 +10,8 @@ services:
       - datastores
     links:
       - mysql
+    # NOTE: This will be removable with the release of docker-compose 1.9.0
+    #   * 1.9.0-rc4 was released on 2016-11-08.
     #entrypoint:
     # Uncomment this line to do any of the below options.
     #  - /usr/local/bin/within_carton

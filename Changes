@@ -4,9 +4,10 @@ Revision history for DBIx::Class::Sims (ordered by revision number).
   - Add "types" command to list available Sims types
   - "model" now displays unique constraints (including PK)
   - Return and use a --seed
-  - Add support for --model
-    - Supports <table> -> columns -> <column> -> { sim => <value> }
-    - Supports <table> -> columns -> <column> -> { type => <name> }
+  - Add support for --model. Supports:
+    - <table> -> columns -> <column> -> { sim => <value> }
+    - <table> -> columns -> <column> -> { type => <name> }
+    - <table> -> unique_constraints -> <name> -> [ col1, col2, ... ]
   - Improve packaging to include Dockerfile and Changes in /opt/docker
 
 0.000004

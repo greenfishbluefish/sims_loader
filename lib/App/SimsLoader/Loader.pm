@@ -44,6 +44,21 @@ sub apply_model {
           $rsrc->add_column("+$col_name" => { sim => $defn });
         }
       }
+      elsif ($aspect eq 'unique_constraints') {
+        while (my ($key_name, $defn) = each %$data) {
+          foreach my $col_name (@$defn) {
+            unless ($rsrc->has_column($col_name)) {
+              die "Cannot find $name.$col_name in database\n";
+            }
+          }
+        }
+
+        eval {
+          $rsrc->add_unique_constraints(%{$data});
+        }; if ($@) {
+          die $@;
+        }
+      }
     }
   }
 }

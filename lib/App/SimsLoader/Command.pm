@@ -14,6 +14,10 @@ use YAML::Any qw(LoadFile);
 # Don't quote numeric strings that haven't been numified.
 $YAML::XS::QuoteNumericStrings = undef;
 
+sub opt_spec {
+  shift->opt_spec_for();
+}
+
 sub opt_spec_for {
   my $self = shift;
   my %opts = map { $_ => 1 } @_;
@@ -39,6 +43,19 @@ sub opt_spec_for {
   if ($opts{model}) {
     push @specs, (
       [ 'model=s', "Model file" ],
+    );
+  }
+
+  if ($opts{'model_detail'}) {
+    push @specs, (
+      [ 'name=s', "Model/Table for specific details" ],
+    );
+  }
+
+  if ($opts{'load_sims'}) {
+    push @specs, (
+      [ 'specification=s', "Specification file" ],
+      [ 'seed=s', "Initial seed" ],
     );
   }
 
@@ -192,6 +209,22 @@ sub read_file {
   }; if ($@) { say $@ }
   return $x if ref $x;
   return;
+}
+
+sub build_loader {
+  my $self = shift;
+
+  my $loader = eval {
+    App::SimsLoader::Loader->new(
+      type => $self->{driver},
+      model => $self->{model} // {},
+      %{$self->{params}},
+    );
+  }; if ($@) {
+    $self->usage_error($@);
+  }
+
+  return $loader;
 }
 
 1;

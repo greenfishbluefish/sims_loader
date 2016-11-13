@@ -3,14 +3,12 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
 [-] model file modifying DBIC::SL
+    [ ] Add validations for the expected structure of the model file
     [ ] Relationships (has_many / belongs_to)
         [ ] Validate the foreign source exists
         [ ] Validate the columns exist
         [ ] Validate the same number of columns provided
         [ ] Add a multi-column relationship
-    [ ] Unique Constraints
-        [ ] Validate the column(s) exist
-        [ ] Add a multi-column unique constraint
     [/] Columns
         [/] Set a value to an array of scalars (Unsupported by Sims)
     [ ] Column nullchance
@@ -123,3 +121,6 @@ load_sims CMD \
     [X] Column types
         [X] Set a column to a sim type
         [X] Throw an error when the type is unknown
+    [X] Unique Constraints
+        [X] Validate the column(s) exist
+        [X] Add a multi-column unique constraint

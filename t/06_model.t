@@ -65,6 +65,21 @@ foreach my $driver (drivers()) {
     },
     error => qr/Artist.name: type type_not_found does not exist/,
   };
+
+  run_test "$driver: Column not found for UK in model" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255 },
+      }));
+    },
+    model => {
+      Artist => { unique_constraints => { name => [qw( not_found )] } },
+    },
+    error => qr/Cannot find Artist.not_found in database/,
+  };
 }
 
 foreach my $driver (drivers()) {
@@ -366,6 +381,51 @@ foreach my $driver (drivers()) {
         unique_constraints => {
           primary => [qw( id )],
           name_unique => [qw( name )],
+        },
+      },
+    },
+  };
+
+  success "$driver: Details of a model with an added unique key" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name artists
+    )],
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        columns => {
+          id => { primary => 1 },
+          name => { string => 255, not_null => 1 },
+        },
+      }));
+    },
+    model => {
+      Artist => {
+        unique_constraints => {
+          name => [qw( name )],
+        },
+      },
+    },
+    yaml_out => {
+      Artist => {
+        table => 'artists',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
+          },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 0,
+            size => 255,
+          },
+        },
+        relationships => {},
+        unique_constraints => {
+          primary => [qw( id )],
+          name => [qw( name )],
         },
       },
     },
