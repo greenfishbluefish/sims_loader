@@ -1,7 +1,24 @@
-Revision history for DBIx::Class::Sims (ordered by revision number).
+Revision history for SimsLoader (ordered by revision number).
 
 0.000005
+  BREAKING CHANGE: The model and table names are now the same.
+    - Accessor and column names are also now the same, but this should have
+      been the case already.
+    - Relationship names haven't been changed yet.
+  BREAKING CHANGE: The output is now one level deeper.
+    - What used to be the output is now the "rows" key.
+    - The "seed" key is now displayed as well.
+  - Add "types" sub-command to list available Sims types
+  - "model" sub-command now displays unique constraints (including PK)
   - Return and use a --seed
+  - Add support for --model taking a JSON/YAML file. Supports:
+    - <table> -> columns -> <column> -> { sim => <value> }
+    - <table> -> columns -> <column> -> { type => <name> }
+    - <table> -> unique_constraints -> <name> -> [ col1, col2, ... ]
+    - <table> -> belongs_to/has_many -> <name> -> {
+        columns => [ col1, col2, ... ]
+        foreign => { source => <name>, columns => [ col1, col2, ... ] }
+      }
   - Improve packaging to include Dockerfile and Changes in /opt/docker
 
 0.000004

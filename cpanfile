@@ -1,8 +1,9 @@
 requires 'perl', '5.22.0';
 
-requires 'DBIx::Class::Sims', '>= 0.300402';
+requires 'DBIx::Class::Sims', '>= 0.300403';
 requires 'DBIx::Class::Schema::Loader::Dynamic';
 requires 'App::Cmd';
+requires 'JSON::Validator';
 requires 'Net::Telnet';
 
 requires 'DBD::mysql';

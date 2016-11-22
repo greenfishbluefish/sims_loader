@@ -9,22 +9,24 @@ use YAML::Any qw(Load);
 
 use App::SimsLoader;
 
-use t::common qw(new_fh table_sql success run_test);
+use t::common qw(drivers new_fh table_sql success run_test);
 use t::common_tests qw(
   failures_all_drivers
   failures_base_directory
   failures_connection
+  failures_model_file
 );
 
 my $cmd = 'load';
 
 failures_all_drivers($cmd);
 
-foreach my $driver (qw(sqlite mysql)) {
-  subtest "Failures for $driver" => sub {
-    failures_base_directory($cmd, $driver);
-    failures_connection($cmd, $driver);
+foreach my $driver (drivers()) {
+  failures_base_directory($cmd, $driver);
+  failures_connection($cmd, $driver);
+  failures_model_file($cmd, $driver);
 
+  subtest "$driver: Failures for --specification" => sub {
     run_test "--specification file not provided" => {
       command => $cmd,
       driver  => $driver,
@@ -84,7 +86,7 @@ foreach my $driver (qw(sqlite mysql)) {
   };
 }
 
-foreach my $driver (qw(sqlite mysql)) {
+foreach my $driver (drivers()) {
   success "$driver: Load one row specifying everything" => {
     command => $cmd,
     driver => $driver,
@@ -95,12 +97,12 @@ foreach my $driver (qw(sqlite mysql)) {
       }));
     },
     specification => {
-      Artist => { name => 'George' },
+      artists => { name => 'George' },
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => 'George' },
         ],
       },
@@ -117,12 +119,12 @@ foreach my $driver (qw(sqlite mysql)) {
       }));
     },
     specification => {
-      Artist => 2,
+      artists => 2,
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => undef },
           { id => 2, name => undef },
         ],
@@ -141,7 +143,7 @@ foreach my $driver (qw(sqlite mysql)) {
         }));
       },
       specification => {
-        Artist => 1,
+        artists => 1,
       },
     );
 
@@ -155,12 +157,12 @@ foreach my $driver (qw(sqlite mysql)) {
         is($result, {
           seed => D(),
           rows => {
-            Artist => [
+            artists => [
               { id => 1, name => D() },
             ],
           },
         });
-        $name = $result->{rows}{Artist}[0]{name};
+        $name = $result->{rows}{artists}[0]{name};
         $seed = $result->{seed};
       },
     };
@@ -172,12 +174,70 @@ foreach my $driver (qw(sqlite mysql)) {
       yaml_out => {
         seed => $seed,
         rows => {
-          Artist => [
+          artists => [
             { id => 1, name => $name },
           ],
         },
       },
     };
+  };
+
+  success "$driver: add a simmed value" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      }));
+    },
+    model => {
+      artists => {
+        columns => {
+          name => { value => 'George' },
+        },
+      },
+    },
+    specification => {
+      artists => 1,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => 'George' },
+        ],
+      },
+    },
+  };
+
+  success "$driver: add a simmed type" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      }));
+    },
+    model => {
+      artists => {
+        columns => {
+          name => { type => 'us_firstname' },
+        },
+      },
+    },
+    specification => {
+      artists => 1,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => match(qr/^\w+$/) },
+        ],
+      },
+    },
   };
 }
 

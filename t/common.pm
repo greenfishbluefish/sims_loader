@@ -7,6 +7,7 @@ use 5.22.0;
 
 use base 'Exporter';
 our @EXPORT_OK = qw(
+  drivers
   new_fh
   create_dbh
   table_sql
@@ -28,6 +29,10 @@ use YAML::Any qw(Dump Load);
 
 my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
+
+sub drivers {
+  return qw(sqlite mysql);
+}
 
 sub new_fh {
   my ($fh, $filename) = tempfile('tmpXXXX',
@@ -85,13 +90,19 @@ sub create_dbh {
 }
 
 sub table_sql {
-  my ($driver, $table, $columns) = @_;
+  my ($driver, $table, $defn) = @_;
   $driver = lc $driver;
+
+  unless (exists $defn->{columns}) {
+    $defn = {
+      columns => $defn,
+    };
+  }
 
   my (@columns, @keys);
   my $sql = "CREATE TABLE `$table` (";
   if ($driver eq 'sqlite') {
-    while (my ($col, $type) = each %$columns) {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
       if ($type->{primary}) {
         push @columns, "`$col` INTEGER PRIMARY KEY AUTOINCREMENT";
       }
@@ -99,6 +110,9 @@ sub table_sql {
         push @columns, "`$col` INTEGER";
         my ($fk_table, $fk_col) = split('\.', $type->{foreign});
         push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "`$col` INTEGER";
       }
       elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
@@ -110,14 +124,17 @@ sub table_sql {
     }
   }
   elsif ($driver eq 'mysql') {
-    while (my ($col, $type) = each %$columns) {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
       if ($type->{primary}) {
         push @columns, "`$col` INT NOT NULL PRIMARY KEY AUTO_INCREMENT";
       }
       elsif ($type->{foreign}) {
         push @columns, "`$col` INT";
         my ($fk_table, $fk_col) = split('\.', $type->{foreign});
-        push @keys, "FOREIGN KEY($col) REFERENCES $fk_table($fk_col)";
+        push @keys, "FOREIGN KEY (`$col`) REFERENCES $fk_table (`$fk_col`)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "`$col` INT";
       }
       elsif ($type->{string}) {
         push @columns, "`$col` VARCHAR($type->{string})";
@@ -131,7 +148,22 @@ sub table_sql {
     die "Don't know how to build SQL for '$driver'\n";
   }
 
+  while (my ($name, $cols) = each %{$defn->{unique}//{}}) {
+    # SQLite appends '_unique' to all UK constraint names. Therefore, do that
+    # for all other drivers to keep the tests sane.
+    if ($driver eq 'sqlite') {
+      push @keys, "CONSTRAINT `$name` UNIQUE (`@{[join '`,`', @$cols]}`)";
+    }
+    elsif ($driver eq 'mysql') {
+      push @keys, "UNIQUE KEY `${name}_unique` (`@{[join '`,`', @$cols]}`)";
+    }
+    else {
+      die "Don't know how to build SQL for '$driver'\n";
+    }
+  }
+
   $sql .= join(',', @columns, @keys);
+
   $sql .= ");";
 
   return $sql;
@@ -159,8 +191,8 @@ sub run_test ($$) {
       # Provide a default database for tests that don't care.
       if ("$options->{database}" eq 'default') {
         $options->{database} = sub {
-          shift->do(table_sql($options->{driver}, artists => {
-            id => { primary => 1 },
+          shift->do(table_sql($options->{driver}, foo => {
+            id => { integer => 1 },
           }));
         };
       }
@@ -177,6 +209,14 @@ sub run_test ($$) {
       close $fh;
 
       push @parameters, '--specification', $fn;
+    }
+
+    if ($options->{model}) {
+      my ($fh, $fn) = new_fh();
+      print $fh Dump($options->{model});
+      close $fh;
+
+      push @parameters, '--model', $fn;
     }
 
     # Allow specified parameters to override auto-generated parameters
@@ -217,9 +257,7 @@ sub run_test ($$) {
 sub success ($$) {
   my ($name, $options) = @_;
 
-  my %defaults = (
-    driver => 'sqlite',
-  );
+  my %defaults = ();
 
   if ($options->{yaml_out}) {
     $defaults{stdout} = sub {

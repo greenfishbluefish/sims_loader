@@ -10,14 +10,9 @@ use App::SimsLoader::Loader;
 use YAML::Any qw(Dump);
 
 sub opt_spec {
-  my $self = shift;
-  return (
-    $self->opt_spec_for(qw(
-      base_directory connection
-    )),
-    [ 'specification=s', "Specification file" ],
-    [ 'seed=s', "Initial seed" ],
-  );
+  shift->opt_spec_for(qw(
+    base_directory connection model load_sims
+  )),
 }
 
 sub validate_args {
@@ -27,6 +22,7 @@ sub validate_args {
   $self->validate_driver($opts, $args);
   $self->validate_base_directory($opts, $args);
   $self->validate_connection($opts, $args);
+  $self->validate_model_file($opts, $args);
 
   unless ($opts->{specification}) {
     $self->usage_error('Must provide --specification');
@@ -48,10 +44,7 @@ sub execute {
   my $self = shift;
   my ($opts, $args) = @_;
 
-  my $loader = App::SimsLoader::Loader->new(
-    type => $opts->{driver},
-    %{$self->{params}},
-  );
+  my $loader = $self->build_loader;
 
   my $addl_params = {};
   $addl_params->{seed} = $opts->{seed} if exists $opts->{seed};

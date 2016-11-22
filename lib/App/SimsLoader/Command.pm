@@ -8,11 +8,16 @@ use App::Cmd::Setup -command;
 
 use DBI;
 use File::Spec ();
+use JSON::Validator;
 use Net::Telnet;
 use YAML::Any qw(LoadFile);
 
 # Don't quote numeric strings that haven't been numified.
 $YAML::XS::QuoteNumericStrings = undef;
+
+sub opt_spec {
+  shift->opt_spec_for();
+}
 
 sub opt_spec_for {
   my $self = shift;
@@ -36,6 +41,25 @@ sub opt_spec_for {
     );
   }
 
+  if ($opts{model}) {
+    push @specs, (
+      [ 'model=s', "Model file" ],
+    );
+  }
+
+  if ($opts{'model_detail'}) {
+    push @specs, (
+      [ 'name=s', "Model/Table for specific details" ],
+    );
+  }
+
+  if ($opts{'load_sims'}) {
+    push @specs, (
+      [ 'specification=s', "Specification file" ],
+      [ 'seed=s', "Initial seed" ],
+    );
+  }
+
   return @specs;
 }
 
@@ -50,7 +74,7 @@ sub validate_driver {
   unless ($dbds{lc($opts->{driver})}) {
     $self->usage_error("--driver '$opts->{driver}' not installed");
   }
-  $opts->{driver} = $dbds{lc($opts->{driver})};
+  $self->{driver} = $dbds{lc($opts->{driver})};
 }
 
 sub validate_base_directory {
@@ -69,7 +93,7 @@ sub validate_connection {
   $self->usage_error('Must provide --host') unless $opts->{host};
 
   # If we're SQLite, validate the file exists
-  if ($opts->{driver} eq 'SQLite') {
+  if ($self->{driver} eq 'SQLite') {
     my $dbname = $self->find_file($opts, $opts->{host})
       or $self->usage_error("--host '$opts->{host}' not found");
 
@@ -95,7 +119,7 @@ sub validate_connection {
     };
   }
   # If we're not, validate we can connect to the host
-  elsif ($opts->{driver} eq 'mysql') {
+  elsif ($self->{driver} eq 'mysql') {
     my $port = $opts->{port} // 3306;
 
     # Use Net::Telnet to determine if we can even connect to the database host.
@@ -149,6 +173,108 @@ sub validate_connection {
   }
 }
 
+sub validate_model {
+  my $self = shift;
+
+  my $relationship_schema = {
+    type => 'object',
+    # These are the relationship names, validated by ::Loader
+    additionalProperties => {
+      type => 'object',
+      required => ['columns', 'foreign'],
+      properties => {
+        # column names, validated by ::Loader
+        columns => {
+          type => 'array',
+          items => { type => 'string' },
+        },
+        foreign => {
+          type => 'object',
+          required => ['source', 'columns'],
+          properties => {
+            source => { type => 'string' },
+            # column names, validated by ::Loader
+            columns => {
+              type => 'array',
+              items => { type => 'string' },
+            },
+          },
+          additionalProperties => undef,
+        },
+      },
+      additionalProperties => undef,
+    },
+  };
+
+  my $schema = {
+    type => 'object',
+    # table names, validated by ::Loader
+    additionalProperties => {
+      type => 'object',
+      properties => {
+        # At least one of these must appear.
+        anyOf => [
+          { required => ['columns'] },
+          { required => ['unique_constraints'] },
+          { required => ['has_many'] },
+          { required => ['belongs_to'] },
+        ],
+        columns => {
+          type => 'object',
+          # column names, validated by ::Loader
+          additionalProperties => {
+            type => 'object',
+            properties => {
+              type => { type => 'string' },
+              value => { type => 'string' },
+            },
+            minProperties => 1,
+            maxProperties => 1,
+          },
+        },
+        unique_constraints => {
+          type => 'object',
+          # unique constraint names, unvalidated
+          additionalProperties => {
+            type => 'array',
+            # column names, validated by ::Loader
+            items => { type => 'string' },
+          },
+        },
+        has_many => $relationship_schema,
+        belongs_to => $relationship_schema,
+      },
+      additionalProperties => undef,
+    },
+  };
+
+  my $validator = JSON::Validator->new;
+  $validator->schema($schema);
+  my @errors = $validator->validate($self->{model});
+  if (@errors) {
+    $self->{errors} = join("\n\t", @errors);
+    return;
+  }
+
+  return 1;
+}
+
+sub validate_model_file {
+  my $self = shift;
+  my ($opts, $args) = @_;
+
+  if (exists $opts->{model}) {
+    $self->{model_file} = $self->find_file($opts, $opts->{model})
+      or $self->usage_error("--model '$opts->{model}' not found");
+
+    $self->{model} = $self->read_file($self->{model_file})
+      or $self->usage_error("--model '$opts->{model}' is not YAML/JSON");
+
+    $self->validate_model
+      or $self->usage_error("--model is invalid:\n\t$self->{errors}");
+  }
+}
+
 sub find_file {
   my $self = shift;
   my ($opts, $filename) = @_;
@@ -173,6 +299,22 @@ sub read_file {
   }; if ($@) { say $@ }
   return $x if ref $x;
   return;
+}
+
+sub build_loader {
+  my $self = shift;
+
+  my $loader = eval {
+    App::SimsLoader::Loader->new(
+      type => $self->{driver},
+      model => $self->{model} // {},
+      %{$self->{params}},
+    );
+  }; if ($@) {
+    $self->usage_error($@);
+  }
+
+  return $loader;
 }
 
 1;

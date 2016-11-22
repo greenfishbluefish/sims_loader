@@ -4,8 +4,27 @@
 # Otherwise, docker volume attachment will fail miserably.
 export MSYS_NO_PATHCONV=1
 
+DIR=$(git rev-parse --show-toplevel)
+
 if [[ "$@" == "stop" ]]; then
   docker-compose down
+elif [[ "$@" == "bash" ]]; then
+  docker-compose up -d datastores
+
+  docker run \
+    --rm \
+    --interactive --tty \
+    --network simsloader_default \
+    --link simsloader_mysql_1:mysql \
+    --volume $DIR:/app \
+    --entrypoint bash \
+      simsloader_code
+elif [[ "$@" == "build" ]]; then
+  for dirname in bin devops lib; do
+    find $DIR/$dirname -type f -exec dos2unix -q {} \;
+  done
+
+  docker-compose build
 else
   # This order is so that we can launch the databases and let them live beyond
   # any given test run.

@@ -2,12 +2,29 @@
     [X] Return the seed
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
-[ ] model file modifying DBIC::SL
-    [ ] Add sim types
-        [ ] Test with sim types (phone-number, zipcode, etc)
-    [ ] Add relationship
-    [ ] Replace relationship
-    [ ] Change column from NULL to NOT NULL
+        * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
+[-] model file modifying DBIC::SL
+    [ ] Relationships (has_many / belongs_to)
+        [ ] Validate the same number of columns provided
+        [ ] Add a multi-column relationship
+    [ ] Column nullchance
+        [ ] Set a nullable column to nullchance
+        [ ] Throw an error when setting a not-null column with a nullchance
+    [ ] constraints file
+        [ ] child requirements
+    [/] Columns
+        [/] Set a value to an array of scalars (Unsupported by Sims)
+[ ] Rename tests to remove /^\d\d_/
+[ ] Write documentation
+    * This is done via direct edit on DockerHub.
+    * Can we automate this like github.com/docker-library/docs?
+[ ] Improve error messages for model validation failures
+[ ] Write a test that demonstrates a multi-column relationship
+[ ] Write a test that demonstrates a multi-column primary key
+[ ] Write a test that demonstrates a self-referential relationship
+[ ] Write a test that demonstrates a M2M relationship
+    [ ] ... with the PK on the FKs and an extra value on the crosstable.
+    [ ] ... with the PK on the FKs + the extra value
 [ ] toposort file passed to $opts->{toposort}
     [ ] Break self-relationship
     [ ] Break A-B-A relationship at A-B
@@ -20,22 +37,44 @@
     [ ] Oracle
     [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
-    [ ] Others?
+    [ ] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
+        * docker pull microsoft/mssql-server-linux
+        * docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d microsoft/mssql-server-linux
 [ ] Test with database-specific column types
     [ ] Postgres JSON
-[ ] constraints file passed to $opts->{constraints}
-[ ] Write documentation
 [ ] All parameters should be settable by ENVVAR
     * SIMS_LOADER_XYZ
     * --base-directory works like this, but by hand
+[ ] Handle views
 [ ] Stop running within the container as root for development
     * All the cpanfile work is owned by root
+[ ] Change volume mapping to map `-v /:/data`
+    * Modify absolute paths in the host-side command to prepend "/data"?
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
-    [ ] Validate the model file works with the DBIC::SL-generated model
-    [ ] Validate the constraints works with the model
-    [ ] Validate the specification works with the model
+    [ ] Validate the model file (if any) works with the DBIC::SL model
+    [ ] Validate the constraints (if any) works with the DBIC::SL model
+    [ ] Validate the specification (if any) works with the DBIC::SL model
+
+-------- MODEL FILE --------
+
+---
+<model>:
+  columns:
+    <name>:
+      value[s]: <scalar>
+      value[s]: <list>
+      type: <type>
+      null_chance: 0.00 .. 1.00
+  has_many / belongs_to:
+    <name>:
+      column[s]: <A> [,<B>, <C>, ...]
+      foreign:
+        source: <table>
+        column[s]: <A> [,<B>, <C>, ...]
+  unique_constraints:
+    <name>: <A> [,<B>, <C>, ...]
 
 -------- COMMANDS --------
 
@@ -75,3 +114,21 @@ load_sims CMD \
     * This works by hand with Sims 0.300402
 [X] Throw an error when the schema is empty or unset.
 [X] Validate that a command was passed, otherwise default to "help"
+[X] "types" to list installed Sims types
+[X] model file modifying DBIC::SL
+    [X] Validate all sources exist by table name
+    [X] Columns
+        [X] Validate all columns within a source exist
+        [X] Set a value to a scalar
+    [X] Column types
+        [X] Set a column to a sim type
+        [X] Throw an error when the type is unknown
+    [X] Unique Constraints
+        [X] Validate the column(s) exist
+        [X] Add a multi-column unique constraint
+    [X] Add validations for the expected structure of the model file
+        [X] Require only one key for <table>-<column>-{type}
+    [X] Relationships (has_many / belongs_to)
+        [X] Validate the foreign source exists
+        [X] Validate the columns exist
+[X] Change to use table name only instead of model name.

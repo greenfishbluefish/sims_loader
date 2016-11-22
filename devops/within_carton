@@ -7,7 +7,10 @@ if [[ $1 == "bash" ]]; then
   exit
 fi
 
-carton install
+# Only run carton install if local/ doesn't exist or the cpanfile has changed.
+if [[ (! -d /app/local) || (/app/cpanfile -nt /app/cpanfile.snapshot) ]]; then
+  carton install
+fi
 
 if [[ $1 == "cover" ]]; then
   shift
