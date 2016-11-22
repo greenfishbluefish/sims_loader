@@ -15,6 +15,10 @@ Revision history for SimsLoader (ordered by revision number).
     - <table> -> columns -> <column> -> { sim => <value> }
     - <table> -> columns -> <column> -> { type => <name> }
     - <table> -> unique_constraints -> <name> -> [ col1, col2, ... ]
+    - <table> -> belongs_to/has_many -> <name> -> {
+        columns => [ col1, col2, ... ]
+        foreign => { source => <name>, columns => [ col1, col2, ... ] }
+      }
   - Improve packaging to include Dockerfile and Changes in /opt/docker
 
 0.000004

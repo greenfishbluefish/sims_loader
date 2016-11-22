@@ -58,6 +58,54 @@ sub apply_model {
           die $@;
         }
       }
+      elsif ($aspect eq 'belongs_to' || $aspect eq 'has_many') {
+        while (my ($rel_name, $defn) = each %$data) {
+          # Validate $defn->{columns}
+          my @cols = @{$defn->{columns}};
+          foreach my $col_name (@cols) {
+            unless ($rsrc->has_column($col_name)) {
+              die "Cannot find $name.$col_name in database\n";
+            }
+          }
+
+          my $f_name = $defn->{foreign}{source};
+          my $f_rsrc = eval {
+            $schema->source($f_name);
+          }; if ($@) {
+            die "Cannot find $f_name in database\n";
+          }
+
+          # Validate $defn->{foreign}{columns}
+          my @f_cols = @{$defn->{foreign}{columns}};
+          foreach my $col_name (@f_cols) {
+            unless ($f_rsrc->has_column($col_name)) {
+              die "Cannot find $f_name.$col_name in database\n";
+            }
+          }
+
+          # validate the number of columns is the same
+
+          my %cond;
+          foreach my $i (0 .. $#cols) {
+            $cond{"foreign.$f_cols[$i]"} = "self.$cols[$i]";
+          }
+
+          my %attr;
+          if ( $aspect eq 'belongs_to' ) {
+            $attr{accessor} = 'single';
+          }
+          else {
+            $attr{accessor} = 'multi';
+            $attr{join_type} = 'left';
+          }
+
+          eval {
+            $rsrc->add_relationship($rel_name, $f_name, \%cond, \%attr);
+          }; if ($@) {
+            die $@;
+          }
+        }
+      }
     }
   }
 }

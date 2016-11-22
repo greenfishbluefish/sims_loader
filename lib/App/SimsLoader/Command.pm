@@ -176,15 +176,48 @@ sub validate_connection {
 sub validate_model {
   my $self = shift;
 
+  my $relationship_schema = {
+    type => 'object',
+    # These are the relationship names, validated by ::Loader
+    additionalProperties => {
+      type => 'object',
+      required => ['columns', 'foreign'],
+      properties => {
+        # column names, validated by ::Loader
+        columns => {
+          type => 'array',
+          items => { type => 'string' },
+        },
+        foreign => {
+          type => 'object',
+          required => ['source', 'columns'],
+          properties => {
+            source => { type => 'string' },
+            # column names, validated by ::Loader
+            columns => {
+              type => 'array',
+              items => { type => 'string' },
+            },
+          },
+          additionalProperties => undef,
+        },
+      },
+      additionalProperties => undef,
+    },
+  };
+
   my $schema = {
     type => 'object',
-    # model names, validated by ::Loader
+    # table names, validated by ::Loader
     additionalProperties => {
       type => 'object',
       properties => {
+        # At least one of these must appear.
         anyOf => [
           { required => ['columns'] },
           { required => ['unique_constraints'] },
+          { required => ['has_many'] },
+          { required => ['belongs_to'] },
         ],
         columns => {
           type => 'object',
@@ -208,6 +241,8 @@ sub validate_model {
             items => { type => 'string' },
           },
         },
+        has_many => $relationship_schema,
+        belongs_to => $relationship_schema,
       },
       additionalProperties => undef,
     },

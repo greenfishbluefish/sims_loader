@@ -2,10 +2,9 @@
     [X] Return the seed
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
+        * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
 [-] model file modifying DBIC::SL
     [ ] Relationships (has_many / belongs_to)
-        [ ] Validate the foreign source exists
-        [ ] Validate the columns exist
         [ ] Validate the same number of columns provided
         [ ] Add a multi-column relationship
     [ ] Column nullchance
@@ -22,6 +21,7 @@
 [ ] Improve error messages for model validation failures
 [ ] Write a test that demonstrates a multi-column relationship
 [ ] Write a test that demonstrates a multi-column primary key
+[ ] Write a test that demonstrates a self-referential relationship
 [ ] Write a test that demonstrates a M2M relationship
     [ ] ... with the PK on the FKs and an extra value on the crosstable.
     [ ] ... with the PK on the FKs + the extra value
@@ -53,9 +53,9 @@
 [ ] "validate" will:
     [ ] Ensure all provided files work
     [ ] Connect to the database and read the DDL
-    [ ] Validate the model file works with the DBIC::SL-generated model
-    [ ] Validate the constraints works with the model
-    [ ] Validate the specification works with the model
+    [ ] Validate the model file (if any) works with the DBIC::SL model
+    [ ] Validate the constraints (if any) works with the DBIC::SL model
+    [ ] Validate the specification (if any) works with the DBIC::SL model
 
 -------- MODEL FILE --------
 
@@ -71,7 +71,7 @@
     <name>:
       column[s]: <A> [,<B>, <C>, ...]
       foreign:
-        source: <model | table>
+        source: <table>
         column[s]: <A> [,<B>, <C>, ...]
   unique_constraints:
     <name>: <A> [,<B>, <C>, ...]
@@ -116,8 +116,7 @@ load_sims CMD \
 [X] Validate that a command was passed, otherwise default to "help"
 [X] "types" to list installed Sims types
 [X] model file modifying DBIC::SL
-    [X] Validate all sources exist by model name
-        * Will not support model by table name
+    [X] Validate all sources exist by table name
     [X] Columns
         [X] Validate all columns within a source exist
         [X] Set a value to a scalar
@@ -128,5 +127,8 @@ load_sims CMD \
         [X] Validate the column(s) exist
         [X] Add a multi-column unique constraint
     [X] Add validations for the expected structure of the model file
-        [X] Require only one key for <model>-<column>-{type}
+        [X] Require only one key for <table>-<column>-{type}
+    [X] Relationships (has_many / belongs_to)
+        [X] Validate the foreign source exists
+        [X] Validate the columns exist
 [X] Change to use table name only instead of model name.

@@ -212,52 +212,51 @@ foreach my $driver (drivers()) {
     },
   };
 
-  my %tests = ( source => 'studios', table => 'studios' );
-  while (my ($type, $value) = each %tests) {
-    success "$driver: Details of a child model by $type name" => {
-      command => $cmd,
-      driver => $driver,
-      parameters => [ '--name', $value ],
-      database => sub {
-        my $dbh = shift;
-        my $sql = table_sql($driver, artists => {
-          id => { primary => 1 },
-          name => { string => 200 },
-        }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-        $sql = table_sql($driver, studios => {
-          id => { primary => 1 },
-          artist_id => { foreign => 'artists.id' },
-          name => { string => 155 },
-        }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      },
-      yaml_out => {
-        studios => {
-          table => 'studios',
-          columns => {
-            id => {
-              data_type => 'integer',
-              is_auto_increment => 1,
-              is_nullable => 0,
-            },
-            name => {
-              data_type => 'varchar',
-              is_nullable => 1,
-              size => 155,
-            },
-            artist_id => {
-              data_type => 'integer',
-              is_nullable => 1,
-              is_foreign_key => 1,
-            },
+  success "$driver: Details of a child model by name" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name studios
+    )],
+    database => sub {
+      my $dbh = shift;
+      my $sql = table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 200 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      $sql = table_sql($driver, studios => {
+        id => { primary => 1 },
+        artist_id => { foreign => 'artists.id' },
+        name => { string => 155 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+    },
+    yaml_out => {
+      studios => {
+        table => 'studios',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
           },
-          unique_constraints => { primary => [qw( id )] },
-          relationships => {
-            artist => { belongs_to => 'artists' },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 1,
+            size => 155,
+          },
+          artist_id => {
+            data_type => 'integer',
+            is_nullable => 1,
+            is_foreign_key => 1,
           },
         },
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {
+          artist => { belongs_to => 'artists' },
+        },
       },
-    };
-  }
+    },
+  };
 
   success "$driver: Details of a model with a simmed value" => {
     command => $cmd,
@@ -426,6 +425,118 @@ foreach my $driver (drivers()) {
         unique_constraints => {
           primary => [qw( id )],
           name => [qw( name )],
+        },
+      },
+    },
+  };
+
+  success "$driver: Details of a parent model with an added relationship" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name artists
+    )],
+    database => sub {
+      my $dbh = shift;
+      my $sql = table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 200 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      $sql = table_sql($driver, studios => {
+        id => { primary => 1 },
+        artist_id => { integer => 1 },
+        name => { string => 155 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+    },
+    model => {
+      artists => {
+        has_many => {
+          studios => {
+            columns => [ 'id' ],
+            foreign => {
+              source  => 'studios',
+              columns => [ 'artist_id' ],
+            },
+          },
+        },
+      },
+    },
+    yaml_out => {
+      artists => {
+        table => 'artists',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
+          },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 1,
+            size => 200,
+          },
+        },
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {
+          studios => { has_many => 'studios' },
+        },
+      },
+    },
+  };
+
+  success "$driver: Details of a child model with an added relationship" => {
+    command => $cmd,
+    driver => $driver,
+    parameters => [qw(
+      --name studios
+    )],
+    database => sub {
+      my $dbh = shift;
+      my $sql = table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 200 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      $sql = table_sql($driver, studios => {
+        id => { primary => 1 },
+        artist_id => { integer => 1 },
+        name => { string => 155 },
+      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+    },
+    model => {
+      studios => {
+        belongs_to => {
+          artist => {
+            columns => [ 'artist_id' ],
+            foreign => {
+              source  => 'artists',
+              columns => [ 'id' ],
+            },
+          },
+        },
+      },
+    },
+    yaml_out => {
+      studios => {
+        table => 'studios',
+        columns => {
+          id => {
+            data_type => 'integer',
+            is_auto_increment => 1,
+            is_nullable => 0,
+          },
+          name => {
+            data_type => 'varchar',
+            is_nullable => 1,
+            size => 155,
+          },
+          artist_id => {
+            data_type => 'integer',
+            is_nullable => 1,
+          },
+        },
+        unique_constraints => { primary => [qw( id )] },
+        relationships => {
+          artist => { belongs_to => 'artists' },
         },
       },
     },
