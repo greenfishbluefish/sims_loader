@@ -97,12 +97,12 @@ foreach my $driver (drivers()) {
       }));
     },
     specification => {
-      Artist => { name => 'George' },
+      artists => { name => 'George' },
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => 'George' },
         ],
       },
@@ -119,12 +119,12 @@ foreach my $driver (drivers()) {
       }));
     },
     specification => {
-      Artist => 2,
+      artists => 2,
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => undef },
           { id => 2, name => undef },
         ],
@@ -143,7 +143,7 @@ foreach my $driver (drivers()) {
         }));
       },
       specification => {
-        Artist => 1,
+        artists => 1,
       },
     );
 
@@ -157,12 +157,12 @@ foreach my $driver (drivers()) {
         is($result, {
           seed => D(),
           rows => {
-            Artist => [
+            artists => [
               { id => 1, name => D() },
             ],
           },
         });
-        $name = $result->{rows}{Artist}[0]{name};
+        $name = $result->{rows}{artists}[0]{name};
         $seed = $result->{seed};
       },
     };
@@ -174,7 +174,7 @@ foreach my $driver (drivers()) {
       yaml_out => {
         seed => $seed,
         rows => {
-          Artist => [
+          artists => [
             { id => 1, name => $name },
           ],
         },
@@ -192,19 +192,19 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => {
+      artists => {
         columns => {
           name => { value => 'George' },
         },
       },
     },
     specification => {
-      Artist => 1,
+      artists => 1,
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => 'George' },
         ],
       },
@@ -221,19 +221,19 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => {
+      artists => {
         columns => {
           name => { type => 'us_firstname' },
         },
       },
     },
     specification => {
-      Artist => 1,
+      artists => 1,
     },
     yaml_out => {
       seed => D(),
       rows => {
-        Artist => [
+        artists => [
           { id => 1, name => match(qr/^\w+$/) },
         ],
       },

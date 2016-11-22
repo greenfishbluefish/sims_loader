@@ -21,7 +21,6 @@ sub apply_model {
 
   my %sim_types = map { lc($_) => 1 } App::SimsLoader::Command::types->find_types;
   while (my ($name, $source_mods) = each %$model) {
-    # This needs to allow both table and model names.
     my $rsrc = eval {
       $schema->source($name);
     }; if ($@) {
@@ -84,7 +83,12 @@ sub new {
 
   my $schema = MySchema->connect($connect_string, $user, $pass);
   DBIx::Class::Schema::Loader::Dynamic->new(
-    naming => 'v8',
+    # Force all table monikers to be the table name itself.
+    moniker_map => sub { "$_[0]" },
+    # Force all column accessors to be the column name itself.
+    col_accessor_map => sub { "$_[0]" },
+    # rel_name_map => sub {},
+    naming => { relationships => 'v8' }, # Let's see if this is okay.
     use_namespaces => 0,
     schema => $schema,
   )->load;

@@ -37,8 +37,7 @@ sub execute {
   my %sources = $loader->sources;
   if ($opts->{name}) {
     while (my ($name, $rsrc) = each %sources) {
-      next unless lc($name) eq lc($opts->{name})
-        || lc($rsrc->from) eq lc($opts->{name});
+      next unless $name eq $opts->{name};
 
       $response{$name} = my $rv = {
         table => $rsrc->from,

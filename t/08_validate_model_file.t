@@ -20,10 +20,10 @@ run_test "model structure isn't a hash" => {
   error => qr/--model is invalid:\n\t\/: Expected object - got array/,
 };
 
-run_test "model Foo: aspect 'x' not found" => {
+run_test "model foo: aspect 'x' not found" => {
   %defaults,
-  model => { Foo => { x => 1 } },
-  error => qr/--model is invalid:\n\t\/Foo: Properties not allowed: x/,
+  model => { foo => { x => 1 } },
+  error => qr/--model is invalid:\n\t\/foo: Properties not allowed: x/,
 };
 
 done_testing;

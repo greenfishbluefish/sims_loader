@@ -1,7 +1,13 @@
 Revision history for SimsLoader (ordered by revision number).
 
 0.000005
+  BREAKING CHANGE: The model and table names are now the same.
+    - Accessor and column names are also now the same, but this should have
+      been the case already.
+    - Relationship names haven't been changed yet.
   BREAKING CHANGE: The output is now one level deeper.
+    - What used to be the output is now the "rows" key.
+    - The "seed" key is now displayed as well.
   - Add "types" sub-command to list available Sims types
   - "model" sub-command now displays unique constraints (including PK)
   - Return and use a --seed

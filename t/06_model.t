@@ -32,9 +32,9 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      OtherTable => {},
+      other_table => {},
     },
-    error => qr/Cannot find OtherTable in database/,
+    error => qr/Cannot find other_table in database/,
   };
 
   run_test "$driver: Column not found in model" => {
@@ -46,9 +46,9 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => { columns => { foo => { value => 'x' } } },
+      artists => { columns => { foo => { value => 'x' } } },
     },
-    error => qr/Cannot find Artist.foo in database/,
+    error => qr/Cannot find artists.foo in database/,
   };
 
   run_test "$driver: Type not found" => {
@@ -61,9 +61,9 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => { columns => { name => { type => 'type_not_found' } } },
+      artists => { columns => { name => { type => 'type_not_found' } } },
     },
-    error => qr/Artist.name: type type_not_found does not exist/,
+    error => qr/artists.name: type type_not_found does not exist/,
   };
 
   run_test "$driver: Column not found for UK in model" => {
@@ -76,9 +76,9 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => { unique_constraints => { name => [qw( not_found )] } },
+      artists => { unique_constraints => { name => [qw( not_found )] } },
     },
-    error => qr/Cannot find Artist.not_found in database/,
+    error => qr/Cannot find artists.not_found in database/,
   };
 }
 
@@ -93,7 +93,7 @@ foreach my $driver (drivers()) {
       }));
     },
     yaml_out => {
-      Artist => 'artists',
+      artists => 'artists',
     },
   };
 
@@ -110,7 +110,7 @@ foreach my $driver (drivers()) {
       }));
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {
@@ -145,8 +145,8 @@ foreach my $driver (drivers()) {
       }));
     },
     yaml_out => {
-      Artist => 'artists',
-      Studio => 'studios',
+      artists => 'artists',
+      studios => 'studios',
     },
   };
 
@@ -166,8 +166,8 @@ foreach my $driver (drivers()) {
       }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
     },
     yaml_out => {
-      Artist => 'artists',
-      Studio => 'studios',
+      artists => 'artists',
+      studios => 'studios',
     },
   };
 
@@ -190,7 +190,7 @@ foreach my $driver (drivers()) {
       }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {
@@ -206,13 +206,13 @@ foreach my $driver (drivers()) {
         },
         unique_constraints => { primary => [qw( id )] },
         relationships => {
-          studios => { has_many => 'Studio' },
+          studios => { has_many => 'studios' },
         },
       },
     },
   };
 
-  my %tests = ( source => 'Studio', table => 'studios' );
+  my %tests = ( source => 'studios', table => 'studios' );
   while (my ($type, $value) = each %tests) {
     success "$driver: Details of a child model by $type name" => {
       command => $cmd,
@@ -231,7 +231,7 @@ foreach my $driver (drivers()) {
         }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
       },
       yaml_out => {
-        Studio => {
+        studios => {
           table => 'studios',
           columns => {
             id => {
@@ -252,7 +252,7 @@ foreach my $driver (drivers()) {
           },
           unique_constraints => { primary => [qw( id )] },
           relationships => {
-            artist => { belongs_to => 'Artist' },
+            artist => { belongs_to => 'artists' },
           },
         },
       },
@@ -272,14 +272,14 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => {
+      artists => {
         columns => {
           name => { value => 'George' },
         },
       },
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {
@@ -315,14 +315,14 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => {
+      artists => {
         columns => {
           name => { type => 'us_firstname' },
         },
       },
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {
@@ -363,7 +363,7 @@ foreach my $driver (drivers()) {
       }));
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {
@@ -401,14 +401,14 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => {
+      artists => {
         unique_constraints => {
           name => [qw( name )],
         },
       },
     },
     yaml_out => {
-      Artist => {
+      artists => {
         table => 'artists',
         columns => {
           id => {

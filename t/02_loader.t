@@ -41,12 +41,12 @@ foreach my $driver (drivers()) {
     my %sources = $loader->sources;
     like(
       \%sources,
-      { Artist => object { call [isa => 'DBIx::Class::ResultSource'] => T() } },
+      { artists => object { call [isa => 'DBIx::Class::ResultSource'] => T() } },
       'The right sources are loaded',
     );
 
     my $rows = $loader->load({
-      Artist => [ {name => 'John'}, {name => 'Bob'} ],
+      artists => [ {name => 'John'}, {name => 'Bob'} ],
     });
 
     # Validate the $rows here
