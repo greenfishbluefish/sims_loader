@@ -3,19 +3,21 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
 [-] model file modifying DBIC::SL
-    [ ] Add validations for the expected structure of the model file
+    [ ] Improve error message for validation failures
     [ ] Relationships (has_many / belongs_to)
         [ ] Validate the foreign source exists
         [ ] Validate the columns exist
         [ ] Validate the same number of columns provided
         [ ] Add a multi-column relationship
-    [/] Columns
-        [/] Set a value to an array of scalars (Unsupported by Sims)
     [ ] Column nullchance
         [ ] Set a nullable column to nullchance
         [ ] Throw an error when setting a not-null column with a nullchance
     [ ] constraints file
         [ ] child requirements
+    [/] Columns
+        [/] Set a value to an array of scalars (Unsupported by Sims)
+[ ] Change to use table name only instead of model name.
+[ ] Rename tests to remove /^\d\d_/
 [ ] Write documentation
     * This is done via direct edit on DockerHub.
     * Can we automate this like github.com/docker-library/docs?
@@ -36,7 +38,9 @@
     [ ] Oracle
     [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
-    [ ] Others?
+    [ ] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
+        * docker pull microsoft/mssql-server-linux
+        * docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d microsoft/mssql-server-linux
 [ ] Test with database-specific column types
     [ ] Postgres JSON
 [ ] All parameters should be settable by ENVVAR
@@ -124,3 +128,5 @@ load_sims CMD \
     [X] Unique Constraints
         [X] Validate the column(s) exist
         [X] Add a multi-column unique constraint
+    [X] Add validations for the expected structure of the model file
+        [X] Require only one key for <model>-<column>-{type}

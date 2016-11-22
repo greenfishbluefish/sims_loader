@@ -1,10 +1,11 @@
-Revision history for DBIx::Class::Sims (ordered by revision number).
+Revision history for SimsLoader (ordered by revision number).
 
 0.000005
-  - Add "types" command to list available Sims types
-  - "model" now displays unique constraints (including PK)
+  BREAKING CHANGE: The output is now one level deeper.
+  - Add "types" sub-command to list available Sims types
+  - "model" sub-command now displays unique constraints (including PK)
   - Return and use a --seed
-  - Add support for --model. Supports:
+  - Add support for --model taking a JSON/YAML file. Supports:
     - <table> -> columns -> <column> -> { sim => <value> }
     - <table> -> columns -> <column> -> { type => <name> }
     - <table> -> unique_constraints -> <name> -> [ col1, col2, ... ]

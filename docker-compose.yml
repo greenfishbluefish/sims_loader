@@ -21,6 +21,7 @@ services:
     #  - t/02_loader.t
     #  - t/03_load.t
     #  - t/06_model.t
+    #  - t/08_validate_model_file.t
     # Uncomment this line to get test-coverage statistics.
     #  - cover
   # This needs to wait for the datastores to have finished coming up and are

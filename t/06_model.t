@@ -16,12 +16,12 @@ use t::common_tests qw(
 
 my $cmd = 'model';
 
-failures_all_drivers($cmd);
+failures_all_drivers($cmd); # This takes 1
 
 foreach my $driver (drivers()) {
-  failures_base_directory($cmd, $driver);
-  failures_connection($cmd, $driver);
-  failures_model_file($cmd, $driver);
+  failures_base_directory($cmd, $driver); # This takes 2(sqlite, mysql)
+  failures_connection($cmd, $driver); # This takes 4(sqlite), 7(mysql)
+  failures_model_file($cmd, $driver); # This takes 4(sqlite, mysql)
 
   run_test "$driver: Source not found in model" => {
     command => $cmd,
@@ -46,7 +46,7 @@ foreach my $driver (drivers()) {
       }));
     },
     model => {
-      Artist => { columns => { foo => {} } },
+      Artist => { columns => { foo => { value => 'x' } } },
     },
     error => qr/Cannot find Artist.foo in database/,
   };

@@ -8,6 +8,7 @@ use App::Cmd::Setup -command;
 
 use DBI;
 use File::Spec ();
+use JSON::Validator;
 use Net::Telnet;
 use YAML::Any qw(LoadFile);
 
@@ -172,6 +173,57 @@ sub validate_connection {
   }
 }
 
+sub validate_model {
+  my $self = shift;
+
+  my $schema = {
+    type => 'object',
+    # model names, validated by ::Loader
+    additionalProperties => {
+      type => 'object',
+      properties => {
+        anyOf => [
+          { required => ['columns'] },
+          { required => ['unique_constraints'] },
+        ],
+        columns => {
+          type => 'object',
+          # column names, validated by ::Loader
+          additionalProperties => {
+            type => 'object',
+            properties => {
+              type => { type => 'string' },
+              value => { type => 'string' },
+            },
+            minProperties => 1,
+            maxProperties => 1,
+          },
+        },
+        unique_constraints => {
+          type => 'object',
+          # unique constraint names, unvalidated
+          additionalProperties => {
+            type => 'array',
+            # column names, validated by ::Loader
+            items => { type => 'string' },
+          },
+        },
+      },
+      additionalProperties => undef,
+    },
+  };
+
+  my $validator = JSON::Validator->new;
+  $validator->schema($schema);
+  my @errors = $validator->validate($self->{model});
+  if (@errors) {
+    $self->{errors} = join("\n\t", @errors);
+    return;
+  }
+
+  return 1;
+}
+
 sub validate_model_file {
   my $self = shift;
   my ($opts, $args) = @_;
@@ -182,6 +234,9 @@ sub validate_model_file {
 
     $self->{model} = $self->read_file($self->{model_file})
       or $self->usage_error("--model '$opts->{model}' is not YAML/JSON");
+
+    $self->validate_model
+      or $self->usage_error("--model is invalid:\n\t$self->{errors}");
   }
 }
 
