@@ -1,3 +1,52 @@
+# Sims Loader
+
+This will read an database, construct all the relationships, then take a minimal
+YAML specification and generate reasonable data (per your requirements) and loadit into that database. You can set specific types for columns, add unique
+constraints, and use foreign key constraints, even if the schema doesn't have
+them (for whatever reasons).
+
+# Running this program
+
+This is a commandline executable that is packaged and distributed within a
+Docker container. The best way to launch this program is to use a bash shell (on
+Windows, use Git-Bash, distributed with Git) and run the following bash script:
+```bash
+#!/bin/bash
+
+MSYS_NO_PATHCONV=1 \
+  docker run --rm \
+    --volume $(pwd):/data \
+    robkinyon/sims_loader:0.000005 \
+      $@
+```
+If you don't specify a command or options, it will default to `help`. (The
+MSYS\_NO\_PATHCONV environment variable is for users of Git-Bash and instructs
+Git-Bash to skip converting paths from Unix-like to Windows-like. It can be
+skipped on non-Git-Bash platforms.)
+
+*Note:* All examples in this documentation will assume that you have this bash
+script saved as `sims_loader` and it is available in your current path.
+
+The use of a Docker volume is the only way I know of to share files betwen the
+host system and a container. As the Sims Loader needs up to 3 files available to
+it, mounting the current directory as a volume is the current solution. I will
+be exploring additional ways of communicating between the host and the container
+in future releases.
+
+The Docker container method of distribution is an experiment and subject to
+change as better methods appear.
+
+# Summary
+
+Assume you have a database schema with two tables - 
+
+# Contributing
+
+Repository: https://github.com/greenfishbluefish/sims\_loader
+
+
+
+
 # sims\_loader
 
 A CLI for loading simulated data into any database using DBIx::Class plugins

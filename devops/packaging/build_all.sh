@@ -2,7 +2,7 @@
 
 set -e
 
-DIR=$(cd $(dirname $0)/../.. && pwd)
+DIR=$(git rev-parse --show-toplevel)
 
 # Windows does stupid things to line-endings. Make sure all the files have
 # Unix line-endings in order to function properly in the container.
@@ -21,6 +21,7 @@ function build () {
 
   docker build \
     --tag  $tag \
+    --tag  latest \
     --file Dockerfile.$purpose \
     $DIR
 
@@ -28,4 +29,3 @@ function build () {
 }
 
 build "base"
-#build "mysql"
