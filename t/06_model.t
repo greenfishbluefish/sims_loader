@@ -92,9 +92,9 @@ foreach my $driver (drivers()) {
         name => { string => 255 },
       }));
     },
-    yaml_out => {
-      artists => 'artists',
-    },
+    yaml_out => [qw/
+      artists
+    /],
   };
 
   success "$driver: Details of a disconnected model" => {
@@ -144,10 +144,9 @@ foreach my $driver (drivers()) {
         name => { string => 255 },
       }));
     },
-    yaml_out => {
-      artists => 'artists',
-      studios => 'studios',
-    },
+    yaml_out => [qw/
+      artists studios
+    /],
   };
 
   success "$driver: Two connected tables" => {
@@ -165,10 +164,9 @@ foreach my $driver (drivers()) {
         name => { string => 255 },
       }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
     },
-    yaml_out => {
-      artists => 'artists',
-      studios => 'studios',
-    },
+    yaml_out => [qw/
+      artists studios
+    /],
   };
 
   success "$driver: Details of a parent model" => {

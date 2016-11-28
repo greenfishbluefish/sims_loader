@@ -31,11 +31,9 @@ sub execute {
   my $self = shift;
   my ($opts, $args) = @_;
 
-  my $loader = $self->build_loader;
-
-  my %response;
-  my %sources = $loader->sources;
+  my %sources = $self->build_loader->sources;
   if ($opts->{name}) {
+    my %response;
     while (my ($name, $rsrc) = each %sources) {
       next unless $name eq $opts->{name};
 
@@ -65,14 +63,13 @@ sub execute {
         $rv->{unique_constraints}{$name} = $cols;
       }
     }
+
+    print Dump(\%response);
   }
   else {
-    while (my ($name, $rsrc) = each %sources) {
-      $response{$name} = $rsrc->from;
-    }
+    my @response = sort keys %sources;
+    print Dump(\@response);
   }
-
-  print Dump(\%response);
 }
 
 1;

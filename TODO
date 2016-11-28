@@ -135,3 +135,4 @@ load_sims CMD \
 [X] Change to use table name only instead of model name.
 [X] Add support for these databases in the docker-compose.yml
     [X] MySQL
+[X] Convert `model` to return the table names as an array
