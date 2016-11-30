@@ -4,6 +4,16 @@ This will read an database, construct all the relationships, then take a minimal
 
 # Running this program
 
+## Pre-requisites
+
+You will need to install Docker. This is the only requirement.
+
+For most environments, install [Docker](https://docs.docker.com/engine/installation/). The instructions are pretty solid.
+
+For Windows 7, you will need to install [Docker Toolbox](https://www.docker.com/products/docker-toolbox) instead of Docker. Once you have launched the Docker commandline (which launches `docker-machine`), you can use either that commandline or Git-Bash (described below). Once everything is done, there will be an executable called `docker` just like with Docker.
+
+## Discussion
+
 This is a commandline executable that is packaged and distributed within a Docker container. The best way to launch this program is to use a bash shell (on Windows, use Git-Bash, distributed with Git) and run the following bash script:
 ```bash
 #!/bin/bash
@@ -14,6 +24,7 @@ MSYS_NO_PATHCONV=1 \
     robkinyon/sims_loader:latest \
       $@
 ```
+
 If you don't specify a command or options, it will default to `help`. (The MSYS\_NO\_PATHCONV environment variable is for users of Git-Bash and instructs Git-Bash to skip converting paths from Unix-like to Windows-like. It can be skipped on non-Git-Bash platforms.)
 
 *Note:* All examples in this documentation will assume that you have the above saved as a bash script named `sims_loader` available in your current path. You may need to adjust examples accordingly.
@@ -241,7 +252,7 @@ Using relationships makes your specifications much easier to maintain because th
 ```
 lineitems:
 ---
-invoice: 
+invoice:
   date: 2016-07-20 11:30:00
   account:
     number: 03-55-11253
