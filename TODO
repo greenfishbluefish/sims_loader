@@ -33,10 +33,9 @@
     [ ] Break A-B-A relationship at B-A
 [ ] Test with dates (may need auto-inflation)
 [ ] Add support for these databases in the docker-compose.yml
-    [ ] PostgreSQL
     [ ] Oracle
-    [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] Sybase (same as SQL*Server?)
+    [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
         * docker pull microsoft/mssql-server-linux
         * docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d microsoft/mssql-server-linux
@@ -135,4 +134,5 @@ load_sims CMD \
 [X] Change to use table name only instead of model name.
 [X] Add support for these databases in the docker-compose.yml
     [X] MySQL
+    [X] PostgreSQL
 [X] Convert `model` to return the table names as an array

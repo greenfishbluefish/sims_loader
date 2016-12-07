@@ -83,6 +83,15 @@ foreach my $driver (drivers()) {
 }
 
 foreach my $driver (drivers()) {
+  my $auto_increment = sub {
+    my ($table, $column) = @_;
+    my %rv = (is_auto_increment => 1);
+    if ($driver eq 'postgres') {
+      $rv{sequence} = "${table}_${column}_seq";
+    }
+    return %rv;
+  };
+
   success "$driver: List all models" => {
     command => $cmd,
     driver => $driver,
@@ -115,7 +124,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -193,7 +202,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -234,7 +243,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('studios', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -281,7 +290,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -324,7 +333,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -365,7 +374,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -410,7 +419,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -465,7 +474,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('artists', 'id'),
             is_nullable => 0,
           },
           name => {
@@ -519,7 +528,7 @@ foreach my $driver (drivers()) {
         columns => {
           id => {
             data_type => 'integer',
-            is_auto_increment => 1,
+            $auto_increment->('studios', 'id'),
             is_nullable => 0,
           },
           name => {

@@ -31,7 +31,7 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub drivers {
-  return qw(sqlite mysql);
+  return qw(sqlite mysql postgres);
 }
 
 sub new_fh {
@@ -58,23 +58,24 @@ sub create_dbh {
       or die "Cannot connect to $driver database: $DBI::errstr\n";
     push @addl, '--host', $fn;
   }
-  elsif ($driver eq 'mysql') {
+  elsif ($driver eq 'mysql' || $driver eq 'postgres') {
     my $dbname = 'foo';
-    my $dbhost = 'mysql';
-    my $dbport = '3306';
-    my $dbuser = 'root';
-    my $dbpass = '';
+    my $dbhost = $driver eq 'mysql' ? 'mysql' : 'postgres';
+    my $dbport = $driver eq 'mysql' ? '3306'  : '5432';
+    my $dbuser = $driver eq 'mysql' ? 'root'  : 'postgres';
+    my $dbpass = $driver eq 'mysql' ? ''      : 'password';
+    my $dbd    = $driver eq 'mysql' ? 'mysql' : 'Pg';
 
     my $conn = "host=$dbhost;port=$dbport";
 
-    $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass)
+    $dbh = DBI->connect("dbi:$dbd:$conn", $dbuser, $dbpass)
       or die "Cannot connect to $driver database: $DBI::errstr\n";
     $dbh->do("DROP DATABASE IF EXISTS $dbname;");
-    $dbh->do("CREATE DATABASE IF NOT EXISTS $dbname;");
+    $dbh->do("CREATE DATABASE $dbname;");
     $dbh->disconnect;
 
     $conn .= ";database=$dbname";
-    $dbh = DBI->connect("dbi:mysql:$conn", $dbuser, $dbpass)
+    $dbh = DBI->connect("dbi:$dbd:$conn", $dbuser, $dbpass)
       or die "Cannot connect to $driver database: $DBI::errstr\n";
     push @addl, '--host', $dbhost;
     push @addl, '--port', $dbport;
@@ -144,6 +145,28 @@ sub table_sql {
       }
     }
   }
+  elsif ($driver eq 'postgres') {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
+      if ($type->{primary}) {
+        push @columns, "$col SERIAL PRIMARY KEY";
+      }
+      elsif ($type->{foreign}) {
+        push @columns, "$col INT";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY ($col) REFERENCES $fk_table ($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "$col INT";
+      }
+      elsif ($type->{string}) {
+        push @columns, "$col VARCHAR($type->{string})";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
+  # SQL Server: [ID] [int] IDENTITY(1,1) NOT NULL
   else {
     die "Don't know how to build SQL for '$driver'\n";
   }
@@ -157,6 +180,9 @@ sub table_sql {
     elsif ($driver eq 'mysql') {
       push @keys, "UNIQUE KEY `${name}_unique` (`@{[join '`,`', @$cols]}`)";
     }
+    elsif ($driver eq 'postgres') {
+      push @keys, "CONSTRAINT ${name}_unique UNIQUE (@{[join ',', @$cols]})";
+    }
     else {
       die "Don't know how to build SQL for '$driver'\n";
     }
@@ -165,6 +191,11 @@ sub table_sql {
   $sql .= join(',', @columns, @keys);
 
   $sql .= ");";
+
+  # Postgres doesn't like backticks
+  if ($driver eq 'postgres') {
+    $sql =~ s/`//g;
+  }
 
   return $sql;
 }

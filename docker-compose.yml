@@ -10,6 +10,7 @@ services:
       - datastores
     links:
       - mysql
+      - postgres
     # NOTE: This will be removable with the release of docker-compose 1.9.0
     #   * 1.9.0-rc4 was released on 2016-11-08.
     #entrypoint:
@@ -20,6 +21,7 @@ services:
     #  - -v
     #  - t/02_loader.t
     #  - t/03_load.t
+    #  - t/05_drivers.t
     #  - t/06_model.t
     #  - t/08_validate_model_file.t
     # Uncomment this line to get test-coverage statistics.
@@ -30,7 +32,12 @@ services:
     image: hello-world
     depends_on:
       - mysql
+      - postgres
   mysql:
     image: mysql
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: 'password'

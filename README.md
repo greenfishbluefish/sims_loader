@@ -31,7 +31,13 @@ If you don't specify a command or options, it will default to `help`. (The MSYS\
 
 The use of a Docker volume is the only way I know of to share files betwen the host system and a container. As the Sims Loader needs up to 3 files available to it, mounting the current directory as a volume is the current solution. I will be exploring additional ways of communicating between the host and the container in future releases.
 
+Please note that Docker will may or may not mount a NFS volume into a container and may or may not issue a warning or error about it. This all depends on your particular machine's setup, NFS setup, networking setup, and Docker version. If you receive an error of "file not found", please try copying the file to a directory physically on your machine and run again from within that directory.
+
+## Notes
+
 The Docker container method of distribution is an experiment and subject to change as better methods appear.
+
+Some users have reported that the download and installation of Docker Toolbox and the initial `docker pull` can take a significant amount of time. Future versions will attempt to address what can be done within this project.
 
 # Summary
 

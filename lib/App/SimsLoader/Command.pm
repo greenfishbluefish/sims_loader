@@ -63,6 +63,46 @@ sub opt_spec_for {
   return @specs;
 }
 
+{
+  # These are the drivers that come bundled with DBI that we do not want to
+  # report as being available.
+  my %skip = map { $_ => 1 } qw(
+    DBM
+    ExampleP
+    File
+    Gofer
+    Proxy
+    Sponge
+  );
+
+  sub find_dbds {
+    sort {
+      lc($a) cmp lc($b)
+    } grep {
+      !$skip{$_}
+    } DBI->available_drivers;
+  }
+}
+
+{
+  my %perl_to_human = (
+    Pg => 'postgres',
+  );
+  sub driver_to_human {
+    shift;
+    my ($proto) = @_;
+    return lc($perl_to_human{$proto} || $proto);
+  }
+
+  # These aren't used right now. Comment them out until they are.
+  #my %human_to_perl = reverse %perl_to_human;
+  #sub driver_to_perl {
+  #  shift;
+  #  my ($proto) = @_;
+  #  return $human_to_perl{lc($proto)} || $proto;
+  #}
+}
+
 sub validate_driver {
   my $self = shift;
   my ($opts, $args) = @_;
@@ -70,7 +110,7 @@ sub validate_driver {
   $self->usage_error('Must provide --driver') unless $opts->{driver};
   $opts->{driver} = lc $opts->{driver};
 
-  my %dbds = map { lc($_) => $_ } App::SimsLoader::Command::drivers->find_dbds;
+  my %dbds = map { $self->driver_to_human($_) => $_ } $self->find_dbds;
   unless ($dbds{lc($opts->{driver})}) {
     $self->usage_error("--driver '$opts->{driver}' not installed");
   }
@@ -119,8 +159,8 @@ sub validate_connection {
     };
   }
   # If we're not, validate we can connect to the host
-  elsif ($self->{driver} eq 'mysql') {
-    my $port = $opts->{port} // 3306;
+  elsif ($self->{driver} eq 'mysql' || $self->{driver} eq 'Pg') {
+    my $port = $opts->{port} // ($self->{driver} eq 'mysql' ? '3306' : '5432');
 
     # Use Net::Telnet to determine if we can even connect to the database host.
     # This allows us to fail fast with a 1 second timeout.
@@ -135,7 +175,7 @@ sub validate_connection {
     }
 
     my $dbh = eval {
-      my $cn = "dbi:mysql:host=$opts->{host};port=$port";
+      my $cn = "dbi:$self->{driver}:host=$opts->{host};port=$port";
       $cn .= ";database=$opts->{schema}" if defined $opts->{schema};
       DBI->connect(
         $cn, $opts->{username} // '', $opts->{password} // '', {
@@ -169,7 +209,7 @@ sub validate_connection {
     };
   }
   else {
-    die "Unimplemented!\n";
+    die "Cannot validate we can connect to $self->{driver}!\n";
   }
 }
 

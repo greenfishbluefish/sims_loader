@@ -322,6 +322,17 @@ DISTRIBUTIONS
       Test::Exception 0
       Test::More 0
       ok 0
+  DBD-Pg-3.5.3
+    pathname: T/TU/TURNSTEP/DBD-Pg-3.5.3.tar.gz
+    provides:
+      Bundle::DBD::Pg v3.5.3
+      DBD::Pg v3.5.3
+    requirements:
+      DBI 1.614
+      ExtUtils::MakeMaker 6.11
+      Test::More 0.88
+      Time::HiRes 0
+      version 0
   DBD-SQLite-1.50
     pathname: I/IS/ISHIGAKI/DBD-SQLite-1.50.tar.gz
     provides:
@@ -1065,6 +1076,17 @@ DISTRIBUTIONS
       Test::MockTime 0
       Test::More 0
       boolean 0
+  DateTime-Format-Pg-0.16012
+    pathname: D/DM/DMAKI/DateTime-Format-Pg-0.16012.tar.gz
+    provides:
+      DateTime::Format::Pg 0.16012
+    requirements:
+      DateTime 0.10
+      DateTime::Format::Builder 0.72
+      DateTime::TimeZone 0.05
+      ExtUtils::MakeMaker 6.36
+      Module::Build::Tiny 0.035
+      Test::More 0
   DateTime-Format-SQLite-0.11
     pathname: C/CF/CFAERBER/DateTime-Format-SQLite-0.11.tar.gz
     provides:

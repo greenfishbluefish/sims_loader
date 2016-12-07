@@ -10,8 +10,7 @@ docker-compose up -d datastores
 # are setup as expected below.
 docker run \
   --rm \
-  -it \
-  -v $(pwd):/app \
+  --volume $(pwd):/data \
   --network simsloader_default \
   --link simsloader_mysql_1:mysql \
-    simsloader_code bash
+    robkinyon/sims_loader:0.000006 $@

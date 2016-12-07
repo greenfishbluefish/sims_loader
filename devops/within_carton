@@ -12,6 +12,7 @@ if [[ (! -d /app/local) || (/app/cpanfile -nt /app/cpanfile.snapshot) ]]; then
   carton install
 fi
 
+echo "Starting tests"
 if [[ $1 == "cover" ]]; then
   shift
   carton exec -- cover -delete

@@ -2,6 +2,7 @@ Revision history for SimsLoader (ordered by revision number).
 
 0.000006
   BREAKING CHANGE: The model command now returns an array of table names.
+  - Add support for PostgreSQL
 
 0.000005
   BREAKING CHANGE: The model and table names are now the same.

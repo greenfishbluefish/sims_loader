@@ -25,6 +25,18 @@ sub build_loader {
       host => $params->{'--host'},
     );
   }
+
+  if ($driver eq 'postgres') {
+    return App::SimsLoader::Loader->new(
+      type => 'Pg',
+      dbname => $params->{'--schema'},
+      host => $params->{'--host'},
+      username => 'postgres',
+      password => 'password',
+    );
+  }
+
+  die "Don't know how to build loader for $driver";
 }
 
 foreach my $driver (drivers()) {
