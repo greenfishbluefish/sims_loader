@@ -14,7 +14,6 @@
         [ ] child requirements
     [/] Columns
         [/] Set a value to an array of scalars (Unsupported by Sims)
-[ ] Rename tests to remove /^\d\d_/
 [ ] Write documentation
     * This is done via direct edit on DockerHub.
     * Can we automate this like github.com/docker-library/docs?
@@ -136,3 +135,4 @@ load_sims CMD \
     [X] MySQL
     [X] PostgreSQL
 [X] Convert `model` to return the table names as an array
+[X] Rename tests to remove /^\d\d_/

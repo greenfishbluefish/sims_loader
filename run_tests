@@ -1,22 +1,26 @@
 #!/bin/bash
 
-# On Windows, don't convert the paths from Unix format to Windows format.
-# Otherwise, docker volume attachment will fail miserably.
-export MSYS_NO_PATHCONV=1
+export COMPOSE_CONVERT_WINDOWS_PATHS=1
 
 DIR=$(git rev-parse --show-toplevel)
+cd $DIR
+
+# Validate the docker-compose version >= 1.9.0 on Windows.
 
 if [[ "$@" == "stop" ]]; then
   docker-compose down
 elif [[ "$@" == "bash" ]]; then
   docker-compose up -d datastores
 
+  # On Windows, don't convert the paths from Unix format to Windows format.
+  # Otherwise, docker volume attachment will fail miserably.
+  MSYS_NO_PATHCONV=1 \
   docker run \
     --rm \
     --interactive --tty \
     --network simsloader_default \
     --link simsloader_mysql_1:mysql \
-    --volume $DIR:/app \
+    --volume $(pwd):/app \
     --entrypoint bash \
       simsloader_code
 elif [[ "$@" == "build" ]]; then
@@ -34,6 +38,10 @@ else
 
   # TODO: Add waits to ensure that the databases are ready to take traffic.
 
-  # This runs the tests
-  docker-compose up code
+  # Requires docker-compose >= 1.9.0 on Windows
+  if [[ "$@" == "cover" ]]; then
+    docker-compose run code cover
+  else
+    docker-compose run code prove $@
+  fi
 fi
