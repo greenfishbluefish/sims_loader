@@ -2,6 +2,7 @@ requires 'perl', '5.22.0';
 
 # Modules necessary for overall functionality
 requires 'DBIx::Class::Sims', '>= 0.300406';
+  requires 'Data::Compare'; # Needed for DBIC::Sims to install?
 requires 'DBIx::Class::Schema::Loader::Dynamic';
 requires 'App::Cmd';
 
