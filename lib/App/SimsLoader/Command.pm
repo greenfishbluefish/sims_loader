@@ -258,6 +258,7 @@ sub validate_model {
           { required => ['unique_constraints'] },
           { required => ['has_many'] },
           { required => ['belongs_to'] },
+          { required => ['ignore'] },
         ],
         columns => {
           type => 'object',
@@ -283,6 +284,10 @@ sub validate_model {
         },
         has_many => $relationship_schema,
         belongs_to => $relationship_schema,
+        ignore => {
+          type => 'array',
+          items => { type => 'string' },
+        },
       },
       additionalProperties => undef,
     },

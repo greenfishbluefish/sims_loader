@@ -211,6 +211,35 @@ foreach my $driver (drivers()) {
     },
   };
 
+  success "$driver: add an array of simmed values" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      }));
+    },
+    model => {
+      artists => {
+        columns => {
+          name => { values => [ 'George', 'Bob' ] },
+        },
+      },
+    },
+    specification => {
+      artists => 1,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => match qr/^(?:George|Bob)$/ },
+        ],
+      },
+    },
+  };
+
   success "$driver: add a simmed type" => {
     command => $cmd,
     driver => $driver,
@@ -235,6 +264,34 @@ foreach my $driver (drivers()) {
       rows => {
         artists => [
           { id => 1, name => match(qr/^\w+$/) },
+        ],
+      },
+    },
+  };
+
+  success "$driver: handle a self-referential table" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      shift->do(table_sql($driver, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+        parent_id => { foreign => 'artists.id' },
+      }));
+    },
+    model => {
+      artists => {
+        ignore => ['parent'],
+      },
+    },
+    specification => {
+      artists => 1,
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => match(qr/^\w+$/), parent_id => undef },
         ],
       },
     },

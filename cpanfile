@@ -1,7 +1,7 @@
 requires 'perl', '5.22.0';
 
 # Modules necessary for overall functionality
-requires 'DBIx::Class::Sims', '>= 0.300403';
+requires 'DBIx::Class::Sims', '>= 0.300406';
 requires 'DBIx::Class::Schema::Loader::Dynamic';
 requires 'App::Cmd';
 

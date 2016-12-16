@@ -3,7 +3,7 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
-[-] model file modifying DBIC::SL
+[ ] model file modifying DBIC::SL
     [ ] Relationships (has_many / belongs_to)
         [ ] Validate the same number of columns provided
         [ ] Add a multi-column relationship
@@ -12,11 +12,9 @@
         [ ] Throw an error when setting a not-null column with a nullchance
     [ ] constraints file
         [ ] child requirements
-    [/] Columns
-        [/] Set a value to an array of scalars (Unsupported by Sims)
-[ ] Write documentation
-    * This is done via direct edit on DockerHub.
-    * Can we automate this like github.com/docker-library/docs?
+    [ ] "ignore" for toposort->skip
+        [ ] Break A-B-A relationship at A-B
+        [ ] Break A-B-A relationship at B-A
 [ ] Throw an error when the schema is not found
 [ ] Throw an error when the table is not found for `model --name`
 [ ] Improve error messages for model validation failures
@@ -26,10 +24,6 @@
 [ ] Write a test that demonstrates a M2M relationship
     [ ] ... with the PK on the FKs and an extra value on the crosstable.
     [ ] ... with the PK on the FKs + the extra value
-[ ] toposort file passed to $opts->{toposort}
-    [ ] Break self-relationship
-    [ ] Break A-B-A relationship at A-B
-    [ ] Break A-B-A relationship at B-A
 [ ] Test with dates (may need auto-inflation)
 [ ] Add support for these databases in the docker-compose.yml
     [ ] Oracle
@@ -55,6 +49,9 @@
     [ ] Validate the model file (if any) works with the DBIC::SL model
     [ ] Validate the constraints (if any) works with the DBIC::SL model
     [ ] Validate the specification (if any) works with the DBIC::SL model
+[ ] Automate updating of documentation from README.md
+    * This is done via direct edit on DockerHub.
+    * Can we automate this like github.com/docker-library/docs?
 
 -------- MODEL FILE --------
 
@@ -119,6 +116,7 @@ load_sims CMD \
     [X] Columns
         [X] Validate all columns within a source exist
         [X] Set a value to a scalar
+        [X] Set a value to an array of scalars
     [X] Column types
         [X] Set a column to a sim type
         [X] Throw an error when the type is unknown
@@ -130,9 +128,12 @@ load_sims CMD \
     [X] Relationships (has_many / belongs_to)
         [X] Validate the foreign source exists
         [X] Validate the columns exist
+    [X] "ignore" for toposort->skip
+        [X] Break self-relationship
 [X] Change to use table name only instead of model name.
 [X] Add support for these databases in the docker-compose.yml
     [X] MySQL
     [X] PostgreSQL
 [X] Convert `model` to return the table names as an array
 [X] Rename tests to remove /^\d\d_/
+[X] Write documentation

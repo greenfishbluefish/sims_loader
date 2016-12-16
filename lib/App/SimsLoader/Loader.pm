@@ -16,13 +16,14 @@ use DBIx::Class::Schema::Loader::Dynamic;
 }
 
 sub apply_model {
-  shift;
-  my ($schema, $model) = @_;
+  my $self = shift;
+  my ($model) = @_;
 
+  my %skips = ();
   my %sim_types = map { lc($_) => 1 } App::SimsLoader::Command::types->find_types;
   while (my ($name, $source_mods) = each %$model) {
     my $rsrc = eval {
-      $schema->source($name);
+      $self->{schema}->source($name);
     }; if ($@) {
       die "Cannot find $name in database\n";
     }
@@ -70,7 +71,7 @@ sub apply_model {
 
           my $f_name = $defn->{foreign}{source};
           my $f_rsrc = eval {
-            $schema->source($f_name);
+            $self->{schema}->source($f_name);
           }; if ($@) {
             die "Cannot find $f_name in database\n";
           }
@@ -106,8 +107,14 @@ sub apply_model {
           }
         }
       }
+      elsif ($aspect eq 'ignore') {
+        push @{$skips{$name} //= []}, @$data;
+      }
     }
   }
+
+  $self->{toposort} = { skip => \%skips };
+
 }
 
 sub new {
@@ -141,17 +148,21 @@ sub new {
     schema => $schema,
   )->load;
 
-  $class->apply_model($schema, $model);
-
-  return bless {
+  my $self = bless {
     schema => $schema,
   }, $class;
+
+  $self->apply_model($model);
+
+  return $self;
 }
 
 sub load {
   my $self = shift;
   my ($spec, $addl) = @_;
   $addl //= {};
+
+  $addl->{toposort} = $self->{toposort} if $self->{toposort};
 
   $self->{schema}->load_sims($spec, $addl);
 }

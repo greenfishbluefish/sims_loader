@@ -1,20 +1,26 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000007
+  - Add support for "ignore" within --model to break relationship cycles
+  - Add support for "values" within the --model to allow for arrays of values
+  - Upgrade dependencies:
+     - DBIx::Class::Sims 0.300403 -> 0.300406.
+
 0.000006
-  BREAKING CHANGE: The model command now returns an array of table names.
-  - Add support for PostgreSQL
+  BREAKING CHANGE: "model" sub-command now returns an array of table names.
+  - Add support for PostgreSQL (--driver postgres)
 
 0.000005
   BREAKING CHANGE: The model and table names are now the same.
     - Accessor and column names are also now the same, but this should have
       been the case already.
-    - Relationship names haven't been changed yet.
+    - Relationship names haven't been changed (yet).
   BREAKING CHANGE: The output is now one level deeper.
     - What used to be the output is now the "rows" key.
     - The "seed" key is now displayed as well.
   - Add "types" sub-command to list available Sims types
   - "model" sub-command now displays unique constraints (including PK)
-  - Return and use a --seed
+  - Return and use a --seed to enable reproducing a previous run.
   - Add support for --model taking a JSON/YAML file. Supports:
     - <table> -> columns -> <column> -> { sim => <value> }
     - <table> -> columns -> <column> -> { type => <name> }

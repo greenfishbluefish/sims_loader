@@ -147,12 +147,15 @@ Optional:
 In addition, the `model` and `load` sub-commands also take an optional `--model` parameter. This is a YAML file which is used to set additional configuration about your database and how you want Sims Loader to treat it. The YAML provided is an object whose keys are tablenames. The values are an object with configuration for that table. You can set the following configurations:
 
 * columns
-    * value (the specific value to default for this column)
+    * value (the specific value for this column)
+    * values (an array of possible values for this column)
     * type (the Sims type for this column if no value is provided)
 * unique\_constraints
     * This is an object with keys as constraint names and values as arrays of columns.
 * belongs\_to / has\_many
     * These are objects with keys as relationship names and values as objects describing that relationship.
+* ignore
+    * This is an array of relationship names to ignore when determining the build order of the tables. q.v. "Generating Sims" for more information on when to use this.
 
 ## drivers
 
@@ -232,6 +235,10 @@ This will return back information about the rows that were loaded as a YAML obje
 
 All the rows are generated within a single transaction. (This can have consequences if thousands of rows are generated.) If any row fails to be created, then the entire transaction is rolled back and an appropriate error is reported.
 
+## Sequence of Events
+
+In order to ensure all parent rows are created before all child rows, a tree is created of the database tables, using foreign keys to determine parent-child relationships. If the foreign key relationships would create a cycle, you have to specify an `ignore` (q.v. "Model File") listing the relationships to ignore when constructing this tree. You can still use these relationships when constructing rows.
+
 For each row requested in the specification, do the following steps:
 
 0. Fill in all columns for the row, using rows in this order.
@@ -239,7 +246,7 @@ For each row requested in the specification, do the following steps:
     * Otherwise, if a column is a foreign key, find or create a row in the parent table and set the value of the column accordingly.
         * This is either the column or relationship name.
         * If nothing is specified about the parent, use any row that exists.
-    * Otherwise, if a column has a `value` set, use that.
+    * Otherwise, if a column has a `value` or `values` set, use that.
     * Otherwise, if a column has a `type` set, apply the type.
     * Otherwise, if the column is not nullable, generate a usable value based on if the column's type is string-like or number-like.
     * Otherwise, if the column is nullable, use NULL.
