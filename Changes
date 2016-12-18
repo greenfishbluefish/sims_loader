@@ -1,10 +1,15 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000008
+  - Upgrade dependencies:
+    - DBIx::Class::Sims 0.300406 -> 0.300500.
+       - Provides defaulting support for many more column types
+
 0.000007
   - Add support for "ignore" within --model to break relationship cycles
   - Add support for "values" within the --model to allow for arrays of values
   - Upgrade dependencies:
-     - DBIx::Class::Sims 0.300403 -> 0.300406.
+    - DBIx::Class::Sims 0.300403 -> 0.300406.
 
 0.000006
   BREAKING CHANGE: "model" sub-command now returns an array of table names.
