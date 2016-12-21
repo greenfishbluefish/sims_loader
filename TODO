@@ -3,7 +3,6 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
-[ ] Write documentation re: loopback not working
 [ ] Improve launch script to detect loopback and substitute a better address
 [ ] Determine why lack of network causes a 10+ second delay in execution
 [ ] model file modifying DBIC::SL
@@ -140,3 +139,4 @@ load_sims CMD \
 [X] Convert `model` to return the table names as an array
 [X] Rename tests to remove /^\d\d_/
 [X] Write documentation
+[X] Write documentation re: loopback not working

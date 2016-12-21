@@ -29,9 +29,32 @@ If you don't specify a command or options, it will default to `help`. (The MSYS\
 
 *Note:* All examples in this documentation will assume that you have the above saved as a bash script named `sims_loader` available in your current path. You may need to adjust examples accordingly.
 
+### Docker Volumes
+
 The use of a Docker volume is the only way I know of to share files betwen the host system and a container. As the Sims Loader needs up to 3 files available to it, mounting the current directory as a volume is the current solution. I will be exploring additional ways of communicating between the host and the container in future releases.
 
 Please note that Docker will may or may not mount a NFS volume into a container and may or may not issue a warning or error about it. This all depends on your particular machine's setup, NFS setup, networking setup, and Docker version. If you receive an error of "file not found", please try copying the file to a directory physically on your machine and run again from within that directory.
+
+### Docker Networking and localhost
+
+If you are connecting to a database that is running somewhere other than your machine, use the same network address you would normally use.
+
+However, if you are attempting to connect to a database running locally (such as for development or evaluation), you cannot use `127.0.0.1` or `localhost` - those will refer to the container itself. You also cannot use whatever 10.x.x.x, 172.x.x.x, or 192.168.x.x address you might normally use (or name that refers to such an address). Instead, you will need to provide an IP address according to the following rules:
+
+* If you are using Docker Toolbox on either Windows or OSX (uses Virtualbox):
+    * If you are connecting to a database on your host, use 10.0.2.2 (this is the IP address Virtualbox provides to connect to the host).
+    * If you are connecting to a database in another container, use the value from `docker-machine ip`.
+* If you are using Docker on Windows 10 (uses Hyper-V):
+    * If you are connecting to a database on your host, use TBD.
+    * If you are connecting to a database in another container, use TBD.
+* If you are using Docker on OSX (uses xhyve):
+    * If you are connecting to a database on your host, use TBD.
+    * If you are connecting to a database in another container, use TBD.
+* If you are using Docker on Linux (any distribution):
+    * If you are connecting to a database on your host, use TBD.
+    * If you are connecting to a database in another container, use TBD.
+
+If you have a situation that isn't covered in the list above, please open an issue, hopefully with the right solution.
 
 ## Notes
 
