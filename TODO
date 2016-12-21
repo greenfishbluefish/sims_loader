@@ -3,6 +3,9 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
+[ ] Write documentation re: loopback not working
+[ ] Improve launch script to detect loopback and substitute a better address
+[ ] Determine why lack of network causes a 10+ second delay in execution
 [ ] model file modifying DBIC::SL
     [ ] Relationships (has_many / belongs_to)
         [ ] Validate the same number of columns provided
