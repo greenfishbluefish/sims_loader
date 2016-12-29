@@ -47,47 +47,70 @@ sub new_fh {
   return ($fh, $filename);
 }
 
-sub create_dbh {
-  my ($options) = @_;
-  my $driver = $options->{driver} // 'sqlite';
+sub create_dbh_nonsqlite {
+  my ($driver, %db) = @_;
 
-  my ($dbh, @addl);
-  if ($driver eq 'sqlite') {
-    my ($fh, $fn) = new_fh();
-    $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '')
-      or die "Cannot connect to $driver database: $DBI::errstr\n";
-    push @addl, '--host', $fn;
-  }
-  elsif ($driver eq 'mysql' || $driver eq 'postgres') {
-    my $dbname = 'foo';
-    my $dbhost = $driver eq 'mysql' ? 'mysql' : 'postgres';
-    my $dbport = $driver eq 'mysql' ? '3306'  : '5432';
-    my $dbuser = $driver eq 'mysql' ? 'root'  : 'postgres';
-    my $dbpass = $driver eq 'mysql' ? ''      : 'password';
-    my $dbd    = $driver eq 'mysql' ? 'mysql' : 'Pg';
+  my $conn = "host=$db{host};port=$db{port}";
 
-    my $conn = "host=$dbhost;port=$dbport";
+  my $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
+    or die "Cannot connect to $driver database: $DBI::errstr\n";
+  $dbh->do("DROP DATABASE IF EXISTS $db{name};");
+  $dbh->do("CREATE DATABASE $db{name};");
+  $dbh->disconnect;
 
-    $dbh = DBI->connect("dbi:$dbd:$conn", $dbuser, $dbpass)
-      or die "Cannot connect to $driver database: $DBI::errstr\n";
-    $dbh->do("DROP DATABASE IF EXISTS $dbname;");
-    $dbh->do("CREATE DATABASE $dbname;");
-    $dbh->disconnect;
-
-    $conn .= ";database=$dbname";
-    $dbh = DBI->connect("dbi:$dbd:$conn", $dbuser, $dbpass)
-      or die "Cannot connect to $driver database: $DBI::errstr\n";
-    push @addl, '--host', $dbhost;
-    push @addl, '--port', $dbport;
-    push @addl, '--schema', $dbname;
-    push @addl, '--username', $dbuser;
-    push @addl, '--password', $dbpass;
-  }
-  else {
-    die "Don't know how to build DBH for '$driver'\n";
-  }
+  $conn .= ";database=$db{name}";
+  $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
+    or die "Cannot connect to $driver database: $DBI::errstr\n";
+  my @addl = (
+    '--host', $db{host},
+    '--port', $db{port},
+    '--schema', $db{name},
+    '--username', $db{user},
+    '--password', $db{pass},
+  );
 
   return ($dbh, \@addl);
+}
+
+sub create_dbh {
+  my ($options) = @_;
+  my $driver = $options->{driver}
+    // die "Must specify --driver for create_dbh()";
+
+  if ($driver eq 'sqlite') {
+    my ($fh, $fn) = new_fh();
+    my $dbh = DBI->connect("dbi:SQLite:dbname=$fn", '', '')
+      or die "Cannot connect to $driver database: $DBI::errstr\n";
+    my @addl = (
+      '--host', $fn,
+    );
+
+    return ($dbh, \@addl);
+  }
+  elsif ($driver eq 'mysql') {
+    return create_dbh_nonsqlite(
+      $driver,
+      name => 'foo',
+      host => 'mysql',
+      port => '3306',
+      user => 'root',
+      pass => '',
+      driver => 'mysql',
+    );
+  }
+  elsif ($driver eq 'postgres') {
+    return create_dbh_nonsqlite(
+      $driver,
+      name => 'foo',
+      host => 'postgres',
+      port => '5432',
+      user => 'postgres',
+      pass => 'password',
+      driver => 'Pg',
+    );
+  }
+
+  die "Don't know how to build DBH for '$driver'\n";
 }
 
 sub table_sql {
