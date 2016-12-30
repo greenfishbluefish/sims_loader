@@ -31,7 +31,7 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub drivers {
-  return qw(sqlite mysql postgres);
+  return qw(sqlite mysql postgres oracle);
 }
 
 sub new_fh {
@@ -51,16 +51,38 @@ sub create_dbh_nonsqlite {
   my ($driver, %db) = @_;
 
   my $conn = "host=$db{host};port=$db{port}";
+  $conn .= ";sid=$db{sid}" if exists $db{sid};
 
   my $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
     or die "Cannot connect to $driver database: $DBI::errstr\n";
-  $dbh->do("DROP DATABASE IF EXISTS $db{name};");
-  $dbh->do("CREATE DATABASE $db{name};");
+
+  # For Oracle, the username and password initially supplied will be for a
+  # service-level administrator.
+  if ($driver eq 'oracle') {
+    # Oracle doesn't want the semi-colons.
+    $dbh->do("DROP USER $db{name} CASCADE");
+
+    $dbh->do("CREATE USER $db{name} IDENTIFIED by $db{name}");
+    $dbh->do("GRANT CONNECT, RESOURCE TO $db{name}");
+
+    # Afterwards, we use the dbname as the username/password.
+    $db{user} = $db{pass} = $db{name};
+    # And pass the SID around as the --schema
+    $db{name} = delete $db{sid};
+  }
+  else {
+    $dbh->do("DROP DATABASE IF EXISTS $db{name};");
+
+    $dbh->do("CREATE DATABASE $db{name};");
+
+    # Non-Oracle databases now want to use the newly-created DB name.
+    $conn .= ";database=$db{name}";
+  }
   $dbh->disconnect;
 
-  $conn .= ";database=$db{name}";
   $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
     or die "Cannot connect to $driver database: $DBI::errstr\n";
+
   my @addl = (
     '--host', $db{host},
     '--port', $db{port},
@@ -109,12 +131,24 @@ sub create_dbh {
       driver => 'Pg',
     );
   }
+  elsif ($driver eq 'oracle') {
+    return create_dbh_nonsqlite(
+      $driver,
+      name => 'foo',
+      host => 'oracle11',
+      port => '1521',
+      user => 'system',
+      pass => 'oracle',
+      driver => 'Oracle',
+      sid => 'xe',
+    );
+  }
 
   die "Don't know how to build DBH for '$driver'\n";
 }
 
 sub table_sql {
-  my ($driver, $table, $defn) = @_;
+  my ($driver, $dbh, $table, $defn) = @_;
   $driver = lc $driver;
 
   unless (exists $defn->{columns}) {
@@ -123,7 +157,7 @@ sub table_sql {
     };
   }
 
-  my (@columns, @keys);
+  my (@columns, @keys, @addl);
   my $sql = "CREATE TABLE `$table` (";
   if ($driver eq 'sqlite') {
     while (my ($col, $type) = each %{$defn->{columns}//{}}) {
@@ -189,6 +223,29 @@ sub table_sql {
       }
     }
   }
+  elsif ($driver eq 'oracle') {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
+      if ($type->{primary}) {
+        push @columns, "$col INTEGER NOT NULL PRIMARY KEY";
+        push @addl, "CREATE SEQUENCE ${table}_${col}_seq START WITH 1 INCREMENT BY 1";
+        push @addl, "CREATE TRIGGER trg_${table}_${col}\n  BEFORE INSERT ON $table\n  FOR EACH ROW\nBEGIN\n  SELECT ${table}_${col}_seq.nextval into :new.${col} FROM dual;\nend;";
+      }
+      elsif ($type->{foreign}) {
+        push @columns, "$col INTEGER";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY ($col) REFERENCES $fk_table ($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "$col INT";
+      }
+      elsif ($type->{string}) {
+        push @columns, "$col VARCHAR2($type->{string})";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
   # SQL Server: [ID] [int] IDENTITY(1,1) NOT NULL
   else {
     die "Don't know how to build SQL for '$driver'\n";
@@ -206,6 +263,9 @@ sub table_sql {
     elsif ($driver eq 'postgres') {
       push @keys, "CONSTRAINT ${name}_unique UNIQUE (@{[join ',', @$cols]})";
     }
+    elsif ($driver eq 'oracle') {
+      push @keys, "CONSTRAINT ${name}_unique UNIQUE (@{[join ',', @$cols]})";
+    }
     else {
       die "Don't know how to build SQL for '$driver'\n";
     }
@@ -219,6 +279,13 @@ sub table_sql {
   if ($driver eq 'postgres') {
     $sql =~ s/`//g;
   }
+  # Oracle doesn't like backticks or semi-colons
+  if ($driver eq 'oracle') {
+    $sql =~ s/[`;]//g;
+  }
+
+  $dbh->do($sql);
+  $dbh->do($_) for @addl;
 
   return $sql;
 }
@@ -245,9 +312,10 @@ sub run_test ($$) {
       # Provide a default database for tests that don't care.
       if ("$options->{database}" eq 'default') {
         $options->{database} = sub {
-          shift->do(table_sql($options->{driver}, foo => {
+          my $dbh = shift;
+          table_sql($options->{driver}, $dbh, foo => {
             id => { integer => 1 },
-          }));
+          });
         };
       }
 
@@ -317,7 +385,7 @@ sub success ($$) {
     $defaults{stdout} = sub {
       my $stdout = shift;
       my $result = Load($stdout);
-      is($result, $options->{yaml_out});
+      like($result, $options->{yaml_out});
     };
   }
 

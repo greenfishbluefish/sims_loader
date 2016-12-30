@@ -11,6 +11,7 @@ services:
     links:
       - mysql
       - postgres
+      - oracle11
   # This needs to wait for the datastores to have finished coming up and are
   # actually ready for traffic. q.v. https://github.com/vishnubob/wait-for-it
   datastores:
@@ -18,6 +19,7 @@ services:
     depends_on:
       - mysql
       - postgres
+      - oracle11
   mysql:
     image: mysql
     environment:
@@ -26,3 +28,8 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD: 'password'
+  oracle11:
+    image: wnameless/oracle-xe-11g
+    shm_size: 1G # Necessary for Oracle databases to function. Default is 64M
+    environment:
+      ORACLE_ALLOW_REMOTE: 'true'

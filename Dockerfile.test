@@ -2,10 +2,24 @@ FROM perl:5.22
 MAINTAINER Rob Kinyon rob.kinyon@gmail.com
 
 RUN apt-get update -qq \
-  && apt-get install -y build-essential unzip uuid-dev
+  && apt-get install -y \
+    build-essential unzip uuid-dev \
+    libaio-dev libaio1
 
 RUN curl -L http://cpanmin.us | perl - App::cpanminus
 RUN cpanm Carton Test2::AsyncSubtest
+
+########
+# BEGIN Oracle section
+COPY "vendor/oracle/11.2/*.deb" /tmp/
+RUN dpkg -i /tmp/*.deb && rm /tmp/*.deb
+
+ENV ORACLE_HOME /usr/lib/oracle/11.2/client64
+ENV PATH $PATH:$HOME/bin:$ORACLE_HOME/bin
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ORACLE_HOME/lib
+ENV TNS_ADMIN $ORACLE_HOME/network/admin
+# END Oracle section
+########
 
 ENV app /app
 RUN mkdir -p $app

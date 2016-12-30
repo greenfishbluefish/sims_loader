@@ -129,17 +129,19 @@ sub new {
 
   my @connectors;
   while (my ($k,$v) = each %opts) {
+    if ($type eq 'Oracle' && ($k eq 'dbname' || $k eq 'database') ) {
+      $k = 'sid';
+    }
     push @connectors, "$k=$v";
   }
   my $connectors = join(';', @connectors);
-  #$connectors //= '';
 
   my $connect_string = "dbi:$type:$connectors";
 
   my $schema = MySchema->connect($connect_string, $user, $pass);
   DBIx::Class::Schema::Loader::Dynamic->new(
     # Force all table monikers to be the table name itself.
-    moniker_map => sub { "$_[0]" },
+    moniker_map => sub { lc "$_[0]" },
     # Force all column accessors to be the column name itself.
     col_accessor_map => sub { "$_[0]" },
     # rel_name_map => sub {},

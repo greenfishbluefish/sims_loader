@@ -27,9 +27,10 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
-      }));
+      });
     },
     model => {
       other_table => {},
@@ -41,9 +42,10 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
-      }));
+      });
     },
     model => {
       artists => { columns => { foo => { value => 'x' } } },
@@ -55,10 +57,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     model => {
       artists => { columns => { name => { type => 'type_not_found' } } },
@@ -70,10 +73,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     model => {
       artists => { unique_constraints => { name => [qw( not_found )] } },
@@ -86,7 +90,7 @@ foreach my $driver (drivers()) {
   my $auto_increment = sub {
     my ($table, $column) = @_;
     my %rv = (is_auto_increment => 1);
-    if ($driver eq 'postgres') {
+    if ($driver eq 'postgres' || $driver eq 'oracle') {
       $rv{sequence} = "${table}_${column}_seq";
     }
     return %rv;
@@ -96,10 +100,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     yaml_out => [qw/
       artists
@@ -113,14 +118,15 @@ foreach my $driver (drivers()) {
       --name artists
     )],
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -128,7 +134,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 0,
             size => 255,
           },
@@ -144,14 +150,14 @@ foreach my $driver (drivers()) {
     driver => $driver,
     database => sub {
       my $dbh = shift;
-      $dbh->do(table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
-      $dbh->do(table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     yaml_out => [qw/
       artists studios
@@ -163,15 +169,15 @@ foreach my $driver (drivers()) {
     driver => $driver,
     database => sub {
       my $dbh = shift;
-      my $sql = table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      $sql = table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         artist_id => { foreign => 'artists.id' },
         name => { string => 255 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      });
     },
     yaml_out => [qw/
       artists studios
@@ -186,19 +192,19 @@ foreach my $driver (drivers()) {
     )],
     database => sub {
       my $dbh = shift;
-      my $sql = table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 200 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      $sql = table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         artist_id => { foreign => 'artists.id' },
         name => { string => 155 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      });
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -206,7 +212,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 1,
             size => 200,
           },
@@ -227,19 +233,19 @@ foreach my $driver (drivers()) {
     )],
     database => sub {
       my $dbh = shift;
-      my $sql = table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 200 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      $sql = table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         artist_id => { foreign => 'artists.id' },
         name => { string => 155 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      });
     },
     yaml_out => {
       studios => {
-        table => 'studios',
+        table => match qr/^studios$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -247,7 +253,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 1,
             size => 155,
           },
@@ -272,10 +278,11 @@ foreach my $driver (drivers()) {
       --name artists
     )],
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     model => {
       artists => {
@@ -286,7 +293,7 @@ foreach my $driver (drivers()) {
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -294,7 +301,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 0,
             size => 255,
             sim => {
@@ -315,10 +322,11 @@ foreach my $driver (drivers()) {
       --name artists
     )],
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     model => {
       artists => {
@@ -329,7 +337,7 @@ foreach my $driver (drivers()) {
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -337,7 +345,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 0,
             size => 255,
             sim => {
@@ -358,7 +366,8 @@ foreach my $driver (drivers()) {
       --name artists
     )],
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         columns => {
           id => { primary => 1 },
           name => { string => 255, not_null => 1 },
@@ -366,11 +375,11 @@ foreach my $driver (drivers()) {
         unique => {
           name => [qw( name )],
         },
-      }));
+      });
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -378,7 +387,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 0,
             size => 255,
           },
@@ -399,12 +408,13 @@ foreach my $driver (drivers()) {
       --name artists
     )],
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         columns => {
           id => { primary => 1 },
           name => { string => 255, not_null => 1 },
         },
-      }));
+      });
     },
     model => {
       artists => {
@@ -415,7 +425,7 @@ foreach my $driver (drivers()) {
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -423,7 +433,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 0,
             size => 255,
           },
@@ -445,15 +455,15 @@ foreach my $driver (drivers()) {
     )],
     database => sub {
       my $dbh = shift;
-      my $sql = table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 200 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      $sql = table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         artist_id => { integer => 1 },
         name => { string => 155 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      });
     },
     model => {
       artists => {
@@ -470,7 +480,7 @@ foreach my $driver (drivers()) {
     },
     yaml_out => {
       artists => {
-        table => 'artists',
+        table => match qr/^artists$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -478,7 +488,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 1,
             size => 200,
           },
@@ -499,15 +509,15 @@ foreach my $driver (drivers()) {
     )],
     database => sub {
       my $dbh = shift;
-      my $sql = table_sql($driver, artists => {
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 200 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
-      $sql = table_sql($driver, studios => {
+      });
+      table_sql($driver, $dbh, studios => {
         id => { primary => 1 },
         artist_id => { integer => 1 },
         name => { string => 155 },
-      }); $dbh->do($sql) or die "$DBI::errstr\n\t$sql\n";
+      });
     },
     model => {
       studios => {
@@ -524,7 +534,7 @@ foreach my $driver (drivers()) {
     },
     yaml_out => {
       studios => {
-        table => 'studios',
+        table => match qr/^studios$/i,
         columns => {
           id => {
             data_type => 'integer',
@@ -532,7 +542,7 @@ foreach my $driver (drivers()) {
             is_nullable => 0,
           },
           name => {
-            data_type => 'varchar',
+            data_type => match qr/^varchar2?$/,
             is_nullable => 1,
             size => 155,
           },

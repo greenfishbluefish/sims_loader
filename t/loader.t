@@ -13,7 +13,7 @@ sub build_loader {
 
   if ($driver eq 'sqlite') {
     return App::SimsLoader::Loader->new(
-      type => 'SQLite', # Capitalized differently
+      type => 'SQLite',
       dbname => $params->{'--host'},
     );
   }
@@ -22,7 +22,9 @@ sub build_loader {
     return App::SimsLoader::Loader->new(
       type => $driver,
       dbname => $params->{'--schema'},
-      host => $params->{'--host'},
+      host   => $params->{'--host'},
+      username => $params->{'--username'},
+      password => $params->{'--password'},
     );
   }
 
@@ -30,9 +32,19 @@ sub build_loader {
     return App::SimsLoader::Loader->new(
       type => 'Pg',
       dbname => $params->{'--schema'},
-      host => $params->{'--host'},
-      username => 'postgres',
-      password => 'password',
+      host   => $params->{'--host'},
+      username => $params->{'--username'},
+      password => $params->{'--password'},
+    );
+  }
+
+  if ($driver eq 'oracle') {
+    return App::SimsLoader::Loader->new(
+      type => 'Oracle',
+      dbname => $params->{'--schema'},
+      host   => $params->{'--host'},
+      username => $params->{'--username'},
+      password => $params->{'--password'},
     );
   }
 
@@ -43,10 +55,10 @@ foreach my $driver (drivers()) {
   subtest $driver => sub {
     my ($dbh, $params) = create_dbh({ driver => $driver });
 
-    $dbh->do(table_sql($driver, artists => {
+    table_sql($driver, $dbh, artists => {
       id => { primary => 1 },
       name => { string => 255, not_null => 1 },
-    }));
+    });
 
     my $loader = build_loader($driver, {@$params});
 
@@ -62,7 +74,9 @@ foreach my $driver (drivers()) {
     });
 
     # Validate the $rows here
-    # Validate that we have data in the database
+
+    # Necessary for Oracle to return lowercase column names.
+    $dbh->{FetchHashKeyName} = 'NAME_lc';
     my $artists = $dbh->selectall_arrayref(
       'SELECT * FROM artists', { Slice => {} },
     );

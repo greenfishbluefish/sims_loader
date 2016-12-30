@@ -1,7 +1,7 @@
 requires 'perl', '5.22.0';
 
 # Modules necessary for overall functionality
-requires 'DBIx::Class::Sims', '>= 0.300500';
+requires 'DBIx::Class::Sims', '>= 0.300500'; # Will be 0.300501
   requires 'Data::Compare'; # Needed for DBIC::Sims to install?
 requires 'DBIx::Class::Schema::Loader::Dynamic';
 requires 'App::Cmd';
@@ -10,16 +10,26 @@ requires 'App::Cmd';
 requires 'JSON::Validator';
 requires 'Net::Telnet';
 
+########
 # Modules necessary for each DBD
+# MySQL
 requires 'DBD::mysql';
 
+# Postgres
 requires 'DBD::Pg';
 requires 'DateTime::Format::Pg';
 
+# Oracle
+requires 'DBD::Oracle';
+requires 'DateTime::Format::Oracle';
+requires 'Math::Base36', '>= 0.07';
+#
+########
+
 on test => sub {
-  requires 'Test::More', '>= 0.96, < 2.0';
+  requires 'App::Cmd::Tester';
+  requires 'Test2::Bundle::Extended';
+  requires 'Test2::Tools::AsyncSubtest';
   requires 'Test::Compile';
-  requires 'Test::Deep';
   requires 'Devel::Cover';
-  requires 'Test2::AsyncSubtest';
 };

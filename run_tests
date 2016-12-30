@@ -27,17 +27,7 @@ if [[ "$@" == "stop" ]]; then
 elif [[ "$@" == "bash" ]]; then
   docker-compose up -d datastores
 
-  # On Windows, don't convert the paths from Unix format to Windows format.
-  # Otherwise, docker volume attachment will fail miserably.
-  MSYS_NO_PATHCONV=1 \
-  docker run \
-    --rm \
-    --interactive --tty \
-    --network simsloader_default \
-    --link simsloader_mysql_1:mysql \
-    --volume $(pwd):/app \
-    --entrypoint bash \
-      simsloader_code
+  docker-compose run code bash
 elif [[ "$@" == "build" ]]; then
   for dirname in bin devops lib; do
     find $DIR/$dirname -type f -exec dos2unix -q {} \;

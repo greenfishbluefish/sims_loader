@@ -3,6 +3,9 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
+[ ] Add a test to ensure performance minimums
+    [ ] Make Oracle11 support those minimums
+[ ] Add support for oracle12 and oracle10 in addition to oracle11
 [ ] Improve launch script to detect loopback and substitute a better address
 [ ] Determine why lack of network causes a 10+ second delay in execution
 [ ] model file modifying DBIC::SL
@@ -28,9 +31,7 @@
     [ ] ... with the PK on the FKs + the extra value
 [ ] Test with dates (may need auto-inflation)
 [ ] Add support for these databases in the docker-compose.yml
-    [ ] Oracle
     [ ] Sybase (same as SQL*Server?)
-    [ ] SQL*Server (devel/vagrant_sql_server_express)
     [ ] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
         * docker pull microsoft/mssql-server-linux
         * docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d microsoft/mssql-server-linux
@@ -136,6 +137,7 @@ load_sims CMD \
 [X] Add support for these databases in the docker-compose.yml
     [X] MySQL
     [X] PostgreSQL
+    [X] Oracle 11g
 [X] Convert `model` to return the table names as an array
 [X] Rename tests to remove /^\d\d_/
 [X] Write documentation

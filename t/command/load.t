@@ -91,10 +91,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     specification => {
       artists => { name => 'George' },
@@ -113,10 +114,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255 },
-      }));
+      });
     },
     specification => {
       artists => 2,
@@ -137,10 +139,11 @@ foreach my $driver (drivers()) {
       command => $cmd,
       driver => $driver,
       database => sub {
-        shift->do(table_sql($driver, artists => {
+        my $dbh = shift;
+        table_sql($driver, $dbh, artists => {
           id => { primary => 1 },
           name => { string => 255, not_null => 1 },
-        }));
+        });
       },
       specification => {
         artists => 1,
@@ -186,10 +189,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     model => {
       artists => {
@@ -215,10 +219,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     model => {
       artists => {
@@ -244,10 +249,11 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
-      }));
+      });
     },
     model => {
       artists => {
@@ -273,11 +279,12 @@ foreach my $driver (drivers()) {
     command => $cmd,
     driver => $driver,
     database => sub {
-      shift->do(table_sql($driver, artists => {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
         id => { primary => 1 },
         name => { string => 255, not_null => 1 },
         parent_id => { foreign => 'artists.id' },
-      }));
+      });
     },
     model => {
       artists => {
