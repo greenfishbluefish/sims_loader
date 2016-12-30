@@ -1,5 +1,11 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000009
+  - Upgrade dependencies:
+    - DBIx::Class::Sims 0.300500 -> 0.300501.
+       - Fixes for supporting Oracle11
+  - Add support for Oracle 11g (--driver oracle11)
+
 0.000008
   - Upgrade dependencies:
     - DBIx::Class::Sims 0.300406 -> 0.300500.

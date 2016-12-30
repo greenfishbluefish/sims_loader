@@ -56,6 +56,11 @@ sub create_dbh_nonsqlite {
   my $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
     or die "Cannot connect to $driver database: $DBI::errstr\n";
 
+  my @addl = (
+    '--host', $db{host},
+    '--port', $db{port},
+  );
+
   # For Oracle, the username and password initially supplied will be for a
   # service-level administrator.
   if ($driver eq 'oracle') {
@@ -65,10 +70,10 @@ sub create_dbh_nonsqlite {
     $dbh->do("CREATE USER $db{name} IDENTIFIED by $db{name}");
     $dbh->do("GRANT CONNECT, RESOURCE TO $db{name}");
 
-    # Afterwards, we use the dbname as the username/password.
+    # Afterwards, we use the schema as the username/password.
     $db{user} = $db{pass} = $db{name};
-    # And pass the SID around as the --schema
-    $db{name} = delete $db{sid};
+
+    push @addl, ( '--sid', $db{sid} ),
   }
   else {
     $dbh->do("DROP DATABASE IF EXISTS $db{name};");
@@ -77,16 +82,15 @@ sub create_dbh_nonsqlite {
 
     # Non-Oracle databases now want to use the newly-created DB name.
     $conn .= ";database=$db{name}";
+
+    push @addl, ( '--schema', $db{name} ),
   }
   $dbh->disconnect;
 
   $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
     or die "Cannot connect to $driver database: $DBI::errstr\n";
 
-  my @addl = (
-    '--host', $db{host},
-    '--port', $db{port},
-    '--schema', $db{name},
+  push @addl, (
     '--username', $db{user},
     '--password', $db{pass},
   );

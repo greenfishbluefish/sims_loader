@@ -3,7 +3,7 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
-[ ] Add a test to ensure performance minimums
+[ ] Add enforcement of performance minimums
     [ ] Make Oracle11 support those minimums
 [ ] Add support for oracle12 and oracle10 in addition to oracle11
 [ ] Improve launch script to detect loopback and substitute a better address

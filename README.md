@@ -156,6 +156,7 @@ Required:
     * This is unused in the SQLite driver, but required otherwise.
 * `--schema`: the schema to connect to within the database.
     * This is unused in the SQLite driver, but required otherwise.
+    * This is unused in the Oracle driver, replaced by --sid
 
 Optional:
 
@@ -164,6 +165,11 @@ Optional:
 * `--password`: the password to connect to the database with.
     * If unprovided, no password with be set or passed to the connector.
     * This is unused in the SQLite driver.
+
+Driver-specific options:
+
+* `--sid`: the SID to connect to when connecting to Oracle.
+    * This is required.
 
 ## Model file
 

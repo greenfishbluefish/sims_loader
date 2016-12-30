@@ -21,8 +21,8 @@ sub build_loader {
   if ($driver eq 'mysql') {
     return App::SimsLoader::Loader->new(
       type => $driver,
-      dbname => $params->{'--schema'},
-      host   => $params->{'--host'},
+      database => $params->{'--schema'},
+      host     => $params->{'--host'},
       username => $params->{'--username'},
       password => $params->{'--password'},
     );
@@ -31,8 +31,8 @@ sub build_loader {
   if ($driver eq 'postgres') {
     return App::SimsLoader::Loader->new(
       type => 'Pg',
-      dbname => $params->{'--schema'},
-      host   => $params->{'--host'},
+      database => $params->{'--schema'},
+      host     => $params->{'--host'},
       username => $params->{'--username'},
       password => $params->{'--password'},
     );
@@ -41,8 +41,8 @@ sub build_loader {
   if ($driver eq 'oracle') {
     return App::SimsLoader::Loader->new(
       type => 'Oracle',
-      dbname => $params->{'--schema'},
-      host   => $params->{'--host'},
+      sid  => $params->{'--sid'},
+      host => $params->{'--host'},
       username => $params->{'--username'},
       password => $params->{'--password'},
     );

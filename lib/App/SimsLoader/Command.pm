@@ -36,6 +36,7 @@ sub opt_spec_for {
       [ 'host|h=s', "Host of database (or SQLite filename)" ],
       [ 'port=s', "Port of database" ],
       [ 'schema=s', "Name of database schema" ],
+      [ 'sid=s', "Name of database SID (used by Oracle)" ],
       [ 'username|u=s', "Database user" ],
       [ 'password|P=s', "Database password" ],
     );
@@ -211,6 +212,8 @@ sub validate_connection {
   elsif ($self->{driver} eq 'Oracle') {
     my $port = $opts->{port} // 1521;
 
+    $self->usage_error('Must provide --sid') unless $opts->{sid};
+
     # Use Net::Telnet to determine if we can even connect to the database host.
     # This allows us to fail fast with a 1 second timeout.
     eval {
@@ -224,8 +227,7 @@ sub validate_connection {
     }
 
     my $dbh = eval {
-      my $cn = "dbi:$self->{driver}:host=$opts->{host};port=$port";
-      $cn .= ";sid=$opts->{schema}" if defined $opts->{schema};
+      my $cn = "dbi:$self->{driver}:host=$opts->{host};port=$port;sid=$opts->{sid}";
       DBI->connect(
         $cn, $opts->{username} // '', $opts->{password} // '', {
           PrintError => 0,
@@ -252,9 +254,9 @@ sub validate_connection {
     $self->{params} = {
       host => $opts->{host},
       port => $port,
+      sid  => $opts->{sid},
       username => $opts->{username} // '',
       password => $opts->{password} // '',
-      database => $opts->{schema} // '',
     };
   }
   else {

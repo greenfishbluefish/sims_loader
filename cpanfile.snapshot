@@ -740,14 +740,14 @@ DISTRIBUTIONS
       YAML::Tiny 1.48
       parent 0.224
       perl 5.008005
-  DBIx-Class-Sims-0.300500
-    pathname: R/RK/RKINYON/DBIx-Class-Sims-0.300500.tar.gz
+  DBIx-Class-Sims-0.300501
+    pathname: R/RK/RKINYON/DBIx-Class-Sims-0.300501.tar.gz
     provides:
-      DBIx::Class::Sims 0.300500
+      DBIx::Class::Sims 0.300501
       DBIx::Class::Sims::Runner undef
       DBIx::Class::Sims::Types undef
       DBIx::Class::Sims::Util undef
-      MyCloner 0.300500
+      MyCloner 0.300501
     requirements:
       Clone::Any 0
       DBD::SQLite 1.40

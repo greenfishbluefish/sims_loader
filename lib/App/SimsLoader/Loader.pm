@@ -129,9 +129,6 @@ sub new {
 
   my @connectors;
   while (my ($k,$v) = each %opts) {
-    if ($type eq 'Oracle' && ($k eq 'dbname' || $k eq 'database') ) {
-      $k = 'sid';
-    }
     push @connectors, "$k=$v";
   }
   my $connectors = join(';', @connectors);
