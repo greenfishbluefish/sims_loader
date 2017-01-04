@@ -53,8 +53,11 @@ sub create_dbh_nonsqlite {
   my $conn = "host=$db{host};port=$db{port}";
   $conn .= ";sid=$db{sid}" if exists $db{sid};
 
-  my $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
-    or die "Cannot connect to $driver database: $DBI::errstr\n";
+  my $dbh = DBI->connect(
+    "dbi:$db{driver}:$conn", $db{user}, $db{pass}, {
+      PrintError => 0, RaiseError => 1,
+    },
+  ) or die "Cannot connect to $driver database: $DBI::errstr\n";
 
   my @addl = (
     '--host', $db{host},
@@ -62,22 +65,22 @@ sub create_dbh_nonsqlite {
   );
 
   # For Oracle, the username and password initially supplied will be for a
-  # service-level administrator.
+  # service-level administrator. Create a real user (and thus a schema).
   if ($driver eq 'oracle') {
-    # Oracle doesn't want the semi-colons.
-    $dbh->do("DROP USER $db{name} CASCADE");
+    # NOTE: Oracle doesn't want the semi-colons.
 
+    # This will fail the first time it's run; Oracle doesn't have 'IF EXISTS'.
+    eval { $dbh->do("DROP USER $db{name} CASCADE"); };
+
+    # Use the schema as the username/password.
     $dbh->do("CREATE USER $db{name} IDENTIFIED by $db{name}");
     $dbh->do("GRANT CONNECT, RESOURCE TO $db{name}");
-
-    # Afterwards, we use the schema as the username/password.
     $db{user} = $db{pass} = $db{name};
 
     push @addl, ( '--sid', $db{sid} ),
   }
   else {
     $dbh->do("DROP DATABASE IF EXISTS $db{name};");
-
     $dbh->do("CREATE DATABASE $db{name};");
 
     # Non-Oracle databases now want to use the newly-created DB name.
@@ -87,8 +90,11 @@ sub create_dbh_nonsqlite {
   }
   $dbh->disconnect;
 
-  $dbh = DBI->connect("dbi:$db{driver}:$conn", $db{user}, $db{pass})
-    or die "Cannot connect to $driver database: $DBI::errstr\n";
+  $dbh = DBI->connect(
+    "dbi:$db{driver}:$conn", $db{user}, $db{pass}, {
+      PrintError => 0, RaiseError => 1,
+    },
+  ) or die "Cannot connect to $driver database: $DBI::errstr\n";
 
   push @addl, (
     '--username', $db{user},

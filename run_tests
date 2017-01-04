@@ -24,6 +24,9 @@ fi
 
 if [[ "$@" == "stop" ]]; then
   docker-compose down
+
+  # Cleanup dangling volumes
+  docker volume rm $(docker volume ls -qf dangling=true)
 elif [[ "$@" == "bash" ]]; then
   docker-compose up -d datastores
 
