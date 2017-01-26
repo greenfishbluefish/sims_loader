@@ -22,14 +22,20 @@ if ! is_minimum_version $dc_version $min_dc_version; then
   exit 1
 fi
 
+function launch-datastores() {
+  # This is idempotent, so do it every time.
+  docker-compose up -d datastores
+
+  # TODO: Add waits to ensure that the databases are ready to take traffic.
+}
+
 if [[ "$@" == "stop" ]]; then
   docker-compose down
 
   # Cleanup dangling volumes
   docker volume rm $(docker volume ls -qf dangling=true)
 elif [[ "$@" == "bash" ]]; then
-  docker-compose up -d datastores
-
+  launch-datastores
   docker-compose run code bash
 elif [[ "$@" == "build" ]]; then
   for dirname in bin devops lib; do
@@ -41,12 +47,11 @@ else
   # This order is so that we can launch the databases and let them live beyond
   # any given test run.
 
-  # This is idempotent, so do it every time.
-  docker-compose up -d datastores
+  # TODO: Verify the minimum amount of RAM is available
+  # - Cannot use 'docker-machine inspect' because that shows the configuration,
+  # not the actual as set by devops/scripts/update-docker-machine.sh
 
-  # TODO: Add waits to ensure that the databases are ready to take traffic.
-
-  # Requires docker-compose >= 1.9.0 on Windows
+  launch-datastores
   if [[ "$@" == "cover" ]]; then
     docker-compose run code cover
   else

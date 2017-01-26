@@ -313,19 +313,25 @@ Every other column in those tables and any other tables (like `addresses` or any
 
 This code is at https://github.com/greenfishbluefish/sims\_loader . This is also where issues should be reported. Pull requests are greatly appreciated.
 
+## First steps
+
+The test suite runs many databases. Some (like SQLServer and Oracle) require large amounts of RAM, far more than Docker-Machine provides by default. You will need to run `devops/scripts/update-docker-machine.sh` to increase the number of CPUs and RAM appropriately.
+
+Minimum CPUs is 2. Minimum RAM is 4GB.
+
+You will need to install Docker-Compose v1.9+.
+
 ## Running the tests
 
 There is a docker-compose.yml file for running the test suite. This ensures the same environment for all test suite runners. This also provides and connects up all the databases necessary for the tests to run.
 
 As a new database type is supported, it will be added to the docker-compose.
 
-`./run_tests` will run everything. If you want to do anything more specific, youwill need to modify the docker-compose.yml file per the commented out section for entrypoint. The options are listed in the comments.
+`./run_tests` will run everything. You can pass in a set of tests to run and the tests will be limited. `./run_tests cover` will provide a full coverage analysis.
 
 ## Playing with the app
 
-`./launch_container` will launch you into an interactive shell within the container. Within that shell, you can do a `carton run bin/sims_loader` to run the script.
-
-This script is necessary because there isn't an interactive option for docker-compose on Windows.
+`./run_tests bash` will launch you into an interactive shell within the container. Within that shell, you can do a `carton run bin/sims_loader` to run the script.
 
 ## TODO list
 
