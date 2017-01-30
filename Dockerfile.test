@@ -1,16 +1,49 @@
-FROM perl:5.22
+FROM buildpack-deps:xenial
 MAINTAINER Rob Kinyon rob.kinyon@gmail.com
+
+# buildpack-deps:xenial comes with Perl 5.24.1
+#RUN apt-get update -qq \
+#    && apt-get install -y curl procps \
+#    && rm -fr /var/lib/apt/lists/*
+#
+#RUN mkdir /usr/src/perl
+#COPY devops/perl-image/5.024.000-64bit/*.patch /usr/src/perl/
+#WORKDIR /usr/src/perl
+#
+#RUN curl -SL https://cpan.metacpan.org/authors/id/R/RJ/RJBS/perl-5.24.0.tar.bz2 -o perl-5.24.0.tar.bz2 \
+#    && echo '298fa605138c1a00dab95643130ae0edab369b4d *perl-5.24.0.tar.bz2' | sha1sum -c - \
+#    && tar --strip-components=1 -xjf perl-5.24.0.tar.bz2 -C /usr/src/perl \
+#    && rm perl-5.24.0.tar.bz2 \
+#    && cat *.patch | patch -p1 \
+#    && ./Configure -Duse64bitall -Duseshrplib  -des \
+#    && make -j$(nproc) \
+#    && TEST_JOBS=$(nproc) make test_harness \
+#    && make install \
+#    && cd /usr/src \
+#    && curl -LO https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm \
+#    && chmod +x cpanm \
+#    && ./cpanm App::cpanminus \
+#    && rm -fr ./cpanm /root/.cpanm /usr/src/perl /tmp/*
+
+#WORKDIR /root
+#CMD ["perl5.24.0","-de0"]
 
 RUN apt-get update -qq \
   && apt-get install -y \
-    build-essential unzip uuid-dev \
-    libaio-dev libaio1
+    build-essential \
+    unzip \
+    uuid-dev \
+    libaio-dev \
+    libaio1 \
+    apt-transport-https \
+  && rm -fr /var/lib/apt/lists/*
 
 RUN curl -L http://cpanmin.us | perl - App::cpanminus
 RUN cpanm Carton Test2::AsyncSubtest
 
 ########
 # BEGIN Oracle section
+
 COPY "vendor/oracle/11.2/*.deb" /tmp/
 RUN dpkg -i /tmp/*.deb && rm /tmp/*.deb
 
@@ -18,7 +51,30 @@ ENV ORACLE_HOME /usr/lib/oracle/11.2/client64
 ENV PATH $PATH:$HOME/bin:$ORACLE_HOME/bin
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ORACLE_HOME/lib
 ENV TNS_ADMIN $ORACLE_HOME/network/admin
+
 # END Oracle section
+########
+
+########
+# BEGIN MSSQL section
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && apt-get update -qq \
+  && ACCEPT_EULA=Y apt-get install -y \
+    msodbcsql \
+    mssql-tools \
+    freetds-bin \
+    freetds-common \
+    freetds-dev \
+    unixodbc-dev \
+    tdsodbc \
+  && rm -fr /var/lib/apt/lists/*
+#    unixodbc \
+#    unixodbc-utf16 \
+#    unixodbc-dev-utf16 \
+
+# END MSSQL section
 ########
 
 ENV app /app

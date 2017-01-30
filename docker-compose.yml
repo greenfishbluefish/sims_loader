@@ -12,6 +12,7 @@ services:
       - mysql
       - postgres
       - oracle11
+      - sqlserver2016
   # This needs to wait for the datastores to have finished coming up and are
   # actually ready for traffic. q.v. https://github.com/vishnubob/wait-for-it
   datastores:
@@ -20,6 +21,7 @@ services:
       - mysql
       - postgres
       - oracle11
+      - sqlserver2016
   mysql:
     image: mysql
     environment:
@@ -33,3 +35,9 @@ services:
     shm_size: 1G # Necessary for Oracle databases to function. Default is 64M
     environment:
       ORACLE_ALLOW_REMOTE: 'true'
+  sqlserver2016:
+    # Requires 3.25+GB of RAM
+    image: microsoft/mssql-server-linux
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: 'Passw0rd' # userid:'sa'

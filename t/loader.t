@@ -48,6 +48,16 @@ sub build_loader {
     );
   }
 
+  if ($driver eq 'sqlserver2016') {
+    return App::SimsLoader::Loader->new(
+      type => 'ODBC',
+      sid  => $params->{'--sid'},
+      host => $params->{'--host'},
+      username => $params->{'--username'},
+      password => $params->{'--password'},
+    );
+  }
+
   die "Don't know how to build loader for $driver";
 }
 

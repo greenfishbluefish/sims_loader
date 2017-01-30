@@ -23,17 +23,22 @@ if ! is_minimum_version $dc_version $min_dc_version; then
 fi
 
 function launch-datastores() {
-  # This is idempotent, so do it every time.
+  # This is idempotent, so it is safe to do every time
   docker-compose up -d datastores
 
   # TODO: Add waits to ensure that the databases are ready to take traffic.
 }
 
 if [[ "$@" == "stop" ]]; then
+  echo "Stopping docker containers ..."
   docker-compose down
 
-  # Cleanup dangling volumes
+  echo ""
+  echo "Cleanup dangling volumes ..."
   docker volume rm $(docker volume ls -qf dangling=true)
+
+  echo ""
+  echo "Ok"
 elif [[ "$@" == "bash" ]]; then
   launch-datastores
   docker-compose run code bash

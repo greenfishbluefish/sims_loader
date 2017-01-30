@@ -31,7 +31,8 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub drivers {
-  return qw(sqlite mysql postgres oracle);
+  #return qw(sqlserver2016);
+  return qw(sqlite mysql postgres oracle);# sqlserver2016);
 }
 
 sub new_fh {
@@ -52,6 +53,7 @@ sub create_dbh_nonsqlite {
 
   my $conn = "host=$db{host};port=$db{port}";
   $conn .= ";sid=$db{sid}" if exists $db{sid};
+#$conn .= ";Driver={SQL Server};Server=sqlserver2016";
 
   my $dbh = DBI->connect(
     "dbi:$db{driver}:$conn", $db{user}, $db{pass}, {
@@ -151,6 +153,17 @@ sub create_dbh {
       pass => 'oracle',
       driver => 'Oracle',
       sid => 'xe',
+    );
+  }
+  elsif ($driver eq 'sqlserver2016') {
+    return create_dbh_nonsqlite(
+      $driver,
+      name => 'foo',
+      host => 'sqlserver2016',
+      port => '1433',
+      user => 'sa',
+      pass => 'Passw0rd',
+      driver => 'ODBC',
     );
   }
 
@@ -257,6 +270,27 @@ sub table_sql {
     }
   }
   # SQL Server: [ID] [int] IDENTITY(1,1) NOT NULL
+  elsif ($driver eq 'sqlserver2016') {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
+      if ($type->{primary}) {
+        push @columns, "[$col] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY";
+      }
+      elsif ($type->{foreign}) {
+        push @columns, "[$col] [int]";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY ($col) REFERENCES $fk_table ($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "[$col] [int]";
+      }
+      elsif ($type->{string}) {
+        push @columns, "[$col] [varchar($type->{string})]";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
   else {
     die "Don't know how to build SQL for '$driver'\n";
   }
@@ -275,6 +309,9 @@ sub table_sql {
     }
     elsif ($driver eq 'oracle') {
       push @keys, "CONSTRAINT ${name}_unique UNIQUE (@{[join ',', @$cols]})";
+    }
+    elsif ($driver eq 'sqlserver2016') {
+      push @keys, "CONSTRAINT [${name}_unique[ UNIQUE ([@{[join '],[', @$cols]}])";
     }
     else {
       die "Don't know how to build SQL for '$driver'\n";
