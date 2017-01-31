@@ -8,9 +8,8 @@ use base 'App::SimsLoader::Command';
 
 sub execute {
   my $self = shift;
-  say for map { $self->driver_to_human($_) } $self->find_dbds();
+  say for sort map { $self->driver_to_human($_) } $self->find_dbds();
 }
 
 1;
 __END__
-

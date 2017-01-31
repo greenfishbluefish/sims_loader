@@ -48,13 +48,15 @@ sub build_loader {
     );
   }
 
-  if ($driver eq 'sqlserver2016') {
+  if ($driver eq 'sqlserver') {
     return App::SimsLoader::Loader->new(
       type => 'ODBC',
-      sid  => $params->{'--sid'},
+      database => $params->{'--schema'},
       host => $params->{'--host'},
       username => $params->{'--username'},
       password => $params->{'--password'},
+      Driver => '{ODBC Driver 13 for SQL Server}',
+      Server => $params->{'--host'},
     );
   }
 

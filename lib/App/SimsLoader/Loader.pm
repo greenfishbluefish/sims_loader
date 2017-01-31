@@ -114,7 +114,6 @@ sub apply_model {
   }
 
   $self->{toposort} = { skip => \%skips };
-
 }
 
 sub new {

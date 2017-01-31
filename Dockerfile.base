@@ -1,16 +1,25 @@
-FROM perl:5.22
+# buildpack-deps:xenial comes with Perl 5.22.1
+FROM buildpack-deps:xenial
 MAINTAINER Rob Kinyon rob.kinyon@gmail.com
 
 RUN (curl -L http://cpanmin.us | perl - App::cpanminus) \
   && cpanm Carton
 
-# libaio-dev and libaio1 are necessary for the Oracle packages.
 RUN apt-get update -qq \
+  && apt-get upgrade -y \
   && apt-get install -y \
-    libaio-dev libaio1
+    build-essential \
+    unzip \
+    uuid-dev \
+    libaio-dev \
+    libaio1 \
+    apt-transport-https \
+  && rm -fr /var/lib/apt/lists/*
+
 
 ########
 # BEGIN Oracle section
+
 COPY "vendor/oracle/11.2/*.deb" /tmp/
 RUN dpkg -i /tmp/*.deb && rm /tmp/*.deb
 
@@ -18,23 +27,28 @@ ENV ORACLE_HOME /usr/lib/oracle/11.2/client64
 ENV PATH $PATH:$HOME/bin:$ORACLE_HOME/bin
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ORACLE_HOME/lib
 ENV TNS_ADMIN $ORACLE_HOME/network/admin
+
 # END Oracle section
 ########
 
-WORKDIR /app
-COPY cpanfile* LICENSE README.md ./
-RUN carton install --deployment --without test
-COPY bin/* ./bin/
-COPY lib ./lib/
+########
+# BEGIN MSSQL section
 
-COPY "devops/MyConfig.pm" "/root/.cpan/CPAN/MyConfig.pm"
-COPY "devops/packaging/within_carton" "/usr/local/bin/within_carton"
-RUN chmod +x /usr/local/bin/within_carton
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+  && curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+  && apt-get update -qq \
+  && DEBIAN_FRONTEND=noniteractive ACCEPT_EULA=Y apt-get install -y \
+    msodbcsql \
+    mssql-tools \
+    freetds-bin \
+    freetds-common \
+    freetds-dev \
+    unixodbc-dev \
+    tdsodbc \
+    locales \
+  && echo "en_US.UTF-8 UTF-8" > /etc/locale.gen \
+  && locale-gen \
+  && rm -fr /var/lib/apt/lists/*
 
-COPY "Dockerfile.base" "/opt/docker/Dockerfile"
-COPY "Changes" "/opt/docker/Changes"
-
-WORKDIR /data
-
-ENTRYPOINT [ "/usr/local/bin/within_carton" ]
-CMD [ "-h" ]
+# END MSSQL section
+########

@@ -5,6 +5,8 @@ export COMPOSE_CONVERT_WINDOWS_PATHS=1
 DIR=$(git rev-parse --show-toplevel)
 cd $DIR
 
+source "$DIR/devops/packaging/functions.sh"
+
 # q.v. http://stackoverflow.com/a/24067243/1732954
 function is_minimum_version () {
   [[ "$1" == "$2" ]] && return 0
@@ -43,9 +45,8 @@ elif [[ "$@" == "bash" ]]; then
   launch-datastores
   docker-compose run code bash
 elif [[ "$@" == "build" ]]; then
-  for dirname in bin devops lib; do
-    find $DIR/$dirname -type f -exec dos2unix -q {} \;
-  done
+  cleanup-line-endings
+  build-base
 
   docker-compose build
 else
