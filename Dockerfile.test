@@ -1,8 +1,6 @@
 FROM robkinyon/sims_loader_base:latest
 MAINTAINER Rob Kinyon rob.kinyon@gmail.com
 
-RUN cpanm Test2::AsyncSubtest
-
 ENV app /app
 RUN mkdir -p $app
 WORKDIR $app

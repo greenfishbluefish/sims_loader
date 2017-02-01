@@ -3,7 +3,7 @@ MAINTAINER Rob Kinyon rob.kinyon@gmail.com
 
 WORKDIR /app
 COPY cpanfile* LICENSE README.md ./
-RUN carton install --deployment --without test
+RUN carton install --without test # --deployment
 COPY bin/* ./bin/
 COPY lib ./lib/
 

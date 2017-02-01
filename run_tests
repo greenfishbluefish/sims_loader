@@ -52,13 +52,16 @@ elif [[ "$@" == "build" ]]; then
 else
   # This order is so that we can launch the databases and let them live beyond
   # any given test run.
+  launch-datastores
 
   # TODO: Verify the minimum amount of RAM is available
   # - Cannot use 'docker-machine inspect' because that shows the configuration,
   # not the actual as set by devops/scripts/update-docker-machine.sh
 
-  launch-datastores
-  if [[ "$@" == "cover" ]]; then
+  if [[ "$1" == "integration" ]]; then
+    shift
+    docker-compose run --entrypoint bash integration prove $@
+  elif [[ "$@" == "cover" ]]; then
     docker-compose run code cover
   else
     docker-compose run code prove $@

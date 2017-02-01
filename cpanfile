@@ -45,6 +45,7 @@ requires 'DBD::ODBC';
 on test => sub {
   requires 'App::Cmd::Tester';
   requires 'Test2::Bundle::Extended';
+  requires 'Test2::AsyncSubtest';
   requires 'Test2::Tools::AsyncSubtest';
   requires 'Test::Compile';
   requires 'Devel::Cover';
