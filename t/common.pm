@@ -31,7 +31,7 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub drivers {
-  return qw(sqlite mysql postgres oracle);
+  return qw(sqlite mysql postgres oracle sqlserver);
 }
 
 sub new_fh {
@@ -51,7 +51,9 @@ sub create_dbh_nonsqlite {
   my ($driver, %db) = @_;
 
   my $conn = "host=$db{host};port=$db{port}";
-  $conn .= ";sid=$db{sid}" if exists $db{sid};
+  foreach my $addl (qw(sid Driver Server)) {
+    $conn .= ";$addl=$db{$addl}" if exists $db{$addl};
+  }
 
   my $dbh = DBI->connect(
     "dbi:$db{driver}:$conn", $db{user}, $db{pass}, {
@@ -151,6 +153,19 @@ sub create_dbh {
       pass => 'oracle',
       driver => 'Oracle',
       sid => 'xe',
+    );
+  }
+  elsif ($driver eq 'sqlserver') {
+    return create_dbh_nonsqlite(
+      $driver,
+      name => 'foo',
+      host => 'sqlserver2016',
+      port => '1433',
+      user => 'sa',
+      pass => 'Passw0rd',
+      driver => 'ODBC',
+      Driver => '{ODBC Driver 13 for SQL Server}',
+      Server => 'sqlserver2016',
     );
   }
 
@@ -256,7 +271,27 @@ sub table_sql {
       }
     }
   }
-  # SQL Server: [ID] [int] IDENTITY(1,1) NOT NULL
+  elsif ($driver eq 'sqlserver') {
+    while (my ($col, $type) = each %{$defn->{columns}//{}}) {
+      if ($type->{primary}) {
+        push @columns, "[$col] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY";
+      }
+      elsif ($type->{foreign}) {
+        push @columns, "[$col] [int]";
+        my ($fk_table, $fk_col) = split('\.', $type->{foreign});
+        push @keys, "FOREIGN KEY ($col) REFERENCES $fk_table ($fk_col)";
+      }
+      elsif ($type->{integer}) {
+        push @columns, "[$col] [int]";
+      }
+      elsif ($type->{string}) {
+        push @columns, "[$col] [varchar]($type->{string})";
+      }
+      if ($type->{not_null}) {
+        $columns[-1] .= " NOT NULL";
+      }
+    }
+  }
   else {
     die "Don't know how to build SQL for '$driver'\n";
   }
@@ -276,6 +311,9 @@ sub table_sql {
     elsif ($driver eq 'oracle') {
       push @keys, "CONSTRAINT ${name}_unique UNIQUE (@{[join ',', @$cols]})";
     }
+    elsif ($driver eq 'sqlserver') {
+      push @keys, "CONSTRAINT [${name}_unique] UNIQUE ([@{[join '],[', @$cols]}])";
+    }
     else {
       die "Don't know how to build SQL for '$driver'\n";
     }
@@ -286,7 +324,7 @@ sub table_sql {
   $sql .= ");";
 
   # Postgres doesn't like backticks
-  if ($driver eq 'postgres') {
+  if ($driver eq 'postgres' || $driver eq 'sqlserver') {
     $sql =~ s/`//g;
   }
   # Oracle doesn't like backticks or semi-colons

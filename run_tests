@@ -5,6 +5,8 @@ export COMPOSE_CONVERT_WINDOWS_PATHS=1
 DIR=$(git rev-parse --show-toplevel)
 cd $DIR
 
+source "$DIR/devops/packaging/functions.sh"
+
 # q.v. http://stackoverflow.com/a/24067243/1732954
 function is_minimum_version () {
   [[ "$1" == "$2" ]] && return 0
@@ -23,36 +25,43 @@ if ! is_minimum_version $dc_version $min_dc_version; then
 fi
 
 function launch-datastores() {
-  # This is idempotent, so do it every time.
+  # This is idempotent, so it is safe to do every time
   docker-compose up -d datastores
 
   # TODO: Add waits to ensure that the databases are ready to take traffic.
 }
 
 if [[ "$@" == "stop" ]]; then
+  echo "Stopping docker containers ..."
   docker-compose down
 
-  # Cleanup dangling volumes
+  echo ""
+  echo "Cleanup dangling volumes ..."
   docker volume rm $(docker volume ls -qf dangling=true)
+
+  echo ""
+  echo "Ok"
 elif [[ "$@" == "bash" ]]; then
   launch-datastores
   docker-compose run code bash
 elif [[ "$@" == "build" ]]; then
-  for dirname in bin devops lib; do
-    find $DIR/$dirname -type f -exec dos2unix -q {} \;
-  done
+  cleanup-line-endings
+  build-base
 
   docker-compose build
 else
   # This order is so that we can launch the databases and let them live beyond
   # any given test run.
+  launch-datastores
 
   # TODO: Verify the minimum amount of RAM is available
   # - Cannot use 'docker-machine inspect' because that shows the configuration,
   # not the actual as set by devops/scripts/update-docker-machine.sh
 
-  launch-datastores
-  if [[ "$@" == "cover" ]]; then
+  if [[ "$1" == "integration" ]]; then
+    shift
+    docker-compose run --entrypoint bash integration prove $@
+  elif [[ "$@" == "cover" ]]; then
     docker-compose run code cover
   else
     docker-compose run code prove $@

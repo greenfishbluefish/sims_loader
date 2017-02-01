@@ -32,9 +32,8 @@
 [ ] Test with dates (may need auto-inflation)
 [ ] Add support for these databases in the docker-compose.yml
     [ ] Sybase (same as SQL*Server?)
-    [ ] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
-        * docker pull microsoft/mssql-server-linux
-        * docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<YourStrong!Passw0rd>' -p 1433:1433 -d microsoft/mssql-server-linux
+    [/] SQL*Server (https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-docker)
+        * http://www.freetds.org/userguide/choosingtdsprotocol.htm
     [ ] MariaDB (same as mysql?)
 [ ] Test with database-specific column types
     [ ] Postgres JSON

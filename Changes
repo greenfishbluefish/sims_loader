@@ -1,5 +1,12 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000010
+  - Upgrade dependencies:
+    - Base container updated from debian-jessie8 to ubuntu-xenial (16.04)
+  - Add support for SQLServer
+    - This required setting the internal locale to be "en_US.UTF-8 UTF-8"
+  - Ensure the 'drivers' command returns sorted in all cases.
+
 0.000009
   - Upgrade dependencies:
     - DBIx::Class::Sims 0.300500 -> 0.300501.

@@ -88,6 +88,7 @@ sub opt_spec_for {
 {
   my %perl_to_human = (
     Pg => 'postgres',
+    ODBC => 'sqlserver',
   );
   sub driver_to_human {
     shift;
@@ -257,6 +258,57 @@ sub validate_connection {
       sid  => $opts->{sid},
       username => $opts->{username} // '',
       password => $opts->{password} // '',
+    };
+  }
+  elsif ($self->{driver} eq 'ODBC') {
+    my $port = $opts->{port} // 1433;
+
+    # Use Net::Telnet to determine if we can even connect to the database host.
+    # This allows us to fail fast with a 1 second timeout.
+    eval {
+      Net::Telnet->new(
+        -host => $opts->{host},
+        -port => $port,
+        -timeout => 1,
+      );
+    }; if ($@) {
+      $self->usage_error("--host '$opts->{host}:$port' not found");
+    }
+
+    my $dbh = eval {
+      my $cn = "dbi:$self->{driver}:host=$opts->{host};port=$port;Driver={ODBC Driver 13 for SQL Server};Server=$opts->{host}";
+      $cn .= ";database=$opts->{schema}" if defined $opts->{schema};
+      DBI->connect(
+        $cn, $opts->{username} // '', $opts->{password} // '', {
+          PrintError => 0,
+          RaiseError => 1,
+        },
+      );
+    }; if ($@) {
+      if ($@ =~ /Access denied/) {
+        $self->usage_error("Access denied for $opts->{username}");
+      }
+      elsif ($@ =~ /Unknown database/) {
+        $self->usage_error("Unknown schema $opts->{schema}");
+      }
+      else {
+        $self->usage_error("Cannot connect to database: $@");
+      }
+    }
+
+    my @tables = $dbh->tables();
+    unless (@tables) {
+      $self->usage_error("Schema @{[$opts->{schema} // '']} has no tables");
+    }
+
+    $self->{params} = {
+      host => $opts->{host},
+      Driver => '{ODBC Driver 13 for SQL Server}',
+      Server => $opts->{host},
+      port => $port,
+      username => $opts->{username} // '',
+      password => $opts->{password} // '',
+      database => $opts->{schema} // '',
     };
   }
   else {
