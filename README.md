@@ -329,6 +329,8 @@ As a new database type is supported, it will be added to the docker-compose.
 
 `./run_tests` will run everything. You can pass in a set of tests to run and the tests will be limited. `./run_tests cover` will provide a full coverage analysis.
 
+Because of the SQLServer tests, your Docker daemon must be provided with at least 4G of RAM or the tests will fail. 8G is recommended for performance. When running with Docker Toolbox, you will need to modify or rebuild the Virtualbox VM that Docker is running inside.
+
 ## Playing with the app
 
 `./run_tests bash` will launch you into an interactive shell within the container. Within that shell, you can do a `carton run bin/sims_loader` to run the script.
