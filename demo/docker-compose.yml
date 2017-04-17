@@ -1,0 +1,18 @@
+version: '2'
+services:
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    restart: unless-stopped
+#    network_mode: "host"
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 'password'
+    restart: unless-stopped
+#    network_mode: "host"

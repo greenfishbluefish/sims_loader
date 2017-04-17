@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# This is a hack around an issue with Ruby invoking Docker and pathnames in
+# Windows. This problem doesn't happen in Linux or with Perl. This is partly
+# because Ruby doesn't respect MSYS_NO_PATHCONV.
+volume=${SIMSLOADER_VOLUME:-$(pwd)}
+
+MSYS_NO_PATHCONV=1 \
+  docker run --rm \
+    --volume ${volume}:/data \
+    robkinyon/sims_loader:0.000010 \
+      $@

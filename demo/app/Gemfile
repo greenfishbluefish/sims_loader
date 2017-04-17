@@ -1,0 +1,11 @@
+source 'http://rubygems.org'
+
+group :test do
+#  gem 'capybara'
+#  gem 'capybara-mechanize'
+  gem 'rake'
+  gem 'rspec'
+  gem 'rspec-core'
+#  gem 'selenium-webdriver'
+#  gem 'chromedriver-helper'
+end

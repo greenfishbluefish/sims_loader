@@ -1,0 +1,16 @@
+require 'bundler/setup'
+
+Bundler.require(:test)
+
+require 'rspec/core/rake_task'  
+
+task default: %w[spec]
+
+desc "Tests"
+task :spec do
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    ENV['MSYS_NO_PATHCONV'] = '1'
+    ENV['PATH'] = "#{ENV['PATH']}:.."
+    t.verbose = false
+  end
+end

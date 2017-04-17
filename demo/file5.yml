@@ -1,0 +1,6 @@
+address:
+  city: Palo Alto
+  state: CA
+  users:
+    - name: Tim Cook
+    - name: Bob Cook

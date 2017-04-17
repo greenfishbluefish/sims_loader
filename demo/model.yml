@@ -1,0 +1,14 @@
+address:
+  columns:
+    address:
+      type: us_address
+    city:
+      type: us_city
+    state:
+      type: us_state
+    zipcode:
+      type: us_zipcode
+user:
+  columns:
+    name:
+      type: us_name

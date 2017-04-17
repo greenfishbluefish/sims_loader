@@ -1,0 +1,9 @@
+user:
+- name: Bob Smith
+  address:
+    city: Columbus
+    state: OH
+- name: Jane Doe
+  address:
+    city: Cleveland
+    state: OH
