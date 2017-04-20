@@ -9,9 +9,10 @@ requires 'Params::Util';
 requires 'Params::Validate';
 
 # Modules necessary for overall functionality
-requires 'DBIx::Class::Sims', '>= 0.300501';
+requires 'DBIx::Class::Sims', '>= 0.300700';
   requires 'Data::Compare'; # Needed for DBIC::Sims to install?
 requires 'DBIx::Class::Schema::Loader::Dynamic';
+requires 'DBIx::Class::Sims::Type::Date', '>= 0.000001';
 requires 'App::Cmd';
 
 # Modules necessary for basic functionality
@@ -24,9 +25,11 @@ requires 'YAML::XS';
 
 # SQLite
 requires 'DBD::SQLite';
+requires 'DateTime::Format::SQLite';
 
 # MySQL
 requires 'DBD::mysql';
+requires 'DateTime::Format::MySQL';
 
 # Postgres
 requires 'DBD::Pg';
@@ -39,6 +42,7 @@ requires 'Math::Base36', '>= 0.07';
 
 # SQLServer
 requires 'DBD::ODBC';
+requires 'DateTime::Format::MSSQL';
 #
 ########
 

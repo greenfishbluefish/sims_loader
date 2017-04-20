@@ -1,5 +1,11 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000011
+  - Add date/time types
+  - Upgrade dependencies:
+    - DBIx::Class::Sims 0.300501 -> 0.300700.
+    - DBIx::Class::Sims::Type::Date nil -> 0.000001
+
 0.000010
   - Upgrade dependencies:
     - Base container updated from debian-jessie8 to ubuntu-xenial (16.04)

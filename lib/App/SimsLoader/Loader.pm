@@ -13,6 +13,7 @@ use DBIx::Class::Schema::Loader::Dynamic;
   use strictures 2;
   use base 'DBIx::Class::Schema';
   __PACKAGE__->load_components('Sims');
+  __PACKAGE__->load_components('Sims::Type::Date');
 }
 
 sub apply_model {

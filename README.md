@@ -210,6 +210,11 @@ None
 
 A list of Sims types, one per line.
 
+Some types have a 'N' in them. For example, `date_in_past_N_years`. These types
+are meant to be used with a number in place of N. For example, you would use
+`date_in_past_10_years`. Using the type `date_in_past_N_years` will result in an
+error.
+
 ## model
 
 This will provide all information that the Sims Loader has about the database you have connected to.
