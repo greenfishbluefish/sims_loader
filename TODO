@@ -7,6 +7,8 @@
     [ ] Make Oracle11 support those minimums
 [ ] Add support for oracle12 and oracle10 in addition to oracle11
 [ ] Improve launch script to detect loopback and substitute a better address
+[ ] Convert base image from ubuntu-xenial to alpine
+    * https://github.com/gliderlabs/docker-alpine/issues/11
 [ ] Determine why lack of network causes a 10+ second delay in execution
 [ ] model file modifying DBIC::SL
     [ ] Relationships (has_many / belongs_to)
