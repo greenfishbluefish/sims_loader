@@ -3,8 +3,12 @@
     [X] Accept the seed
     [ ] Test reuse of the seed (Blocked on retrieving values from fork_subtest)
         * https://gist.github.com/exodist/42732aa8e63c492d9d20ca1465d84880
-[ ] Add enforcement of performance minimums
-    [ ] Make Oracle11 support those minimums
+[ ] Make Oracle11 run under 4 seconds like all other drivers
+    * Root cause is $self->dbh->foreign_key_info() takes 7-8 seconds per table
+        * Called from ::DBI->_table_fk_info(), called from:
+            * ::Base->_setup_src_meta()
+            * ::Base->_load_relationships() (could be cached?)
+    * Is still ~4 seconds even with "_disable_fk_detection => 1"
 [ ] Add support for oracle12 and oracle10 in addition to oracle11
 [ ] Improve launch script to detect loopback and substitute a better address
 [ ] Convert base image from ubuntu-xenial to alpine
@@ -143,3 +147,4 @@ load_sims CMD \
 [X] Rename tests to remove /^\d\d_/
 [X] Write documentation
 [X] Write documentation re: loopback not working
+[X] Add enforcement of performance minimums

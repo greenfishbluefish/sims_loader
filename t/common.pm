@@ -25,6 +25,7 @@ use File::Temp qw( tempfile tempdir );
 use Fcntl qw( :flock );
 use Test2::Bundle::Extended;
 use Test2::Tools::AsyncSubtest;
+use Time::HiRes qw(gettimeofday tv_interval);
 use YAML::Any qw(Dump Load);
 
 my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
@@ -392,7 +393,9 @@ sub run_test ($$) {
     # Allow specified parameters to override auto-generated parameters
     push @parameters, @{$options->{parameters} // []};
 
+    my $t0 = [gettimeofday];
     my $result = test_app('App::SimsLoader' => \@parameters);
+    my $elapsed = tv_interval($t0);
 
     foreach my $stream (qw(stdout stderr)) {
       $options->{$stream} //= '';
@@ -421,6 +424,9 @@ sub run_test ($$) {
     else {
       is($result->error, undef, 'No errors (as expected)');
     }
+
+    my $max = ($options->{driver} // '') eq 'oracle' ? 24 : 4;
+    cmp_ok($elapsed, '<=', $max, "Runtime of $elapsed <= $max seconds");
   })->finish;
 }
 

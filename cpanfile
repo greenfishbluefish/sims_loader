@@ -58,4 +58,5 @@ on test => sub {
   requires 'indirect';
   requires 'multidimensional';
   requires 'bareword::filehandles';
+  requires 'Time::HiRes';
 };
