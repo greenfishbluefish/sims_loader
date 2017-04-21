@@ -2,10 +2,6 @@
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
-## What is this repository for? ##
-
-This contains the ICC demo(s) of [SimsLoader](https://hub.docker.com/r/robkinyon/sims_loader/).
-
 ## How do I get set up? ##
 
 This demo consists of several Bash scripts and your favorite DB GUI viewer. These Bash scripts will provide a basic default setup.
@@ -53,14 +49,3 @@ The demo consists of doing the following steps:
   * Demonstrate how a child relationship can be traversed
   * Demonstrate that only the row created is returned
   * Show the relationship name and how it does plural
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
