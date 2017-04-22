@@ -8,7 +8,7 @@ shift
 $DIR/run \
   $subcmd \
   --driver mysql \
-  --host 192.168.99.100 \
+  --host 172.17.0.3 \
   --username root \
   --schema demo \
     $@

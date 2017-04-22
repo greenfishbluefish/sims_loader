@@ -314,6 +314,22 @@ This will create a lineitem for an item with name "Small Airplane" that costs $4
 
 Every other column in those tables and any other tables (like `addresses` or any lookup tables) that are needed to satisfy any other foreign keys will be auto-generated. They're not specified here because our use-case (like a test) doesn't care about those values.
 
+# Examples
+
+## Setting a type in a specification
+
+This is most useful for seting dates and timestamps.
+
+```
+invoices:
+  sold_on:
+    type: timestamp_in_past_2_years
+  amount: 212.43
+```
+
+This creates a row in the `invoices` table with an `amount` of 212.43 and a
+`sold_on` timestamp within the past two years.
+
 # Contributing
 
 This code is at https://github.com/greenfishbluefish/sims\_loader . This is also where issues should be reported. Pull requests are greatly appreciated.

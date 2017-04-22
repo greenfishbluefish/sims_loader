@@ -148,3 +148,4 @@ load_sims CMD \
 [X] Write documentation
 [X] Write documentation re: loopback not working
 [X] Add enforcement of performance minimums
+[X] Support setting the type in the specification

@@ -1,5 +1,10 @@
 Revision history for SimsLoader (ordered by revision number).
 
+0.000012
+  - Enable setting the type in the specification.
+  - Upgrade dependencies:
+    - DBIx::Class::Sims 0.300700 -> 0.300800.
+
 0.000011
   - Add date/time types
   - Upgrade dependencies:

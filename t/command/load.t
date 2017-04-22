@@ -303,6 +303,31 @@ foreach my $driver (drivers()) {
       },
     },
   };
+
+  success "$driver: specify a simmed type" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      });
+    },
+    specification => "
+    artists:
+      name:
+        type: us_firstname
+    ",
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => match(qr/^\w+$/) },
+        ],
+      },
+    },
+  };
 }
 
 done_testing;

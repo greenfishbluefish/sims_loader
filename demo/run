@@ -8,5 +8,5 @@ volume=${SIMSLOADER_VOLUME:-$(pwd)}
 MSYS_NO_PATHCONV=1 \
   docker run --rm \
     --volume ${volume}:/data \
-    robkinyon/sims_loader:0.000010 \
+    robkinyon/sims_loader:latest \
       $@

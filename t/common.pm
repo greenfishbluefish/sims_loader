@@ -23,6 +23,7 @@ use DBI;
 use File::Spec ();
 use File::Temp qw( tempfile tempdir );
 use Fcntl qw( :flock );
+use Scalar::Util qw( reftype );
 use Test2::Bundle::Extended;
 use Test2::Tools::AsyncSubtest;
 use Time::HiRes qw(gettimeofday tv_interval);
@@ -376,7 +377,15 @@ sub run_test ($$) {
 
     if ($options->{specification}) {
       my ($fh, $fn) = new_fh();
-      print $fh Dump($options->{specification});
+
+      # We could receive either a data structure or a string of YAML.
+      if (reftype($options->{specification})) {
+        print $fh Dump($options->{specification});
+      }
+      else {
+        print $fh $options->{specification};
+      }
+
       close $fh;
 
       push @parameters, '--specification', $fn;

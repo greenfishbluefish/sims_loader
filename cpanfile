@@ -9,7 +9,7 @@ requires 'Params::Util';
 requires 'Params::Validate';
 
 # Modules necessary for overall functionality
-requires 'DBIx::Class::Sims', '>= 0.300700';
+requires 'DBIx::Class::Sims', '>= 0.300800';
   requires 'Data::Compare'; # Needed for DBIC::Sims to install?
 requires 'DBIx::Class::Schema::Loader::Dynamic';
 requires 'DBIx::Class::Sims::Type::Date', '>= 0.000001';
