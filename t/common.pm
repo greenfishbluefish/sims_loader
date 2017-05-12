@@ -33,6 +33,7 @@ my $parent = $ENV{WORK_DIR} || File::Spec->tmpdir;
 our $dir = tempdir( CLEANUP => 1, DIR => $parent );
 
 sub drivers {
+  return qw(mysql);
   return qw(sqlite mysql postgres oracle sqlserver);
 }
 
@@ -432,6 +433,12 @@ sub run_test ($$) {
     }
     else {
       is($result->error, undef, 'No errors (as expected)');
+    }
+
+    if ($options->{post_verification}) {
+      my ($dbh, $addl_params) = create_dbh($options);
+      $options->{post_verification}->($dbh);
+      $dbh->disconnect;
     }
 
     my $max = ($options->{driver} // '') eq 'oracle' ? 24 : 4;

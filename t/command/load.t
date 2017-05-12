@@ -19,6 +19,7 @@ use t::common_tests qw(
 
 my $cmd = 'load';
 
+=pod
 failures_all_drivers($cmd);
 
 foreach my $driver (drivers()) {
@@ -85,8 +86,10 @@ foreach my $driver (drivers()) {
     }
   };
 }
+=cut
 
 foreach my $driver (drivers()) {
+=pod
   success "$driver: Load one row specifying everything" => {
     command => $cmd,
     driver => $driver,
@@ -326,6 +329,82 @@ foreach my $driver (drivers()) {
           { id => 1, name => match(qr/^\w+$/) },
         ],
       },
+    },
+  };
+=cut
+
+  success "$driver: insert into a M2M relationship" => {
+    command => $cmd,
+    driver => $driver,
+    database => sub {
+      my $dbh = shift;
+      table_sql($driver, $dbh, artists => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      });
+      table_sql($driver, $dbh, studios => {
+        id => { primary => 1 },
+        name => { string => 255, not_null => 1 },
+      });
+      table_sql($driver, $dbh, artist_x_studio => {
+        id => { primary => 1 },
+        artist_id => { foreign => 'artists.id' },
+        studio_id => { foreign => 'studios.id' },
+      });
+    },
+#    model => {
+#      artists => {
+#        many_to_many => {
+#          a
+#        },
+#      },
+#    },
+    specification => {
+      artists => {
+        name => 'Boy George',
+#        studios => [
+#          { name => 'Studio Red' },
+#          { name => 'Studio Blue' },
+#        ],
+      },
+      studios => {
+        name => 'Studio Red',
+#        artists => [
+#          { name => 'Boy George' },
+#          { name => 'Girl George' },
+#        ],
+      },
+    },
+    yaml_out => {
+      seed => D(),
+      rows => {
+        artists => [
+          { id => 1, name => 'Boy George' },
+        ],
+        studios => [
+          { id => 1, name => 'Studio Red' },
+        ],
+      },
+    },
+    post_verification => sub {
+      my $dbh = shift;
+
+      my $rows;
+
+      $rows = $dbh->selectall_arrayref(
+        'SELECT * FROM artists', { Slice => {} },
+      );
+      ok( 0 + @$rows == 1, 'Have the right number of rows in artists');
+
+      $rows = $dbh->selectall_arrayref(
+        'SELECT * FROM studios', { Slice => {} },
+      );
+      ok( 0 + @$rows == 1, 'Have the right number of rows in studios');
+
+      $rows = $dbh->selectall_arrayref(
+        'SELECT * FROM artist_x_studio', { Slice => {} },
+      );
+      ok( 0 + @$rows == 1, 'Have the right number of rows in artist_x_studio');
     },
   };
 }
